@@ -10,7 +10,7 @@
 
 ### Features
 
-* **json-schema-form:** add validation mode & reset on schema change props ([#1073](https://github.com/cloudforet-io/spaceone-design-system/issues/1073)) ([13fa833](https://github.com/cloudforet-io/mirinae/commit/13fa8332c6b25ab53ce9fbf1df62b1157d0bf4be))
+* **json-schema-form:** add validation mode & reset on schema change props ([#1073](https://github.com/cloudforet-io/mirinae/issues/1073)) ([13fa833](https://github.com/cloudforet-io/mirinae/commit/13fa8332c6b25ab53ce9fbf1df62b1157d0bf4be))
 
 # [1.1.0-beta.380](https://github.com/cloudforet-io/mirinae/compare/v1.1.0-beta.379...v1.1.0-beta.380) (2022-09-02)
 
@@ -2827,4 +2827,4 @@
 
 # 1.0.0 (2021-05-13)
 
-SpaceONE Design System released as version 1.0.0
+Mirinae Design System released as version 1.0.0
