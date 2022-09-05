@@ -39,7 +39,7 @@
 
 ## 👨‍👩‍👧 Author
 
-See our [OWNERS](https://github.com/spaceone-dev/spaceone-design-system/blob/master/AUTHORS) file.
+See our [OWNERS](https://github.com/cloudforet-io/mirinae/blob/master/AUTHORS) file.
 
 <br/>
 <br/>
