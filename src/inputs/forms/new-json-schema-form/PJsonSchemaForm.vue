@@ -1,5 +1,5 @@
 <template>
-    <div class="p-json-schema-form">
+    <form class="p-json-schema-form">
         <p-field-group v-for="schemaProperty in schemaProperties"
                        :key="`field-${contextKey}-${schemaProperty.id}`"
                        class="input-form-wrapper"
@@ -14,11 +14,13 @@
                               :type="getInputTypeBySchemaProperty(schemaProperty)"
                               :invalid="invalid"
                               :placeholder="getInputPlaceholderBySchemaProperty(schemaProperty)"
+                              :masking-mode="getInputTypeBySchemaProperty(schemaProperty) === 'password'"
+                              autocomplete="off"
                               @input="handleTextInput(schemaProperty, ...arguments)"
                 />
             </template>
         </p-field-group>
-    </div>
+    </form>
 </template>
 
 <script lang="ts">
@@ -27,6 +29,8 @@ import {
     computed, defineComponent, reactive, toRefs, watch,
 } from '@vue/composition-api';
 
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 import { isEmpty } from 'lodash';
 
 import PFieldGroup from '@/inputs/forms/field-group/PFieldGroup.vue';
@@ -47,7 +51,6 @@ import { useValidation } from '@/inputs/forms/new-json-schema-form/validation';
 import PTextInput from '@/inputs/input/PTextInput.vue';
 import type { SupportLanguage } from '@/translations';
 import { supportLanguages } from '@/translations';
-
 
 export default defineComponent<JsonSchemaFormProps>({
     name: 'PJsonSchemaForm',
@@ -80,6 +83,11 @@ export default defineComponent<JsonSchemaFormProps>({
         },
     },
     setup(props, { emit }) {
+        const ajv = new Ajv({
+            allErrors: true,
+        });
+        addFormats(ajv);
+
         const state = reactive({
             schemaProperties: computed<InnerJsonSchema[]>(() => {
                 const properties: object|undefined = props.schema?.properties;
@@ -101,10 +109,13 @@ export default defineComponent<JsonSchemaFormProps>({
             invalidMessages, validatorErrors, inputOccurred,
             validateFormData, getPropertyInvalidState,
         } = useValidation(props, {
-            localize, formData: computed(() => state.proxyFormData),
+            ajv,
+            formData: computed(() => state.proxyFormData),
+            localize,
         });
 
         const getInputTypeBySchemaProperty = (schemaProperty: InnerJsonSchema) => {
+            if (schemaProperty.format === 'password') return 'password';
             if (schemaProperty.type === 'string') return 'text';
             if (NUMERIC_TYPES.includes(schemaProperty.type)) return 'number';
             return 'text';
