@@ -9,12 +9,12 @@
                        :invalid-text="invalidMessages[schemaProperty.id]"
         >
             <template #default="{invalid}">
-                <p-text-input v-if="TEXT_INPUT_TYPES.includes(schemaProperty.type)"
+                <p-text-input v-if="TEXT_INPUT_TYPES.includes(schemaProperty.inputType)"
                               :value="proxyFormData[schemaProperty.id]"
-                              :type="getInputTypeBySchemaProperty(schemaProperty)"
+                              :type="schemaProperty.inputType"
                               :invalid="invalid"
-                              :placeholder="getInputPlaceholderBySchemaProperty(schemaProperty)"
-                              :masking-mode="getInputTypeBySchemaProperty(schemaProperty) === 'password'"
+                              :placeholder="schemaProperty.inputPlaceholder"
+                              :masking-mode="schemaProperty.inputType === 'password'"
                               autocomplete="off"
                               @input="handleTextInput(schemaProperty, ...arguments)"
                 />
@@ -35,8 +35,9 @@ import { isEmpty } from 'lodash';
 
 import PFieldGroup from '@/inputs/forms/field-group/PFieldGroup.vue';
 import {
+    getInputPlaceholderBySchemaProperty,
+    getInputTypeBySchemaProperty,
     initFormDataWithSchema,
-    NUMERIC_TYPES,
     refineValueByProperty,
 } from '@/inputs/forms/new-json-schema-form/helper';
 import { useLocalize } from '@/inputs/forms/new-json-schema-form/localize';
@@ -92,10 +93,15 @@ export default defineComponent<JsonSchemaFormProps>({
             schemaProperties: computed<InnerJsonSchema[]>(() => {
                 const properties: object|undefined = props.schema?.properties;
                 if (properties && !isEmpty(properties)) {
-                    return Object.entries(properties).map(([k, v]) => ({
-                        ...v,
-                        id: k,
-                    }));
+                    return Object.entries(properties).map(([k, schemaProperty]) => {
+                        const refined: InnerJsonSchema = {
+                            ...schemaProperty,
+                            id: k,
+                            inputType: getInputTypeBySchemaProperty(schemaProperty),
+                            inputPlaceholder: getInputPlaceholderBySchemaProperty(schemaProperty),
+                        };
+                        return refined;
+                    });
                 }
                 return [];
             }),
@@ -114,13 +120,6 @@ export default defineComponent<JsonSchemaFormProps>({
             localize,
         });
 
-        const getInputTypeBySchemaProperty = (schemaProperty: InnerJsonSchema) => {
-            if (schemaProperty.format === 'password') return 'password';
-            if (schemaProperty.type === 'string') return 'text';
-            if (NUMERIC_TYPES.includes(schemaProperty.type)) return 'number';
-            return 'text';
-        };
-        const getInputPlaceholderBySchemaProperty = (schemaProperty: InnerJsonSchema) => schemaProperty.examples?.[0] ?? '';
         const setFormData = (formData: object = {}) => {
             const newFormData = {};
             state.schemaProperties.forEach(({ id }) => {
@@ -164,8 +163,6 @@ export default defineComponent<JsonSchemaFormProps>({
         return {
             ...toRefs(state),
             invalidMessages,
-            getInputTypeBySchemaProperty,
-            getInputPlaceholderBySchemaProperty,
             getPropertyInvalidState,
             handleTextInput,
             TEXT_INPUT_TYPES,
