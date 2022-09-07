@@ -65,7 +65,7 @@ https://www.amcharts.com/online-store/licenses-explained/
 ### 1. Install
 
 ```shell
-npm install @spaceone/design-system vue @vue/composition-api vue-router vue-i18n vue-fragment @amcharts
+npm install @spaceone/design-system vue vue-router vue-i18n vue-fragment @amcharts
 ```
 
 ### 2. Set plugin
