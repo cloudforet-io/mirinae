@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import type { WatchStopHandle } from 'vue';
+import type { PropType, WatchStopHandle } from 'vue';
 import {
     computed, defineComponent, onMounted, onUnmounted, reactive, toRefs, watch,
 } from 'vue';
@@ -134,7 +134,8 @@ export default defineComponent({
             default: false,
         },
         keyItemSets: {
-            type: Array,
+            // FIXME:: below any type
+            type: Array as PropType<any>,
             default: () => [],
         },
         valueHandlerMap: {

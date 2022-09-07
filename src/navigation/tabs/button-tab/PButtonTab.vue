@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import {
     computed, defineComponent, reactive, toRefs,
 } from 'vue';
@@ -41,7 +42,8 @@ export default defineComponent({
     },
     props: {
         tabs: {
-            type: Array,
+            // FIXME:: below any type
+            type: Array as PropType<any>,
             default: () => [],
         },
         activeTab: {
