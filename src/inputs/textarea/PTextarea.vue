@@ -7,10 +7,10 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from '@vue/composition-api';
+import type { ComponentRenderProxy } from 'vue';
 import {
     defineComponent, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
+} from 'vue';
 
 import { makeOptionalProxy } from '@/util/composition-helpers';
 

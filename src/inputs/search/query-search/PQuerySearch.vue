@@ -62,10 +62,10 @@
 </template>
 
 <script lang="ts">
-import type { WatchStopHandle } from '@vue/composition-api';
+import type { WatchStopHandle } from 'vue';
 import {
     computed, defineComponent, onMounted, onUnmounted, reactive, toRefs, watch,
-} from '@vue/composition-api';
+} from 'vue';
 
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';

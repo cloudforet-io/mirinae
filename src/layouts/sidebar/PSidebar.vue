@@ -34,7 +34,7 @@
 <script lang="ts">
 import {
     computed, defineComponent, reactive, toRefs,
-} from '@vue/composition-api';
+} from 'vue';
 
 import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
 import type { SidebarProps } from '@/layouts/sidebar/type';

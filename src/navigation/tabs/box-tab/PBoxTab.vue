@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from '@vue/composition-api';
+import { computed, defineComponent } from 'vue';
 
 import PI from '@/foundation/icons/PI.vue';
 import { useTab } from '@/hooks/tab';

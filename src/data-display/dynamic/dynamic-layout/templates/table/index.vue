@@ -57,10 +57,10 @@
 
 <script lang="ts">
 /* eslint-disable camelcase */
-import type { ComponentRenderProxy, PropType } from '@vue/composition-api';
+import type { ComponentRenderProxy, PropType } from 'vue';
 import {
     computed, defineComponent, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
+} from 'vue';
 
 import PDynamicField from '@/data-display/dynamic/dynamic-field/PDynamicField.vue';
 import type { DynamicFieldHandler, DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';

@@ -66,10 +66,10 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from '@vue/composition-api';
+import type { ComponentRenderProxy } from 'vue';
 import {
     defineComponent, getCurrentInstance, reactive, watch,
-} from '@vue/composition-api';
+} from 'vue';
 
 import { DATA_TABLE_STYLE_TYPE } from '@/data-display/tables/data-table/config';
 import PDataTable from '@/data-display/tables/data-table/PDataTable.vue';

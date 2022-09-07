@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import * as ut from '../utils';
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 import {
   arrayRemove,
   joinFunctionsByNext,

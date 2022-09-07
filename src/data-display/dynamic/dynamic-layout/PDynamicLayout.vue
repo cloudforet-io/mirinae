@@ -18,7 +18,7 @@
 import {
     defineComponent,
     onMounted, reactive, toRefs, watch,
-} from '@vue/composition-api';
+} from 'vue';
 import type { AsyncComponent } from 'vue';
 import type { ImportedComponent } from 'vue/types/options';
 

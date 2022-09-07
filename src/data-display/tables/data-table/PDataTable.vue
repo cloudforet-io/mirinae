@@ -152,10 +152,10 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy, PropType } from '@vue/composition-api';
+import type { ComponentRenderProxy, PropType } from 'vue';
 import {
     toRefs, computed, reactive, watch, getCurrentInstance, defineComponent,
-} from '@vue/composition-api';
+} from 'vue';
 
 import { get, range } from 'lodash';
 

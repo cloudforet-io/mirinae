@@ -34,10 +34,10 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from '@vue/composition-api';
+import type { ComponentRenderProxy } from 'vue';
 import {
     getCurrentInstance, reactive,
-} from '@vue/composition-api';
+} from 'vue';
 
 import type { Options, QuerySearchTableProps } from '@/data-display/tables/query-search-table/type';
 import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';

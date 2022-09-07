@@ -1,7 +1,7 @@
-import type { ComponentRenderProxy, Ref } from '@vue/composition-api';
+import type { ComponentRenderProxy, Ref } from 'vue';
 import {
     computed, ref,
-} from '@vue/composition-api';
+} from 'vue';
 
 /**
  * Event listeners by pass

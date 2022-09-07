@@ -1,5 +1,5 @@
 declare module '*.vue' {
-    import VueCompositionApi from '@vue/composition-api';
+    import VueCompositionApi from 'vue';
     import Vue from 'vue';
 
     import { VTooltip } from 'v-tooltip';

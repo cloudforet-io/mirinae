@@ -30,12 +30,12 @@
  * CodeMirror can get String ONLY
  */
 
-import type { ComponentRenderProxy, PropType } from '@vue/composition-api';
+import type { ComponentRenderProxy, PropType } from 'vue';
 import {
     computed, defineComponent,
     getCurrentInstance, onBeforeUnmount,
     reactive, toRefs, watch,
-} from '@vue/composition-api';
+} from 'vue';
 
 import type { EditorConfiguration } from 'codemirror';
 import CodeMirror from 'codemirror';

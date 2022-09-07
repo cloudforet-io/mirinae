@@ -1,4 +1,4 @@
-import VueCompositionApi from '@vue/composition-api';
+import VueCompositionApi from 'vue';
 import type { PluginFunction, VueConstructor } from 'vue';
 
 import VTooltip from 'v-tooltip';

@@ -1,7 +1,7 @@
-import type { ComponentRenderProxy, ComputedRef } from '@vue/composition-api';
+import type { ComponentRenderProxy, ComputedRef } from 'vue';
 import {
     computed, getCurrentInstance, onMounted, onUnmounted, reactive, toRefs, watch,
-} from '@vue/composition-api';
+} from 'vue';
 import type { Vue } from 'vue/types/vue';
 
 import type { ResizeObserverEntry } from '@juggle/resize-observer';

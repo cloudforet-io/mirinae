@@ -27,7 +27,7 @@
 <script lang="ts">
 import {
     computed, defineComponent, reactive, toRefs,
-} from '@vue/composition-api';
+} from 'vue';
 
 import { useTab } from '@/hooks/tab';
 import type { ButtonTabProps } from '@/navigation/tabs/button-tab/type';

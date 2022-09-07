@@ -21,10 +21,10 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from '@vue/composition-api';
+import type { ComponentRenderProxy } from 'vue';
 import {
     defineComponent, reactive, toRefs, getCurrentInstance,
-} from '@vue/composition-api';
+} from 'vue';
 
 import type { CollapsibleToggleProps } from '@/data-display/collapsibles/collapsible-toggle/type';
 import {

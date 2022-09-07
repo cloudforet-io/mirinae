@@ -2,7 +2,7 @@ import "@/styles/style.pcss";
 
 import { withDesign } from 'storybook-addon-designs';
 
-import VueCompositionApi from '@vue/composition-api';
+import VueCompositionApi from 'vue';
 import Notifications from 'vue-notification';
 
 import Vue from 'vue';
