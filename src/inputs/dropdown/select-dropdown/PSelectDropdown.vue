@@ -63,7 +63,6 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from 'vue';
 import {
     computed,
     defineComponent,
@@ -71,6 +70,7 @@ import {
     reactive,
     toRefs,
 } from 'vue';
+import type { Vue } from 'vue/types/vue';
 
 import { groupBy, reduce } from 'lodash';
 import vClickOutside from 'v-click-outside';
@@ -163,7 +163,7 @@ export default defineComponent<SelectDropdownProps>({
         },
     },
     setup(props: SelectDropdownProps, { emit, slots }) {
-        const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const {
             proxyVisibleMenu, targetRef, targetElement, contextMenuStyle,

@@ -34,7 +34,6 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from 'vue';
 import {
     getCurrentInstance, reactive,
 } from 'vue';
@@ -134,7 +133,7 @@ export default {
         },
     },
     setup(props: QuerySearchTableProps, { emit }) {
-        const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const proxyState = reactive({
             selectIndex: makeOptionalProxy<number[]>('selectIndex', vm, [], ['select']),

@@ -1,4 +1,4 @@
-import type { ComponentRenderProxy, ComputedRef } from 'vue';
+import type { ComputedRef } from 'vue';
 import {
     computed, getCurrentInstance, onMounted, onUnmounted, reactive, toRefs, watch,
 } from 'vue';
@@ -35,7 +35,7 @@ const getScrollableParent = (ele?: Element|null): Element => {
 };
 
 export const useContextMenuFixedStyle = ({ useFixedMenuStyle, visibleMenu }: StateArgs) => {
-    const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
+    const vm = getCurrentInstance()?.proxy as Vue;
     const state = reactive({
         useFixedMenuStyle,
         visibleMenu,

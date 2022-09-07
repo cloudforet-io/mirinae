@@ -24,7 +24,7 @@ import {
 import { get } from 'lodash';
 
 import PAnchor from '@/inputs/anchors/PAnchor.vue';
-import type { TextListItem, TextListProps } from '@/others/console/text-list/type';
+import type { TextListItem } from '@/others/console/text-list/type';
 import { isNotEmpty } from '@/util/helpers';
 
 export default defineComponent({
@@ -60,7 +60,7 @@ export default defineComponent({
             default: undefined,
         },
     },
-    setup(props: TextListProps) {
+    setup(props) {
         const state = reactive({
             component: computed(() => (props.link ? PAnchor : (props.tag || 'span'))),
             displayItems: computed(() => props.items.reduce((res, item) => {

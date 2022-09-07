@@ -92,7 +92,6 @@ import type {
     KeyItem,
     KeyMenuItem,
     OperatorType,
-    QuerySearchProps,
     ValueHandler,
     ValueItem,
     ValueMenuItem, MenuType, QueryItem, KeyDataType,
@@ -143,7 +142,7 @@ export default defineComponent({
             default: () => ({}),
         },
     },
-    setup(props: QuerySearchProps, { emit, slots }) {
+    setup(props, { emit, slots }) {
         const state = reactive({
             /* Input */
             inputRef: null as null|HTMLElement,

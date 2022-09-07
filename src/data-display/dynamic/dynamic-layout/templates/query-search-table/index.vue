@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy, PropType } from 'vue';
+import type { PropType } from 'vue';
 import {
     computed, defineComponent, getCurrentInstance, reactive, toRefs,
 } from 'vue';
@@ -114,7 +114,7 @@ export default defineComponent<QuerySearchTableDynamicLayoutProps>({
         },
     },
     setup(props, { emit }) {
-        const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
 

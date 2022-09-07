@@ -30,7 +30,6 @@ import {
 } from 'vue';
 
 import { useTab } from '@/hooks/tab';
-import type { ButtonTabProps } from '@/navigation/tabs/button-tab/type';
 import type { TabItem } from '@/navigation/tabs/tab/type';
 
 
@@ -50,7 +49,7 @@ export default defineComponent({
             default: '',
         },
     },
-    setup(props: ButtonTabProps, { emit }) {
+    setup(props, { emit }) {
         const {
             tabItems,
             keepAliveTabNames,

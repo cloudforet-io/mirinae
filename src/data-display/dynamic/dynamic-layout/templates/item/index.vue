@@ -16,7 +16,6 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy } from 'vue';
 import {
     computed, getCurrentInstance, reactive, toRefs,
 } from 'vue';
@@ -66,7 +65,7 @@ export default {
         },
     },
     setup(props: ItemDynamicLayoutProps) {
-        const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),

@@ -152,7 +152,7 @@
 </template>
 
 <script lang="ts">
-import type { ComponentRenderProxy, PropType } from 'vue';
+import type { PropType } from 'vue';
 import {
     toRefs, computed, reactive, watch, getCurrentInstance, defineComponent,
 } from 'vue';
@@ -284,7 +284,7 @@ export default defineComponent<DataTableProps>({
         },
     },
     setup(props, context) {
-        const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const getChildFields = (field: DataTableFieldType): DataTableFieldType[]|undefined => field.children?.map(child => ({ sortable: true, ...child }));
 
