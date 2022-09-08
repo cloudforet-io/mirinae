@@ -4,7 +4,7 @@
                   class="generate-button"
                   @click="handleClickGenerate"
         >
-            Generate
+            {{ $t('COMPONENT.JSON_SCHEMA_FORM.GENERATE') }}
         </p-button>
         <div class="generate-id-wrapper">
             <p-copy-button auto-hide-icon>
