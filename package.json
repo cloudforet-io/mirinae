@@ -84,6 +84,7 @@
     "v-tooltip": "^2.0.2",
     "velocity-animate": "^1.5.2",
     "vue": "^2.7.10",
+    "vue-template-compiler": "2.7.10",
     "vue-filepond": "^6.0.3",
     "vue-focus": "^2.1.0",
     "vue-fragment": "^1.5.1",
