@@ -1,4 +1,4 @@
-<h1 align="center">Mirinae - Cloudforet Design System</h1>  
+<h1 align="center">Mirinae Design System</h1>  
 
 <br/>
 
