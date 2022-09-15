@@ -143,7 +143,7 @@ export const getCollapsibleListArgTypes = (): ArgTypes => ({
     'v-model': {
         name: 'v-model',
         type: { name: 'array' },
-        description: 'Two way binding for `unfoldedIndices` props with `update:unfoldedIndices` event.',
+        description: 'Two way binding for `unfoldedIndices` props.',
         defaultValue: [],
         table: {
             type: {
@@ -185,20 +185,6 @@ export const getCollapsibleListArgTypes = (): ArgTypes => ({
         },
         control: {
             type: 'text',
-        },
-    },
-    /* event */
-    onUpdateUnfoldedIndices: {
-        name: 'update:unfoldedIndices',
-        description: 'Event emitted when each item\'s collapsed state changed. Works with `v-model` and `unfoldedIndices` props sync.',
-        table: {
-            type: {
-                summary: null,
-            },
-            defaultValue: {
-                summary: null,
-            },
-            category: 'events',
         },
     },
 });
