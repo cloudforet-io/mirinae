@@ -1,6 +1,6 @@
 <template>
     <span class="p-badge" :class="allBodyClass" :style="[inlineStyles]">
-        <slot name="default" />
+        <slot />
     </span>
 </template>
 
