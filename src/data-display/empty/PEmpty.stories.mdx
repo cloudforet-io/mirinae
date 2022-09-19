@@ -19,9 +19,9 @@ export const Template = (args, {argTypes}) => ({
     components: { PEmpty },
     template: `
         <div class="h-full w-full overflow p-8">
-        <p-empty>
-            <div v-if="defaultSlot" v-html="defaultSlot"/>
-        </p-empty>
+            <p-empty>
+                <div v-if="defaultSlot" v-html="defaultSlot"/>
+            </p-empty>
         </div>
     `,
     setup() {
@@ -40,4 +40,4 @@ export const Template = (args, {argTypes}) => ({
     </Story>
 </Canvas>
 
-<ArgsTable story="Playground">
+<ArgsTable story="Playground"/>
