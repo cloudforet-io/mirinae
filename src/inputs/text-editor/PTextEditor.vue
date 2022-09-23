@@ -1,20 +1,13 @@
 <template>
     <div class="p-text-editor">
-        <transition name="fade-in">
-            <div v-if="loading" class="loader w-full h-full">
-                <slot name="loader" :loading="loading">
-                    <p-lottie name="thin-spinner"
-                              auto
-                              :size="2.5"
-                              class="flex items-center justify-center"
-                    />
-                </slot>
-            </div>
-        </transition>
-        <textarea ref="textareaRef"
-                  name="codemirror"
-                  placeholder=""
-        />
+        <p-data-loader :data="true" :loading="loading" disable-empty-case
+                       show-data-from-scratch loader-backdrop-color="gray.900"
+        >
+            <textarea ref="textareaRef"
+                      name="codemirror"
+                      placeholder=""
+            />
+        </p-data-loader>
     </div>
 </template>
 
@@ -41,7 +34,7 @@ import type { EditorConfiguration } from 'codemirror';
 import CodeMirror from 'codemirror';
 import { forEach } from 'lodash';
 
-import PLottie from '@/foundation/lottie/PLottie.vue';
+import PDataLoader from '@/feedbacks/loading/data-loader/PDataLoader.vue';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('codemirror/mode/javascript/javascript');
@@ -68,7 +61,7 @@ interface Props {
 
 export default defineComponent<Props>({
     name: 'PTextEditor',
-    components: { PLottie },
+    components: { PDataLoader },
     props: {
         code: {
             type: [Array, Object, String, Number] as PropType<any>,
@@ -123,12 +116,14 @@ export default defineComponent<Props>({
 
         const refineCode = (code: any): string => {
             if (typeof code === 'string') {
-                if (code.startsWith('{') || code.startsWith('[')) {
+                const trimmedCode = code.trim();
+                if (trimmedCode.startsWith('{') || trimmedCode.startsWith('[')) {
                     try {
                         // Object encased in String
                         // "{height: 182}"
-                        const obj = JSON.parse(code);
+                        const obj = JSON.parse(trimmedCode);
                         if (props.disableAutoReformat) return code;
+
                         return JSON.stringify(obj, undefined, 4);
                     } catch {
                         // Looks like Object encased in String, BUT Pure String
@@ -235,43 +230,43 @@ export default defineComponent<Props>({
 @import 'codemirror/addon/lint/lint.css';
 @import 'codemirror/addon/fold/foldgutter.css';
 .p-text-editor {
-    position: relative;
     height: 100%;
     min-height: 5rem;
-    > textarea {
-        display: none;
-    }
-    > .CodeMirror {
-        .CodeMirror-addedline {
-            width: 1rem;
-        }
-        .CodeMirror-gutters {
-            border-right: 0.03rem solid rgba(109, 138, 136, 0.5);
-        }
-        .CodeMirror-activeline-gutter, .CodeMirror-activeline-background {
-            background-color: rgba(255, 255, 222, 0.3);
-        }
-        font-family: Inconsolata, monospace;
-        line-height: 1.5;
-        height: fit-content;
-        padding: 1rem;
+    > .p-data-loader {
         min-height: inherit;
-        > .CodeMirror-scroll {
+        > .data-loader-container {
             min-height: inherit;
+            > .data-wrapper {
+                min-height: inherit;
+                > textarea {
+                    display: none;
+                }
+
+                > .CodeMirror {
+                    .CodeMirror-addedline {
+                        width: 1rem;
+                    }
+
+                    .CodeMirror-gutters {
+                        border-right: 0.03rem solid rgba(109, 138, 136, 0.5);
+                    }
+
+                    .CodeMirror-activeline-gutter, .CodeMirror-activeline-background {
+                        background-color: rgba(255, 255, 222, 0.3);
+                    }
+
+                    font-family: Inconsolata, monospace;
+                    line-height: 1.5;
+                    height: fit-content;
+                    padding: 1rem;
+                    min-height: inherit;
+
+                    > .CodeMirror-scroll {
+                        min-height: inherit;
+                    }
+                }
+            }
         }
-    }
-    .loader {
-        position: absolute;
-        padding-top: 2rem;
-    }
-    .fade-in-leave-active, .fade-in-enter-active {
-        transition: opacity 0.5s;
-    }
-    .fade-in-leave-to, .fade-in-enter {
-        opacity: 0;
-    }
-    .fade-in-enter-to, .fade-in-leave {
-        opacity: 1;
     }
 }
 </style>

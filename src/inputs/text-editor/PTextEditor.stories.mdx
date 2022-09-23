@@ -8,6 +8,7 @@ import PTextEditor from './PTextEditor.vue';
 import PButton from "@/inputs/buttons/button/PButton";
 
 import { getTextEditorArgTypes, sampleCode } from '@/inputs/text-editor/story-helper';
+import { getJsonObject } from "@/inputs/text-editor/mock";
 
 
 
@@ -40,6 +41,10 @@ export const Template = (args, { argTypes }) => ({
 <br/>
 
 
+## Basic
+<br/>
+<br/>
+
 <Canvas>
     <Story name="Basic">
         {{
@@ -64,6 +69,46 @@ export const Template = (args, { argTypes }) => ({
 <br/>
 <br/>
 
+## Loading
+<br/>
+<br/>
+
+<Canvas>
+    <Story name="Loading">
+        {{
+            components: { PTextEditor, PButton },
+            template: `
+    <div class="h-full w-full overflow p-8">
+        <p-text-editor :loading="loading" :code="sampleCode" folded />
+        <p-button class="mt-4" style-type="primary" @click="changeCode">Load Code!</p-button>
+    </div>
+    `,
+            setup() {
+                const state = reactive({
+                    sampleCode: undefined,
+                    loading: false
+                });
+                const changeCode = async () => {
+                    state.loading = true;
+                    state.sampleCode = await new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve(getJsonObject())
+                        }, 1500)
+                    })
+                    state.loading = false;
+                }
+                return {
+                    ...toRefs(state),
+                    changeCode
+                }
+            }
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
 ## Highlight Lines
 <br/>
 <br/>
@@ -79,7 +124,7 @@ export const Template = (args, { argTypes }) => ({
     `,
             setup() {
                 const state = reactive({
-                    sampleCode: sampleCode,
+                    sampleCode: getJsonObject(),
                 });
                 return {
                     ...toRefs(state),
@@ -108,10 +153,10 @@ export const Template = (args, { argTypes }) => ({
     `,
             setup() {
                 const state = reactive({
-                    sampleCode: sampleCode,
+                    sampleCode: getJsonObject(),
                 });
                 const handleChangeCode = () => {
-                    state.sampleCode = JSON.stringify({a: 3}, null, '');
+                    state.sampleCode = JSON.stringify(getJsonObject(), null, 2);
                 };
                 return {
                     ...toRefs(state),
@@ -149,7 +194,7 @@ export const Template = (args, { argTypes }) => ({
                 });
                 const handleChangeCode = (disableAutoReformat) => {
                     state.disableAutoReformat = disableAutoReformat;
-                    state.sampleCode = JSON.stringify({a: 3}, null, '');
+                    state.sampleCode = JSON.stringify(getJsonObject(), null, 0);
                 };
                 return {
                     ...toRefs(state),
