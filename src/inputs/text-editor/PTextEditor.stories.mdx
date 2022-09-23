@@ -1,10 +1,14 @@
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
 
-import PTextEditor from './PTextEditor.vue';
-
-import { getTextEditorArgTypes, sampleCode } from '@/inputs/text-editor/story-helper'; import {
+import {
     reactive, toRefs
 } from 'vue';
+
+import PTextEditor from './PTextEditor.vue';
+import PButton from "@/inputs/buttons/button/PButton";
+
+import { getTextEditorArgTypes, sampleCode } from '@/inputs/text-editor/story-helper';
+
 
 
 <Meta title='Inputs/Text Editor' parameters={{
@@ -20,7 +24,12 @@ export const Template = (args, { argTypes }) => ({
     components: { PTextEditor },
     template: `
     <div class="h-full w-full overflow p-8">
-        <p-text-editor :code="code" :folded="folded" />
+        <p-text-editor :code="code"
+            :folded="folded"
+            :read-only="readOnly" :loading="loading"
+            :highlight-lines="highlightLines"
+            :disable-auto-reformat="disableAutoReformat"
+        />
     </div>
     `,
 });
@@ -87,7 +96,6 @@ export const Template = (args, { argTypes }) => ({
 <br/>
 <br/>
 
-
 <Canvas>
     <Story name="Change Code">
         {{
@@ -116,6 +124,45 @@ export const Template = (args, { argTypes }) => ({
 
 <br/>
 <br/>
+
+## Auto Reformat on Code Change (string only)
+<br/>
+<br/>
+
+<Canvas>
+    <Story name="Auto Reformat on Code Change (string only)">
+        {{
+            components: { PTextEditor, PButton },
+            template: `
+    <div class="h-full w-full overflow p-8">
+        <p-text-editor :code="sampleCode" folded :disable-auto-reformat="disableAutoReformat" class="mb-4" />
+        <p-button style-type="primary" :outline="true" @click="handleChangeCode(false)">Change Code & Reformat (default)</p-button>
+        <p-button style-type="secondary" :outline="true" @click="handleChangeCode(true)">Change Code & Do not Reformat Automatically</p-button>
+       <p class="text-red-600 font-bold mt-4">This feature works only when the code prop's type is string</p>
+    </div>
+<!--<div>-->
+    `,
+            setup() {
+                const state = reactive({
+                    sampleCode,
+                    disableAutoReformat: false
+                });
+                const handleChangeCode = (disableAutoReformat) => {
+                    state.disableAutoReformat = disableAutoReformat;
+                    state.sampleCode = JSON.stringify({a: 3}, null, '');
+                };
+                return {
+                    ...toRefs(state),
+                    handleChangeCode,
+                }
+            }
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
 
 ## Playground
 

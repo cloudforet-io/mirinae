@@ -63,6 +63,7 @@ interface Props {
     loading: boolean;
     folded: boolean;
     highlightLines?: Array<number>;
+    disableAutoReformat?: boolean;
 }
 
 export default defineComponent<Props>({
@@ -70,9 +71,8 @@ export default defineComponent<Props>({
     components: { PLottie },
     props: {
         code: {
-            type: [Array, Object, String, Number, undefined, null] as PropType<any>,
-            default: null,
-            required: true,
+            type: [Array, Object, String, Number] as PropType<any>,
+            default: '',
         },
         options: {
             type: Object as PropType<EditorConfiguration>,
@@ -107,14 +107,18 @@ export default defineComponent<Props>({
             type: Array as PropType<Array<number>>,
             default: () => [],
         },
+        disableAutoReformat: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, { emit }) {
         const vm = getCurrentInstance()?.proxy as Vue;
         const state = reactive({
             content: '',
-            cmInstance: null as any,
+            cmInstance: null as CodeMirror.Editor|null,
             textareaRef: null as HTMLTextAreaElement|null,
-            mergedOptions: computed(() => ({ ...props.options, readOnly: props.readOnly })),
+            mergedOptions: computed<EditorConfiguration>(() => ({ ...props.options, readOnly: props.readOnly })),
         });
 
         const refineCode = (code: any): string => {
@@ -123,7 +127,9 @@ export default defineComponent<Props>({
                     try {
                         // Object encased in String
                         // "{height: 182}"
-                        return JSON.stringify(JSON.parse(code), undefined, 4);
+                        const obj = JSON.parse(code);
+                        if (props.disableAutoReformat) return code;
+                        return JSON.stringify(obj, undefined, 4);
                     } catch {
                         // Looks like Object encased in String, BUT Pure String
                         // "{haha}"
@@ -184,24 +190,27 @@ export default defineComponent<Props>({
         };
 
         const init = (textareaRef: HTMLTextAreaElement) => {
-            state.cmInstance = CodeMirror.fromTextArea(textareaRef, state.mergedOptions);
+            const editor = CodeMirror.fromTextArea(textareaRef, state.mergedOptions);
 
             watch(() => state.mergedOptions, (options) => {
-                if (options && state.cmInstance) {
+                if (options && editor) {
                     forEach(options, (d, k) => {
-                        state.cmInstance.setOption(k, d);
+                        editor.setOption(k as keyof EditorConfiguration, d);
                     });
                 }
             }, { deep: true });
 
-            state.cmInstance.on('change', (cm) => {
+            editor.on('change', (cm) => {
                 emit('update:code', cm.getValue());
             });
+
+            state.cmInstance = editor;
         };
 
-        watch([() => state.textareaRef, () => props.code], async ([textareaRef, code]) => {
+        watch([() => state.textareaRef, () => props.code, () => props.disableAutoReformat], async ([textareaRef, code]) => {
             if (!textareaRef) return;
             if (!state.cmInstance) init(textareaRef);
+
             setCode(state.cmInstance, refineCode(code));
             if (props.highlightLines) setHighlightLines(state.cmInstance, props.highlightLines);
             forceFold(state.cmInstance);
