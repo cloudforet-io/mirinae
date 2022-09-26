@@ -1,20 +1,22 @@
 <template>
     <ul class="p-dict-list">
-        <li v-for="(value, key) in dict" :key="key">
-            {{ key }} : {{ value }}
+        <li v-for="(value, key, index) in dict" :key="`dict-list-${key}-${index}`">
+            <span class="key">{{ key }}: </span>
+            <span class="value">{{ value }}</span>
         </li>
     </ul>
 </template>
 
 <script lang="ts">
-
+import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
+
 
 export default defineComponent({
     name: 'PDictList',
     props: {
         dict: {
-            type: Object,
+            type: Object as PropType<any>,
             default: () => ({}),
         },
     },
@@ -22,11 +24,18 @@ export default defineComponent({
 </script>
 <style lang="postcss">
 .p-dict-list {
-    ul {
-        list-style-type: disc;
-    }
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+
     li {
-        display: list-item;
+        @apply bg-gray-200;
+        padding: 1px 8px;
+        border-radius: 4px;
+        line-height: 1.25;
+        .key {
+            font-weight: bold;
+        }
     }
 }
 </style>
