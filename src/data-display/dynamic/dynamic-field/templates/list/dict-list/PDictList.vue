@@ -16,7 +16,7 @@ export default defineComponent({
     name: 'PDictList',
     props: {
         dict: {
-            type: Object as PropType<any>,
+            type: Object as PropType<Record<string, string|number>>,
             default: () => ({}),
         },
     },
