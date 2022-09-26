@@ -1,8 +1,10 @@
 <template>
     <ul class="p-dict-list">
         <li v-for="(value, key, index) in dict" :key="`dict-list-${key}-${index}`">
-            <span class="key">{{ key }}: </span>
-            <span class="value">{{ value }}</span>
+            <p-tag :deletable="false">
+                <span class="key">{{ key }}: </span>
+                <span class="value">{{ value }}</span>
+            </p-tag>
         </li>
     </ul>
 </template>
@@ -11,9 +13,14 @@
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
 
+import PTag from '@/data-display/tags/PTag.vue';
+
 
 export default defineComponent({
     name: 'PDictList',
+    components: {
+        PTag,
+    },
     props: {
         dict: {
             type: Object as PropType<Record<string, string|number>>,
@@ -26,16 +33,8 @@ export default defineComponent({
 .p-dict-list {
     display: grid;
     grid-auto-flow: column;
-    gap: 0.5rem;
-
-    li {
-        @apply bg-gray-200;
-        padding: 1px 8px;
-        border-radius: 4px;
-        line-height: 1.25;
-        .key {
-            font-weight: bold;
-        }
+    .key {
+        font-weight: bold;
     }
 }
 </style>
