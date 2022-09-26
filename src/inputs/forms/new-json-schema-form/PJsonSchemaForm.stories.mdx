@@ -7,6 +7,7 @@ import PJsonSchemaForm from '@/inputs/forms/new-json-schema-form/PJsonSchemaForm
 import PTextEditor from '@/inputs/text-editor/PTextEditor.vue';
 import PButton from "@/inputs/buttons/button/PButton";
 import PSelectDropdown from "@/inputs/dropdown/select-dropdown/PSelectDropdown";
+import PPanelTop from "@/data-display/titles/panel-top/PPanelTop";
 import {
      getJsonSchemaFormArgTypes,
 } from '@/inputs/forms/new-json-schema-form/story-helper';
@@ -58,20 +59,28 @@ export const Template = (args, { argTypes }) => ({
 <Canvas>
     <Story name="Basic" >
         {{
-            components: { PJsonSchemaForm, PTextEditor },
+            components: { PJsonSchemaForm, PTextEditor, PPanelTop },
             i18n,
             template: `
-<div class="grid grid-cols-12">
-    <p-json-schema-form
-        class="col-span-6"
-        :schema="schema"
-        :form-data="formData"
-        :language="$i18n.locale"
-    />
-    <div class="col-span-6">
+<div class="grid gap-4 grid-cols-12">
+    <div class="col-span-6 bg-blue-100 p-4">
+        <p-panel-top>Json Schema Form</p-panel-top>
+        <p-json-schema-form :schema="schema"
+                            :form-data.sync="formData"
+                            :language="$i18n.locale"
+        />
+    </div>
+    <div class="col-span-6 bg-coral-100 p-4">
+        <p-panel-top>Schema</p-panel-top>
         <p-text-editor :code="JSON.stringify(schema, null, 2)"
                        mode="readOnly"
                        folded
+                       style="height: auto"
+        />
+        <p-panel-top>Form Data</p-panel-top>
+        <p-text-editor :code="JSON.stringify(formData, null, 2)"
+                       mode="readOnly"
+                       style="height: auto"
         />
     </div>
 </div>
