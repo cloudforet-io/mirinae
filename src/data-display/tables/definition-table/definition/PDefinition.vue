@@ -8,10 +8,10 @@
         <td class="value-wrapper" :class="{'auto-width': autoKeyWidth}">
             <span class="value">
                 <slot v-if="disableCopy" name="default" v-bind="{name, label, data, value: displayData}">
-                    <template v-if="dataConstructorType === Object">
+                    <template v-if="dataType === 'object'">
                         <p-dict-list class="p-dict-list" :dict="displayData" />
                     </template>
-                    <template v-else-if="dataConstructorType === Array">
+                    <template v-else-if="dataType === 'array'">
                         <p-text-list :items="displayData" />
                     </template>
                     <template v-else>
@@ -24,10 +24,10 @@
                                auto-hide-icon
                 >
                     <slot name="default" v-bind="{name, label, data, value: displayData}">
-                        <template v-if="dataConstructorType === Object">
+                        <template v-if="dataType === 'object'">
                             <p-dict-list class="p-dict-list" :dict="displayData" />
                         </template>
-                        <template v-else-if="dataConstructorType === Array">
+                        <template v-else-if="dataType === 'array'">
                             <p-text-list :items="displayData" />
                         </template>
                         <template v-else>
@@ -97,7 +97,10 @@ export default defineComponent<DefinitionProps>({
     setup(props) {
         const state = reactive({
             displayData: computed(() => (props.formatter ? props.formatter(props.data, props) : props.data)),
-            dataConstructorType: computed(() => props.data.constructor),
+            dataType: computed(() => {
+                if (Array.isArray(props.data)) return 'array';
+                return typeof props.data;
+            }),
         });
 
         return {
