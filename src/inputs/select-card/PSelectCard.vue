@@ -14,11 +14,13 @@
                 />
                 <span v-if="label" class="label">{{ label }}</span>
             </slot>
+            <slot name="extra" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import type { SetupContext } from 'vue';
 import {
     computed, defineComponent, reactive, toRefs,
 } from 'vue';
@@ -91,7 +93,7 @@ export default defineComponent<Props>({
             default: '',
         },
     },
-    setup(props: Props, { emit }) {
+    setup(props, { emit }: SetupContext) {
         const {
             isSelected,
             getSelected,

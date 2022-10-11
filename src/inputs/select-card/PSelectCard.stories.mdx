@@ -8,6 +8,7 @@ import { getAllAvailableIcons } from '@/foundation/icons/story-helper';
 import { getSelectCardArgTypes } from '@/inputs/select-card/story-helper';
 import PSelectCard from './PSelectCard.vue';
 import { peacock } from '@/styles/colors'
+import PAnchor from '@/inputs/anchors/PAnchor';
 
 <Meta title='Inputs/Select Card' parameters={{
     design: {
@@ -289,6 +290,42 @@ export const Template = (args, { argTypes }) => ({
                 const state = reactive({
                     selected: undefined,
                     values: range(8).map(d => peacock[(d + 1) * 100]),
+                })
+                return {
+                    ...toRefs(state),
+                    peacock
+                };
+            }
+        }}
+    </Story>
+</Canvas>
+
+## Extra Slot
+
+<Canvas>
+    <Story name="Extra Slot">
+        {{
+            components: { PSelectCard, PAnchor },
+            template: `
+    <div class="w-full overflow p-8 flex flex-wrap">
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :value="value"
+            v-model="selected"
+            label="Label"
+            :icon="icons[index]"
+            style="min-width: 8rem; min-height: 8rem; margin: 1rem;"
+        >
+            <template #extra>
+                <p-anchor highlight>Preview</p-anchor>
+            </template>
+        </p-select-card>
+    </div>
+    `,
+            setup(props) {
+                const state = reactive({
+                    selected: undefined,
+                    values: range(4).map(d => peacock[(d + 1) * 100]),
+                    icons: getAllAvailableIcons(),
                 })
                 return {
                     ...toRefs(state),
