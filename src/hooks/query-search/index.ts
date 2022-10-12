@@ -1,4 +1,4 @@
-import type { SetupContext, WatchStopHandle } from 'vue';
+import type { WatchStopHandle } from 'vue';
 import {
     computed, onMounted, onUnmounted, reactive, watch,
 } from 'vue';
@@ -26,7 +26,7 @@ import { OPERATOR, operators } from '@/inputs/search/query-search/type';
 const ROOT_KEY_SETTER = ':';
 const NUMBER_TYPES = ['integer', 'float'];
 
-export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) => {
+export const useQuerySearch = (props: QuerySearchProps) => {
     const state = reactive({
         /* Input */
         inputRef: null as null|HTMLElement,
@@ -214,8 +214,7 @@ export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) 
         }
     };
 
-    /* Event triggers */
-    const emitSearch = (valueItem: ValueItem, fixedOperator?: OperatorType) => {
+    const refineQueryItem = (valueItem: ValueItem, fixedOperator?: OperatorType): QueryItem | undefined => {
         let queryItem: QueryItem|null = {
             key: state.rootKey,
             value: valueItem,
@@ -227,14 +226,16 @@ export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) 
         }
 
         if (queryItem) {
-            emit('search', queryItem);
+            // emit('search', queryItem);
 
             clearAll();
             if (state.selectedKey) updateSelectedKey(null, true);
             hideMenu();
+            return queryItem;
         }
-    };
 
+        return undefined;
+    };
 
     /* Event handlers */
     const onInput = async (e) => {
@@ -246,14 +247,15 @@ export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) 
         if (val.length > 1 && e.data === ROOT_KEY_SETTER && !state.rootKey) await findAndSetKey(val.slice(0, val.length - 1));
         else await updateMenuItems(val);
     };
-    const onEnter = async () => {
+    const onKeyupEnter = async (): Promise<QueryItem | undefined> => {
         if (state.currentDataType === 'object') {
             if (state.searchText) await findAndSetKey(state.searchText, false);
         } else if (state.rootKey) {
             // In null case, only '=', '!=' operators are available.
-            if (state.searchText === '') emitSearch({ label: 'Null', name: null }, state.operator.startsWith('!') ? '!=' : '=');
-            else emitSearch({ label: state.searchText, name: state.searchText });
-        } else if (state.searchText) emitSearch({ label: state.searchText, name: state.searchText });
+            if (state.searchText === '') return refineQueryItem({ label: 'Null', name: null }, state.operator.startsWith('!') ? '!=' : '=');
+            return refineQueryItem({ label: state.searchText, name: state.searchText });
+        } else if (state.searchText) return refineQueryItem({ label: state.searchText, name: state.searchText });
+        return undefined;
     };
 
     const onKeydownCheck = async (e: KeyboardEvent) => {
@@ -325,7 +327,7 @@ export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) 
         clearAll();
         focus();
     };
-    const onMenuSelect = async (item: KeyMenuItem|ValueMenuItem) => {
+    const preTreatSelectedMenuItem = async (item: KeyMenuItem|ValueMenuItem): Promise<QueryItem | undefined> => {
         if (state.menuType === 'ROOT_KEY' || state.menuType === 'KEY') {
             hideMenu();
             updateSelectedKey(item.data as KeyItem);
@@ -341,10 +343,12 @@ export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) 
             }
         } else {
             if (!state.operator) state.operator = OPERATOR.equal;
-            emitSearch(item.data as ValueItem);
+            const queryItem = refineQueryItem(item.data as ValueItem);
+            return queryItem;
         }
-    };
 
+        return undefined;
+    };
 
     /* Window Events Binding */
     const onWindowKeydown = (e: KeyboardEvent) => {
@@ -371,14 +375,12 @@ export const useQuerySearch = (props: QuerySearchProps, { emit }: SetupContext) 
         blur,
         hideMenu,
         showMenu,
-        // event emitters
-        emitSearch,
         // event handlers
         onInput,
-        onEnter,
+        onKeyupEnter,
         onKeydownCheck,
         onPaste,
         onDeleteAll,
-        onMenuSelect,
+        preTreatSelectedMenuItem,
     };
 };

@@ -78,6 +78,7 @@ import { focus as vFocus } from 'vue-focus';
 import PI from '@/foundation/icons/PI.vue';
 import { useQuerySearch } from '@/hooks/query-search';
 import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
+import type { KeyMenuItem, ValueMenuItem } from '@/inputs/search/query-search/type';
 import PSearch from '@/inputs/search/search/PSearch.vue';
 
 
@@ -120,19 +121,27 @@ export default defineComponent({
         },
     },
     setup(props, context: SetupContext) {
-        const { slots } = context;
+        const { slots, emit } = context;
         const {
             state,
             focus, blur, hideMenu, showMenu,
-            emitSearch,
             onInput,
-            onEnter,
+            onKeyupEnter,
             onKeydownCheck,
             onPaste,
             onDeleteAll,
-            onMenuSelect,
-        } = useQuerySearch(props, context);
+            preTreatSelectedMenuItem,
+        } = useQuerySearch(props);
 
+        /* event */
+        const onMenuSelect = async (item: KeyMenuItem | ValueMenuItem) => {
+            const queryItem = await preTreatSelectedMenuItem(item);
+            if (queryItem) emit('search', queryItem);
+        };
+        const onEnter = async () => {
+            const queryItem = await onKeyupEnter();
+            if (queryItem) emit('search', queryItem);
+        };
 
         /* Slots */
         const menuSlots = computed(() => reduce(slots, (res, d, name) => {
@@ -155,7 +164,6 @@ export default defineComponent({
             blur,
             showMenu,
             hideMenu,
-            emitSearch,
             onInput,
             onEnter,
             onKeydownCheck,
