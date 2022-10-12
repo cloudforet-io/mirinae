@@ -1,7 +1,10 @@
 <template>
-    <div class="p-select-card" :class="{selected: isSelected, block, disabled}"
+    <div class="p-select-card"
+         :class="{selected: isSelected, block, disabled}"
+         :tabindex="tabIndex"
          @click="onClick"
          v-on="$listeners"
+         @keydown="onKeydown"
     >
         <p-i :name="markerIconName"
              class="marker" width="1.25rem" height="1.25rem"
@@ -37,7 +40,10 @@ interface Props extends SelectProps {
     icon?: string|boolean;
     iconColor?: string;
     label?: string;
+    tabIndex?: number;
 }
+// FIXME:: tabIndex should be required member;
+
 
 export default defineComponent<Props>({
     name: 'PSelectCard',
@@ -92,6 +98,10 @@ export default defineComponent<Props>({
             type: String,
             default: '',
         },
+        tabIndex: {
+            type: Number,
+            default: 0,
+        },
     },
     setup(props, { emit }: SetupContext) {
         const {
@@ -133,10 +143,35 @@ export default defineComponent<Props>({
             }
         };
 
+        // FIXME:: Modularization keyboard event
+        const onKeydown = (e) => {
+            if (typeof props.tabIndex !== 'number'
+                || !['ArrowRight', 'ArrowLeft'].includes(e.key)
+            ) return;
+
+
+            // sibling means other cards on same depth
+            const siblings = e.target.parentElement.children as HTMLCollectionOf<HTMLDivElement>;
+            const lastIndex = siblings.length - 1;
+
+            let nextTarget = 0;
+            if (e.key === 'ArrowRight') {
+                if (props.tabIndex === lastIndex) nextTarget = 0;
+                else nextTarget = props.tabIndex + 1;
+            } else if (e.key === 'ArrowLeft') {
+                if (props.tabIndex === 0) nextTarget = lastIndex;
+                else nextTarget = props.tabIndex - 1;
+            }
+
+            siblings[nextTarget].focus();
+            siblings[nextTarget].click();
+        };
+
         return {
             ...toRefs(state),
             isSelected,
             onClick,
+            onKeydown,
         };
     },
 });

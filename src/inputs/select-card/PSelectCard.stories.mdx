@@ -311,8 +311,9 @@ export const Template = (args, { argTypes }) => ({
         <p-select-card v-for="(value, index) in values" :key="value"
             :value="value"
             v-model="selected"
-            label="Label"
+            :label="icons[index]"
             :icon="icons[index]"
+            :tab-index="index"
             style="min-width: 8rem; min-height: 8rem; margin: 1rem;"
         >
             <template #bottom>
