@@ -7,30 +7,24 @@
         >
             {{ $t('COMPONENT.JSON_SCHEMA_FORM.GENERATE') }}
         </p-button>
-        <div class="generate-id-wrapper">
-            <p-copy-button auto-hide-icon>
-                {{ value || '' }}
-            </p-copy-button>
-            <p-icon-button v-if="value" name="ic_trashcan"
-                           :disabled="disabled"
-                           class="delete-button"
-                           @click="handleClickDelete"
-            />
-        </div>
+        <p-text-input :value="value" :invalid="invalid" @update:value="handleUpdateValue">
+            <template #right-edge>
+                <p-copy-button :value="value" />
+            </template>
+        </p-text-input>
     </div>
 </template>
 
 <script lang="ts">
 import {
-    computed,
-    defineComponent, reactive, toRefs,
+    defineComponent,
 } from 'vue';
 
 import { v4 as uuidV4 } from 'uuid';
 
 import PButton from '@/inputs/buttons/button/PButton.vue';
 import PCopyButton from '@/inputs/buttons/copy-button/PCopyButton.vue';
-import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+import PTextInput from '@/inputs/input/PTextInput.vue';
 
 interface Props {
     value?: string;
@@ -40,7 +34,7 @@ interface Props {
 export default defineComponent<Props>({
     name: 'GenerateIdFormat',
     components: {
-        PIconButton,
+        PTextInput,
         PCopyButton,
         PButton,
     },
@@ -53,12 +47,12 @@ export default defineComponent<Props>({
             type: Boolean,
             default: false,
         },
+        invalid: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, { emit }) {
-        const state = reactive({
-            proxyValue: computed<string|undefined>(() => props.value),
-        });
-
         const handleClickGenerate = () => {
             emit('update:value', uuidV4());
         };
@@ -67,11 +61,14 @@ export default defineComponent<Props>({
             emit('update:value', '');
         };
 
+        const handleUpdateValue = (value?: string) => {
+            emit('update:value', value?.trim());
+        };
 
         return {
-            ...toRefs(state),
             handleClickGenerate,
             handleClickDelete,
+            handleUpdateValue,
         };
     },
 });
@@ -87,25 +84,10 @@ export default defineComponent<Props>({
         margin-right: 0.5rem;
         flex-shrink: 0;
     }
-    > .generate-id-wrapper {
-        @apply bg-gray-100 rounded;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        > .p-copy-button {
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            margin: 0 1.25rem;
-            > .copy-text {
-                @apply truncate;
-            }
-            > .copy-icon {
-                flex-shrink: 0;
-            }
-        }
-        > .delete-button {
-            flex-shrink: 0;
+    > .p-text-input > .input-container {
+        .p-copy-button {
+            display: inline-flex;
+            margin-left: 0.25rem;
         }
     }
 }
