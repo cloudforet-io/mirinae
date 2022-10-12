@@ -64,7 +64,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="w-full overflow p-8 flex flex-wrap">
-        <p-select-card v-for="value in values" :key="value"
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :tab-index="index"
             :value="value"
             v-model="selected"
             :icon="icons[value]"
@@ -98,7 +99,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="h-full w-full overflow p-8">
-        <p-select-card v-for="value in values" :key="value"
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :tab-index="index"
             :value="value" block
             v-model="selected"
             :icon="icons[value]"
@@ -132,7 +134,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="h-full w-full overflow p-8">
-        <p-select-card v-for="value in values" :key="value"
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :tab-index="index"
             :value="value" block
             v-model="selected"
             :label="icons[value]"
@@ -166,7 +169,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="h-full w-full overflow p-8">
-        <p-select-card v-for="value in values" :key="value"
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :tab-index="index"
             :value="value"
             v-model="selected"
             :label="'label-' + value"
@@ -200,7 +204,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="w-full overflow p-8 flex flex-wrap">
-        <p-select-card v-for="value in values" :key="value"
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :tab-index="index"
             multi-selectable
             :value="value"
             v-model="selected"
@@ -236,7 +241,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="w-full overflow p-8 grid gap-4 grid-cols-3">
-        <p-select-card v-for="value in values" :key="value.key"
+        <p-select-card v-for="(value, index) in values" :key="value.key"
+            :tab-index="index"
             v-model="selected"
             :value="value"
             :label="value.name"
@@ -277,7 +283,8 @@ export const Template = (args, { argTypes }) => ({
             components: { PSelectCard },
             template: `
     <div class="w-full overflow p-8 flex flex-wrap">
-        <p-select-card v-for="value in values" :key="value"
+        <p-select-card v-for="(value, index) in values" :key="value"
+            :tab-index="index"
             :value="value"
             v-model="selected"
             style="min-width: 8rem; min-height: 8rem; margin: 1rem;"

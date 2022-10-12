@@ -146,7 +146,8 @@ export default defineComponent<Props>({
         // FIXME:: Modularize keyboard event
         const handleKeydown = (e: KeyboardEvent) => {
             if (typeof props.tabIndex !== 'number'
-                || !['ArrowRight', 'ArrowLeft'].includes(e.key)
+                || !e.key.includes('Arrow')
+                || props.multiSelectable
             ) return;
 
             // sibling means other cards on the same depth
@@ -154,10 +155,10 @@ export default defineComponent<Props>({
             const lastIndex = siblings.length - 1;
 
             let nextTarget = 0;
-            if (e.key === 'ArrowRight') {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 if (props.tabIndex === lastIndex) nextTarget = 0;
                 else nextTarget = props.tabIndex + 1;
-            } else if (e.key === 'ArrowLeft') {
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 if (props.tabIndex === 0) nextTarget = lastIndex;
                 else nextTarget = props.tabIndex - 1;
             }
