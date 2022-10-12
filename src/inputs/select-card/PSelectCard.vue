@@ -2,9 +2,9 @@
     <div class="p-select-card"
          :class="{selected: isSelected, block, disabled}"
          :tabindex="tabIndex"
-         @click="onClick"
+         @click="handleClick"
          v-on="$listeners"
-         @keydown="onKeydown"
+         @keydown="handleKeydown"
     >
         <p-i :name="markerIconName"
              class="marker" width="1.25rem" height="1.25rem"
@@ -42,7 +42,7 @@ interface Props extends SelectProps {
     label?: string;
     tabIndex?: number;
 }
-// FIXME:: tabIndex should be required member;
+// FIXME:: tabIndex should be a required member;
 
 
 export default defineComponent<Props>({
@@ -134,7 +134,7 @@ export default defineComponent<Props>({
         });
 
         /* event */
-        const onClick = () => {
+        const handleClick = () => {
             const newSelected = getSelected();
             if (props.multiSelectable) {
                 emit('change', newSelected, !isSelected.value);
@@ -143,8 +143,8 @@ export default defineComponent<Props>({
             }
         };
 
-        // FIXME:: Modularization keyboard event
-        const onKeydown = (e) => {
+        // FIXME:: Modularize keyboard event
+        const handleKeydown = (e) => {
             if (typeof props.tabIndex !== 'number'
                 || !['ArrowRight', 'ArrowLeft'].includes(e.key)
             ) return;
@@ -170,8 +170,8 @@ export default defineComponent<Props>({
         return {
             ...toRefs(state),
             isSelected,
-            onClick,
-            onKeydown,
+            handleClick,
+            handleKeydown,
         };
     },
 });
