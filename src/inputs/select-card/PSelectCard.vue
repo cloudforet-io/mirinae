@@ -14,7 +14,7 @@
                 />
                 <span v-if="label" class="label">{{ label }}</span>
             </slot>
-            <slot name="extra" />
+            <slot name="bottom" />
         </div>
     </div>
 </template>

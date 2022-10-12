@@ -300,10 +300,10 @@ export const Template = (args, { argTypes }) => ({
     </Story>
 </Canvas>
 
-## Extra Slot
+## Bottom Slot
 
 <Canvas>
-    <Story name="Extra Slot">
+    <Story name="Bottom Slot">
         {{
             components: { PSelectCard, PAnchor },
             template: `
@@ -315,7 +315,7 @@ export const Template = (args, { argTypes }) => ({
             :icon="icons[index]"
             style="min-width: 8rem; min-height: 8rem; margin: 1rem;"
         >
-            <template #extra>
+            <template #bottom>
                 <p-anchor highlight>Preview</p-anchor>
             </template>
         </p-select-card>
