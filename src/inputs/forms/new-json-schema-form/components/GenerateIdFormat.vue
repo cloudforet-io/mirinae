@@ -16,6 +16,7 @@
 </template>
 
 <script lang="ts">
+import type { SetupContext } from 'vue';
 import {
     defineComponent,
 } from 'vue';
@@ -52,7 +53,7 @@ export default defineComponent<Props>({
             default: false,
         },
     },
-    setup(props, { emit }) {
+    setup(props, { emit }: SetupContext) {
         const handleClickGenerate = () => {
             emit('update:value', uuidV4());
         };
