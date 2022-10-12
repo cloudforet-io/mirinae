@@ -40,7 +40,7 @@ interface Props extends SelectProps {
     icon?: string|boolean;
     iconColor?: string;
     label?: string;
-    tabIndex?: number;
+    tabIndex?: number|undefined;
 }
 // FIXME:: tabIndex should be a required member;
 
@@ -144,14 +144,13 @@ export default defineComponent<Props>({
         };
 
         // FIXME:: Modularize keyboard event
-        const handleKeydown = (e) => {
+        const handleKeydown = (e: KeyboardEvent) => {
             if (typeof props.tabIndex !== 'number'
                 || !['ArrowRight', 'ArrowLeft'].includes(e.key)
             ) return;
 
-
-            // sibling means other cards on same depth
-            const siblings = e.target.parentElement.children as HTMLCollectionOf<HTMLDivElement>;
+            // sibling means other cards on the same depth
+            const siblings = (e?.target as HTMLDivElement)?.parentElement?.children as HTMLCollectionOf<HTMLDivElement>;
             const lastIndex = siblings.length - 1;
 
             let nextTarget = 0;
