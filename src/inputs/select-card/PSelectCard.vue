@@ -100,7 +100,7 @@ export default defineComponent<Props>({
         },
         tabIndex: {
             type: Number,
-            default: 0,
+            default: undefined,
         },
     },
     setup(props, { emit }: SetupContext) {
