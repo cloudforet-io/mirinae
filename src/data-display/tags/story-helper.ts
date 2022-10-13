@@ -1,11 +1,13 @@
 import type { ArgTypes } from '@storybook/addons';
 
+import { getTagItemWithFullArg } from '@/data-display/tags/mock';
+
 export const getTagArgTypes = (): ArgTypes => ({
     keyItem: {
         name: 'keyItem',
         type: { name: 'object' },
-        description: '',
-        defaultValue: undefined,
+        description: "The value for tag's key content",
+        defaultValue: getTagItemWithFullArg().keyItem,
         table: {
             type: {
                 summary: 'object',
@@ -19,8 +21,8 @@ export const getTagArgTypes = (): ArgTypes => ({
     valueItem: {
         name: 'valueItem',
         type: { name: 'object' },
-        description: '',
-        defaultValue: undefined,
+        description: "The value for tag's value content",
+        defaultValue: getTagItemWithFullArg().valueItem,
         table: {
             type: {
                 summary: 'object',
@@ -34,8 +36,8 @@ export const getTagArgTypes = (): ArgTypes => ({
     categoryItem: {
         name: 'categoryItem',
         type: { name: 'object' },
-        description: '',
-        defaultValue: undefined,
+        description: "The value for tag's category content",
+        defaultValue: getTagItemWithFullArg().categoryItem,
         table: {
             type: {
                 summary: 'object',
@@ -139,7 +141,7 @@ export const getTagArgTypes = (): ArgTypes => ({
     /* slots */
     defaultSlot: {
         name: 'default',
-        description: 'Slot for replace contents composed of key, value, category',
+        description: 'Slot to replace contents composed of key, value, category',
         defaultValue: null,
         table: {
             type: {
@@ -150,7 +152,7 @@ export const getTagArgTypes = (): ArgTypes => ({
     },
     categorySlot: {
         name: 'category',
-        description: 'Slot for replace category item',
+        description: 'Slot to replace category item',
         defaultValue: '',
         table: {
             type: {
@@ -164,7 +166,7 @@ export const getTagArgTypes = (): ArgTypes => ({
     },
     keySlot: {
         name: 'key',
-        description: 'Slot for replace key item',
+        description: 'Slot to replace key item',
         defaultValue: '',
         table: {
             type: {
@@ -178,7 +180,7 @@ export const getTagArgTypes = (): ArgTypes => ({
     },
     valueSlot: {
         name: 'value',
-        description: 'Slot for replace value item',
+        description: 'Slot to replace value item',
         defaultValue: '',
         table: {
             type: {

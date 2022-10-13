@@ -2,7 +2,7 @@ import PTag from '@/data-display/tags/PTag.vue';
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
 import { getTagArgTypes } from '@/data-display/tags/story-helper';
 import {
-    getTagItemWithFullArg, getBasicTagArgs
+    getBasicTagArgs
 } from '@/data-display/tags/mock';
 
 <Meta title='Data Display/Tag' parameters={{
@@ -111,7 +111,7 @@ export const Template = (args,{argTypes})=>({
 ## Playground
 
 <Canvas>
-    <Story name="Playground" height="100px" args={{...getTagItemWithFullArg()}}>
+    <Story name="Playground" height="100px" >
         {Template.bind({})}
     </Story>
 </Canvas>

@@ -10,9 +10,11 @@
              height="0.8rem"
         />
         <slot name="default">
-            <span v-if="categoryItem" class="category"><slot name="category">[{{ categoryItem.name || categoryItem.label }}]</slot></span>
-            <span v-if="keyItem" class="key"><slot name="key">{{ keyItem.name || keyItem.label }}:</slot></span>
-            <span v-if="valueItem"><slot name="value">{{ valueItem.name || valueItem.label }}</slot></span>
+            <span class="tag-contents">
+                <span v-if="categoryItem" class="category"><slot name="category">[{{ categoryItem.label || categoryItem.name }}]</slot></span>
+                <span v-if="keyItem" class="key"><slot name="key">{{ keyItem.label || keyItem.name }}:</slot></span>
+                <span v-if="valueItem"><slot name="value">{{ valueItem.label || valueItem.name }}</slot></span>
+            </span>
         </slot>
         <p-i v-if="deletable"
              name="ic_delete"
@@ -99,8 +101,6 @@ export default defineComponent<Props>({
     max-width: 100%;
     width: fit-content;
     margin-right: 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.25;
     &.selected {
         @apply bg-blue-300;
     }
@@ -135,6 +135,12 @@ export default defineComponent<Props>({
         &.selected {
             @apply bg-red-200 border-red-500;
         }
+    }
+    .tag-contents {
+        font-size: 0.875rem;
+        line-height: 1.25;
+        width: 100%;
+        word-break: break-all;
     }
     .category {
         font-weight: bold;
