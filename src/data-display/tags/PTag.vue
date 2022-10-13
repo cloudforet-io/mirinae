@@ -9,7 +9,11 @@
              width="0.8rem"
              height="0.8rem"
         />
-        <span class="text"><slot /></span>
+        <slot name="default">
+            <span v-if="categoryItem" class="category"><slot name="category">[{{ categoryItem.name || categoryItem.label }}]</slot></span>
+            <span v-if="keyItem" class="key"><slot name="key">{{ keyItem.name || keyItem.label }}:</slot></span>
+            <span v-if="valueItem"><slot name="value">{{ valueItem.name || valueItem.label }}</slot></span>
+        </slot>
         <p-i v-if="deletable"
              name="ic_delete"
              width="1rem"
@@ -22,11 +26,16 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
 
 import PI from '@/foundation/icons/PI.vue';
+import type { CategoryItem, KeyItem, ValueItem } from '@/inputs/search/query-search/type';
 
 interface Props {
+    keyItem?: KeyItem;
+    valueItem: ValueItem;
+    categoryItem?: CategoryItem;
     deletable?: boolean;
     outline?: boolean;
     selected?: boolean;
@@ -40,6 +49,18 @@ export default defineComponent<Props>({
         PI,
     },
     props: {
+        keyItem: {
+            type: Object as PropType<KeyItem>,
+            default: undefined,
+        },
+        valueItem: {
+            type: Object as PropType<ValueItem>,
+            default: undefined,
+        },
+        categoryItem: {
+            type: Object as PropType<CategoryItem>,
+            default: undefined,
+        },
         deletable: {
             type: Boolean,
             default: true,
@@ -73,16 +94,19 @@ export default defineComponent<Props>({
     display: inline-flex;
     align-items: center;
     overflow: hidden;
-    padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+    padding: 0.0625rem 0.5rem 0.125rem;
     height: auto;
     max-width: 100%;
     width: fit-content;
     margin-right: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25;
     &.selected {
         @apply bg-blue-300;
     }
 
     &.deletable {
+        padding-right: 0.25rem;
         .delete-icon {
             @apply text-gray-400;
             cursor: pointer;
@@ -112,12 +136,12 @@ export default defineComponent<Props>({
             @apply bg-red-200 border-red-500;
         }
     }
-    .text {
-        font-size: 0.75rem;
-        line-height: 1.4;
-        white-space: normal;
-        word-break: break-word;
-        max-width: 100%;
+    .category {
+        font-weight: bold;
+        margin-right: 0.25rem;
+    }
+    .key {
+        font-weight: bold;
         margin-right: 0.25rem;
     }
 }

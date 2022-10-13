@@ -1,6 +1,51 @@
 import type { ArgTypes } from '@storybook/addons';
 
 export const getTagArgTypes = (): ArgTypes => ({
+    keyItem: {
+        name: 'keyItem',
+        type: { name: 'object' },
+        description: '',
+        defaultValue: undefined,
+        table: {
+            type: {
+                summary: 'object',
+            },
+            category: 'props',
+            defaultValue: {
+                summary: undefined,
+            },
+        },
+    },
+    valueItem: {
+        name: 'valueItem',
+        type: { name: 'object' },
+        description: '',
+        defaultValue: undefined,
+        table: {
+            type: {
+                summary: 'object',
+            },
+            category: 'props',
+            defaultValue: {
+                summary: undefined,
+            },
+        },
+    },
+    categoryItem: {
+        name: 'categoryItem',
+        type: { name: 'object' },
+        description: '',
+        defaultValue: undefined,
+        table: {
+            type: {
+                summary: 'object',
+            },
+            category: 'props',
+            defaultValue: {
+                summary: undefined,
+            },
+        },
+    },
     deletable: {
         name: 'deletable',
         type: { name: 'boolean' },
@@ -91,22 +136,69 @@ export const getTagArgTypes = (): ArgTypes => ({
             type: 'text',
         },
     },
-    //
-    default: {
+    /* slots */
+    defaultSlot: {
         name: 'default',
-        description: 'Slot for text.',
-        defaultValue: 'tag name',
+        description: 'Slot for replace contents composed of key, value, category',
+        defaultValue: null,
         table: {
             type: {
                 summary: null,
             },
-            defaultValue: {
+            category: 'slots',
+        },
+    },
+    categorySlot: {
+        name: 'category',
+        description: 'Slot for replace category item',
+        defaultValue: '',
+        table: {
+            type: {
                 summary: null,
             },
             category: 'slots',
         },
         control: {
             type: 'text',
+        },
+    },
+    keySlot: {
+        name: 'key',
+        description: 'Slot for replace key item',
+        defaultValue: '',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'slots',
+        },
+        control: {
+            type: 'text',
+        },
+    },
+    valueSlot: {
+        name: 'value',
+        description: 'Slot for replace value item',
+        defaultValue: '',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'slots',
+        },
+        control: {
+            type: 'text',
+        },
+    },
+    /* events */
+    onDelete: {
+        name: 'delete',
+        description: 'Emitted when the deleted button is clicked',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'events',
         },
     },
 });
