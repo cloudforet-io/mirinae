@@ -47,6 +47,7 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         rootKey: computed<KeyItem|null>(() => state.selectedKeys[0] || null),
         operator: OPERATOR.contain as OperatorType,
         supportOperators: computed<OperatorType[]>(() => {
+            if (props.preLimitOperators) return props.preLimitOperators;
             if (state.handlerResp.operators) return state.handlerResp.operators;
             if (state.rootKey?.operators) return state.rootKey.operators;
             if (supportOperatorMap[state.currentDataType]) return supportOperatorMap[state.currentDataType];
@@ -226,8 +227,6 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         }
 
         if (queryItem) {
-            // emit('search', queryItem);
-
             clearAll();
             if (state.selectedKey) updateSelectedKey(null, true);
             hideMenu();
@@ -254,7 +253,10 @@ export const useQuerySearch = (props: QuerySearchProps) => {
             // In null case, only '=', '!=' operators are available.
             if (state.searchText === '') return refineQueryItem({ label: 'Null', name: null }, state.operator.startsWith('!') ? '!=' : '=');
             return refineQueryItem({ label: state.searchText, name: state.searchText });
-        } else if (state.searchText) return refineQueryItem({ label: state.searchText, name: state.searchText });
+        } else if (state.searchText) {
+            await findAndSetKey(state.searchText, true);
+            return undefined;
+        }
         return undefined;
     };
 
@@ -367,14 +369,15 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         window.removeEventListener('keydown', onWindowKeydown, false);
     });
 
-
     return {
         state,
+
         // UI controllers
         focus,
         blur,
         hideMenu,
         showMenu,
+
         // event handlers
         onInput,
         onKeyupEnter,
@@ -382,5 +385,9 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         onPaste,
         onDeleteAll,
         preTreatSelectedMenuItem,
+
+        // helper
+        refineQueryItem,
+        findAndSetKey,
     };
 };
