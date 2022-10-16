@@ -1,8 +1,7 @@
 import { find } from 'lodash';
 
 import type {
-    HandlerResponse,
-    KeyItem, KeyItemSet, KeyMenuItem, OperatorType, ValueHandler, ValueItem, ValueMenuItem,
+    KeyItem, KeyItemSet, KeyMenuItem, ValueHandler, ValueItem, ValueMenuItem, MenuFormatterArgs,
 } from '@/inputs/search/query-search/type';
 
 
@@ -40,7 +39,7 @@ export const getRootKeyItemHandler = (keyItemSets: KeyItemSet[]): ValueHandler =
 };
 
 
-export const getKeyMenuForm = (resp: HandlerResponse, selectedKeys: KeyItem[], subPath?: string): KeyMenuItem[] => {
+export const getKeyMenuForm = ({ resp, selectedKeys, subPath }: MenuFormatterArgs): KeyMenuItem[] => {
     let key = 'Key';
     if (selectedKeys[0]) {
         key = subPath ? `[${selectedKeys[0].label}] ${subPath}` : selectedKeys[0].label;
@@ -61,7 +60,9 @@ export const getKeyMenuForm = (resp: HandlerResponse, selectedKeys: KeyItem[], s
     ];
 };
 
-export const getValueMenuForm = (resp: HandlerResponse, selectedKeys: KeyItem[], operator: OperatorType, subPath?: string): ValueMenuItem[] => {
+export const getValueMenuForm = ({
+    resp, selectedKeys, operator, subPath, hideKey,
+}: MenuFormatterArgs): ValueMenuItem[] => {
     let key;
     if (selectedKeys[0]) {
         key = subPath ? `[${selectedKeys[0].label}] ${subPath}` : selectedKeys[0].label;
@@ -74,7 +75,7 @@ export const getValueMenuForm = (resp: HandlerResponse, selectedKeys: KeyItem[],
             type: 'header',
         },
         ...resp.results.map(d => ({
-            label: `${key}:${operator} ${d.label}`,
+            label: hideKey ? d.label : `${key}:${operator} ${d.label}`,
             name: d.name,
             type: 'item' as const,
             data: d,

@@ -3,7 +3,9 @@ import {
     computed, onMounted, onUnmounted, reactive, watch,
 } from 'vue';
 
-import { cloneDeep, debounce, throttle } from 'lodash';
+import {
+    cloneDeep, debounce, find, throttle,
+} from 'lodash';
 
 import {
     defaultHandlerMap, formatterMap,
@@ -25,8 +27,12 @@ import { OPERATOR, operators } from '@/inputs/search/query-search/type';
 
 const ROOT_KEY_SETTER = ':';
 const NUMBER_TYPES = ['integer', 'float'];
+interface QuerySearchOptions {
+    strict?: boolean;
+}
 
-export const useQuerySearch = (props: QuerySearchProps) => {
+export const useQuerySearch = (props: QuerySearchProps, options: QuerySearchOptions = {}) => {
+    const { strict } = options;
     const state = reactive({
         /* Input */
         inputRef: null as null|HTMLElement,
@@ -47,7 +53,6 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         rootKey: computed<KeyItem|null>(() => state.selectedKeys[0] || null),
         operator: OPERATOR.contain as OperatorType,
         supportOperators: computed<OperatorType[]>(() => {
-            if (props.preLimitOperators) return props.preLimitOperators;
             if (state.handlerResp.operators) return state.handlerResp.operators;
             if (state.rootKey?.operators) return state.rootKey.operators;
             if (supportOperatorMap[state.currentDataType]) return supportOperatorMap[state.currentDataType];
@@ -157,9 +162,16 @@ export const useQuerySearch = (props: QuerySearchProps) => {
     };
     const setMenu = (res: HandlerResponse) => {
         if (state.menuType === 'ROOT_KEY') state.menu = res.results;
-        else if (state.menuType === 'KEY') state.menu = getKeyMenuForm(res, state.selectedKeys, state.subPath);
-        else if (state.menuType === 'VALUE') state.menu = getValueMenuForm(res, state.selectedKeys, state.operator, state.subPath);
-        else state.menu = res.results.map(d => ({ ...d, type: 'item', data: d }));
+        else if (state.menuType === 'KEY') state.menu = getKeyMenuForm({ resp: res, selectedKeys: state.selectedKeys, subPath: state.subPath });
+        else if (state.menuType === 'VALUE') {
+            state.menu = getValueMenuForm({
+                resp: res,
+                selectedKeys: state.selectedKeys,
+                operator: state.operator,
+                subPath: state.subPath,
+                hideKey: strict,
+            });
+        } else state.menu = res.results.map(d => ({ ...d, type: 'item', data: d }));
         if (!state.menu.length) hideMenu();
     };
     const updateMenuItems = throttle(async (inputText: string): Promise<void> => {
@@ -215,11 +227,11 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         }
     };
 
-    const refineQueryItem = (valueItem: ValueItem, fixedOperator?: OperatorType): QueryItem | undefined => {
+    const refineQueryItem = (valueItem: ValueItem): QueryItem | undefined => {
         let queryItem: QueryItem|null = {
             key: state.rootKey,
             value: valueItem,
-            operator: fixedOperator ?? state.operator,
+            operator: strict ? '=' : state.operator ?? undefined,
         };
 
         if (formatterMap[state.rootKey?.dataType]) {
@@ -246,17 +258,34 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         if (val.length > 1 && e.data === ROOT_KEY_SETTER && !state.rootKey) await findAndSetKey(val.slice(0, val.length - 1));
         else await updateMenuItems(val);
     };
+
+    // TODO: need to refactor
     const onKeyupEnter = async (): Promise<QueryItem | undefined> => {
-        if (state.currentDataType === 'object') {
+        if (strict) {
+            if (state.rootKey) {
+                console.log('in');
+                const res = find(state.handlerResp.results, (item: ValueMenuItem) => {
+                    console.log(item.label, state.searchText, item.label === state.searchText);
+                    return item.label === state.searchText || item.name === state.searchText;
+                });
+                console.log(res);
+                if (res) return refineQueryItem(res);
+                return undefined;
+            }
+        } else if (state.currentDataType === 'object') {
             if (state.searchText) await findAndSetKey(state.searchText, false);
         } else if (state.rootKey) {
             // In null case, only '=', '!=' operators are available.
-            if (state.searchText === '') return refineQueryItem({ label: 'Null', name: null }, state.operator.startsWith('!') ? '!=' : '=');
+            if (state.searchText === '') {
+                if (state.operator.startsWith('!')) {
+                    state.operator = '!=';
+                } else state.operator = '=';
+                return refineQueryItem({ label: 'Null', name: null });
+            }
             return refineQueryItem({ label: state.searchText, name: state.searchText });
-        } else if (state.searchText) {
-            await findAndSetKey(state.searchText, true);
-            return undefined;
         }
+
+        if (state.searchText) await findAndSetKey(state.searchText, true);
         return undefined;
     };
 
@@ -281,7 +310,7 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         if (!state.selectedKey) return;
 
         /* check operator */
-        if (state.searchText.length === 0) {
+        if (state.searchText.length === 0 && !strict) {
             const op = state.operator + e.key;
             if (state.supportOperators.some(d => d.startsWith(op))) {
                 e.preventDefault();
@@ -324,9 +353,10 @@ export const useQuerySearch = (props: QuerySearchProps) => {
 
         e.preventDefault();
     };
-    const onDeleteAll = () => {
+    const onDeleteAll = async () => {
         updateSelectedKey(null, true);
         clearAll();
+        await updateMenuItems(state.searchText);
         focus();
     };
     const preTreatSelectedMenuItem = async (item: KeyMenuItem|ValueMenuItem): Promise<QueryItem | undefined> => {
@@ -359,13 +389,9 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         }
     };
     onMounted(() => {
-        window.addEventListener('click', hideMenu);
-        window.addEventListener('blur', hideMenu);
         window.addEventListener('keydown', onWindowKeydown, false);
     });
     onUnmounted(() => {
-        window.removeEventListener('click', hideMenu);
-        window.removeEventListener('blur', hideMenu);
         window.removeEventListener('keydown', onWindowKeydown, false);
     });
 
@@ -385,9 +411,5 @@ export const useQuerySearch = (props: QuerySearchProps) => {
         onPaste,
         onDeleteAll,
         preTreatSelectedMenuItem,
-
-        // helper
-        refineQueryItem,
-        findAndSetKey,
     };
 };

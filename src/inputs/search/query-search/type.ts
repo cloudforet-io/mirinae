@@ -87,9 +87,16 @@ export interface QuerySearchProps {
     keyItemSets: KeyItemSet[];
     valueHandlerMap: ValueHandlerMap;
     value: string;
-    preLimitOperators?: OperatorType[];
 }
 
 export interface QuerySearchEventArgs {
     search: [QueryItem];
+}
+
+export interface MenuFormatterArgs {
+    resp: HandlerResponse;
+    selectedKeys: KeyItem[];
+    operator?: OperatorType;
+    subPath?: string;
+    hideKey?: boolean;
 }
