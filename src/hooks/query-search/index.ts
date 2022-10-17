@@ -263,12 +263,7 @@ export const useQuerySearch = (props: QuerySearchProps, options: QuerySearchOpti
     const onKeyupEnter = async (): Promise<QueryItem | undefined> => {
         if (strict) {
             if (state.rootKey) {
-                console.log('in');
-                const res = find(state.handlerResp.results, (item: ValueMenuItem) => {
-                    console.log(item.label, state.searchText, item.label === state.searchText);
-                    return item.label === state.searchText || item.name === state.searchText;
-                });
-                console.log(res);
+                const res = find(state.handlerResp.results, (item: ValueMenuItem) => item.label === state.searchText || item.name === state.searchText);
                 if (res) return refineQueryItem(res);
                 return undefined;
             }

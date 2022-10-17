@@ -1,5 +1,5 @@
 <template>
-    <div class="p-query-search">
+    <div v-click-outside="hideMenu" class="p-query-search">
         <p-search :class="{'no-menu': menu ? menu.length === 0 : false}"
                   :value="searchText"
                   :placeholder="placeholder"
@@ -62,11 +62,12 @@
 </template>
 
 <script lang="ts">
-import type { PropType, SetupContext } from 'vue';
+import type { PropType, SetupContext, DirectiveFunction } from 'vue';
 import {
     computed, defineComponent, toRefs,
 } from 'vue';
 
+import { vOnClickOutside } from '@vueuse/components';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -92,7 +93,10 @@ export default defineComponent({
         PSearch,
         PI,
     },
-    directives: { focus: vFocus },
+    directives: {
+        focus: vFocus,
+        clickOutside: vOnClickOutside as DirectiveFunction,
+    },
     model: {
         prop: 'value',
         event: 'update:value',
