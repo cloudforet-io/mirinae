@@ -162,10 +162,10 @@ export const useQuerySearch = (props: QuerySearchProps, options: QuerySearchOpti
     };
     const setMenu = (res: HandlerResponse) => {
         if (state.menuType === 'ROOT_KEY') state.menu = res.results;
-        else if (state.menuType === 'KEY') state.menu = getKeyMenuForm({ resp: res, selectedKeys: state.selectedKeys, subPath: state.subPath });
+        else if (state.menuType === 'KEY') state.menu = getKeyMenuForm({ menuResponse: res, selectedKeys: state.selectedKeys, subPath: state.subPath });
         else if (state.menuType === 'VALUE') {
             state.menu = getValueMenuForm({
-                resp: res,
+                menuResponse: res,
                 selectedKeys: state.selectedKeys,
                 operator: state.operator,
                 subPath: state.subPath,

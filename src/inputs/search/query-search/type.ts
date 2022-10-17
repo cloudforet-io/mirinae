@@ -94,7 +94,7 @@ export interface QuerySearchEventArgs {
 }
 
 export interface MenuFormatterArgs {
-    resp: HandlerResponse;
+    menuResponse: HandlerResponse;
     selectedKeys: KeyItem[];
     operator?: OperatorType;
     subPath?: string;

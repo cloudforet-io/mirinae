@@ -39,7 +39,7 @@ export const getRootKeyItemHandler = (keyItemSets: KeyItemSet[]): ValueHandler =
 };
 
 
-export const getKeyMenuForm = ({ resp, selectedKeys, subPath }: MenuFormatterArgs): KeyMenuItem[] => {
+export const getKeyMenuForm = ({ menuResponse, selectedKeys, subPath }: MenuFormatterArgs): KeyMenuItem[] => {
     let key = 'Key';
     if (selectedKeys[0]) {
         key = subPath ? `[${selectedKeys[0].label}] ${subPath}` : selectedKeys[0].label;
@@ -47,11 +47,11 @@ export const getKeyMenuForm = ({ resp, selectedKeys, subPath }: MenuFormatterArg
 
     return [
         {
-            label: `${key} ${resp.totalCount === undefined ? '' : `(${resp.totalCount})`}`,
+            label: `${key} ${menuResponse.totalCount === undefined ? '' : `(${menuResponse.totalCount})`}`,
             name: key,
             type: 'header',
         },
-        ...resp.results.map(d => ({
+        ...menuResponse.results.map(d => ({
             label: d.label,
             name: d.name,
             type: (d as ValueMenuItem).type || 'item' as const,
@@ -61,7 +61,7 @@ export const getKeyMenuForm = ({ resp, selectedKeys, subPath }: MenuFormatterArg
 };
 
 export const getValueMenuForm = ({
-    resp, selectedKeys, operator, subPath, hideKey,
+    menuResponse, selectedKeys, operator, subPath, hideKey,
 }: MenuFormatterArgs): ValueMenuItem[] => {
     let key;
     if (selectedKeys[0]) {
@@ -70,11 +70,11 @@ export const getValueMenuForm = ({
 
     return [
         {
-            label: `${key} ${resp.totalCount === undefined ? '' : `(${resp.totalCount})`}`,
+            label: `${key} ${menuResponse.totalCount === undefined ? '' : `(${menuResponse.totalCount})`}`,
             name: key,
             type: 'header',
         },
-        ...resp.results.map(d => ({
+        ...menuResponse.results.map(d => ({
             label: hideKey ? d.label : `${key}:${operator} ${d.label}`,
             name: d.name,
             type: 'item' as const,

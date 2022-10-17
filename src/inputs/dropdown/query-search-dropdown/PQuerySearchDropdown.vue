@@ -76,11 +76,12 @@ import { useProxyValue } from '@/hooks';
 import { useQuerySearch } from '@/hooks/query-search';
 import { PTag } from '@/index';
 import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
+import type { QuerySearchDropdownProps } from '@/inputs/dropdown/query-search-dropdown/type';
 import type { SearchDropdownMenuItem } from '@/inputs/dropdown/search-dropdown/type';
 import type { KeyMenuItem, ValueMenuItem, QueryItem } from '@/inputs/search/query-search/type';
 import PSearch from '@/inputs/search/search/PSearch.vue';
 
-export default defineComponent({
+export default defineComponent<QuerySearchDropdownProps>({
     name: 'PQuerySearchDropdown',
     components: {
         PContextMenu,
