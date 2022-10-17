@@ -14,7 +14,7 @@
                v-on="{
                    ...$listeners,
                    click: (event) => {
-                       if (!disabled && !loading && $listeners.click) {
+                       if (!disabled && !loading) {
                            if (typeof $listeners.click === 'function') $listeners.click(event);
                            else $listeners.click.forEach(func => func(event));
                        }
