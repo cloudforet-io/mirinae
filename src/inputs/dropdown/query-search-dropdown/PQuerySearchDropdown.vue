@@ -1,10 +1,10 @@
 <template>
     <div v-click-outside="hideMenu" class="p-query-search-dropdown">
-        <p-search :class="{'no-menu': menu ? menu.length === 0 : false}"
-                  :value="searchText"
+        <p-search :class="{'no-menu': querySearchState.menu ? querySearchState.menu.length === 0 : false}"
+                  :value="querySearchState.searchText"
                   :placeholder="placeholder ? placeholder : 'Select Key: value'"
                   disable-icon
-                  :is-focused.sync="isFocused"
+                  :is-focused.sync="querySearchState.isFocused"
         >
             <template #default="scope">
                 <p-tag v-for="(selectedItem, index) in proxySelected" :key="`tag-box-${index}`"
@@ -13,15 +13,15 @@
                        @delete="onDeleteTag(selectedItem, index)"
                 />
                 <span class="input-set">
-                    <span v-for="(keyItem, idx) in selectedKeys" :key="idx" class="key-tag">
+                    <span v-for="(keyItem, idx) in querySearchState.selectedKeys" :key="idx" class="key-tag">
                         {{ keyItem.label }}:
                     </span>
-                    <input ref="inputRef" v-focus.lazy="isFocused"
-                           :value="searchText"
-                           :placeholder="currentPlaceholder || scope.placeholder"
-                           :type="inputElType"
-                           :step="currentDataType === 'integer' ? 1 : undefined"
-                           :min="currentDataType === 'integer' ? 0 : undefined"
+                    <input ref="inputRef" v-focus.lazy="querySearchState.isFocused"
+                           :value="querySearchState.searchText"
+                           :placeholder="querySearchState.currentPlaceholder || scope.placeholder"
+                           :type="querySearchState.inputElType"
+                           :step="querySearchState.currentDataType === 'integer' ? 1 : undefined"
+                           :min="querySearchState.currentDataType === 'integer' ? 0 : undefined"
                            @input="onInput"
                            @keyup.enter="onEnter"
                            @keydown="onKeydownCheck"
@@ -34,24 +34,24 @@
             </template>
             <template #right="scope">
                 <div class="right">
-                    <span v-if="selectedKey || scope.value" class="delete-btn" @click="onDeleteAll">
+                    <span v-if="querySearchState.selectedKey || scope.value" class="delete-btn" @click="onDeleteAll">
                         <p-i class="icon" name="ic_delete" height="1rem"
                              width="1rem"
                         />
                     </span>
-                    <span class="dropdown-btn" :class="{'text-blue-600': isFocused}" @click="handleClickDropdownButton">
-                        <p-i class="icon" :name="visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
+                    <span class="dropdown-btn" :class="{'text-blue-600': querySearchState.isFocused}" @click="handleClickDropdownButton">
+                        <p-i class="icon" :name="querySearchState.visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
                              color="inherit"
                         />
                     </span>
                 </div>
             </template>
         </p-search>
-        <div v-show="visibleMenu" class="menu-container">
+        <div v-show="querySearchState.visibleMenu" class="menu-container">
             <p-context-menu ref="menuRef"
-                            :loading="lazyLoading"
-                            :menu="menu"
-                            :highlight-term="searchText"
+                            :loading="querySearchState.lazyLoading"
+                            :menu="querySearchState.menu"
+                            :highlight-term="querySearchState.searchText"
                             no-select-indication
                             @keyup:up:end="focus"
                             @keyup:down:end="focus"
@@ -174,7 +174,7 @@ export default defineComponent({
         };
 
         return {
-            ...toRefs(querySearchState),
+            querySearchState,
             ...toRefs(state),
             focus,
             blur,
