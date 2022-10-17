@@ -34,12 +34,12 @@
             </template>
             <template #right="scope">
                 <div class="right">
-                    <span v-if="querySearchState.selectedKey || scope.value" class="delete-btn" @click="onDeleteAll">
+                    <span v-if="querySearchState.selectedKey || scope.value" class="delete-button" @click="onDeleteAll">
                         <p-i class="icon" name="ic_delete" height="1rem"
                              width="1rem"
                         />
                     </span>
-                    <span class="dropdown-btn" :class="{'text-blue-600': querySearchState.isFocused}" @click="handleClickDropdownButton">
+                    <span class="dropdown-button" :class="{'text-blue-600': querySearchState.isFocused}" @click="handleClickDropdownButton">
                         <p-i class="icon" :name="querySearchState.visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
                              color="inherit"
                         />
@@ -232,7 +232,7 @@ export default defineComponent({
         display: inline-flex;
         justify-content: space-between;
         align-items: center;
-        .delete-btn {
+        .delete-button {
             @apply cursor-pointer inline-block flex-shrink-0 rounded-full;
             position: relative;
             height: 1rem;
@@ -241,7 +241,7 @@ export default defineComponent({
                 @apply bg-gray-200;
             }
         }
-        .dropdown-btn {
+        .dropdown-button {
             @apply cursor-pointer inline-block flex-shrink-0 rounded-full;
             position: relative;
             height: 1.5rem;
