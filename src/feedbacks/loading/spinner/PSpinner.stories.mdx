@@ -1,0 +1,97 @@
+import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
+import PSpinner from './PSpinner.vue';
+import {getSpinnerArgTypes} from '@/feedbacks/loading/spinner/story-helper';
+
+<Meta title='Feedbacks/Loading/Spinner' parameters={{
+    design: {
+        type: 'figma',
+        url: 'https://www.figma.com/file/wq4wSowBcADBuUrMEZLz6i/SpaceONE-Console-Design?node-id=6132%3A133538',
+    }
+}} argTypes={getSpinnerArgTypes()}/>
+
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { PSpinner },
+    template: `
+        <p-spinner
+            :size="size"
+            :spinner-color="spinnerColor"
+            :bg-color="bgColor"
+        ></p-spinner>
+    `,
+    setup() {
+        return {}
+    }
+});
+
+
+# Spinner
+
+<br/>
+<br/>
+
+## Basic
+
+<Canvas>
+    <Story name="Basic">
+        {{
+            components: { PSpinner },
+            template: `
+    <p-spinner />
+`
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
+## Color
+
+<Canvas>
+    <Story name="Color">
+        {{
+            components: { PSpinner },
+            template: `
+    <div class="flex items-center">
+        <p-spinner class="mr-4" />
+        <p-spinner spinner-color="#897CD6" bg-color="#6638b6"/>
+    </div>
+`
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
+## Size
+
+<Canvas>
+    <Story name="Size">
+        {{
+            components: { PSpinner },
+            template: `
+    <div class="flex items-center">
+        <p-spinner class="mr-4" size="2rem" />
+        <p-spinner size="3rem" />
+    </div>
+`
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
+## Playground
+
+<Canvas>
+    <Story name="Playground">
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+<ArgsTable story="Playground"/>
+
