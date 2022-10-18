@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import {
     defineComponent,
 } from 'vue';
@@ -37,11 +38,11 @@ export default defineComponent<Props>({
     },
     props: {
         size: {
-            type: String,
+            type: String as PropType<keyof typeof SPINNER_SIZE>,
             default: SPINNER_SIZE.md,
         },
         styleType: {
-            type: String,
+            type: String as PropType<keyof typeof SPINNER_STYLE_TYPE>,
             default: SPINNER_STYLE_TYPE.gray,
         },
     },
