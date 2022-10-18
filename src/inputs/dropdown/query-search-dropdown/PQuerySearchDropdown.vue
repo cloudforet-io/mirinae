@@ -213,7 +213,6 @@ export default defineComponent<QuerySearchDropdownProps>({
         min-width: 7rem;
         height: 1.125rem;
         .input-element {
-            width: auto;
             flex-grow: 1;
         }
     }
