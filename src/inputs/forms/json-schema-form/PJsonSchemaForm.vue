@@ -55,16 +55,26 @@
                                        :disabled="schemaProperty.disabled"
                                        @update:selected="handleUpdateFormValue(schemaProperty, ...arguments)"
                     />
-                    <p-text-input v-else
-                                  :value="rawFormData[schemaProperty.propertyName]"
-                                  :type="schemaProperty.inputType"
-                                  :invalid="invalid"
-                                  :placeholder="schemaProperty.inputPlaceholder"
-                                  :masking-mode="schemaProperty.inputType === 'password'"
-                                  :autocomplete="false"
-                                  :disabled="schemaProperty.disabled"
-                                  @update:value="handleUpdateFormValue(schemaProperty, ...arguments)"
-                    />
+                    <template v-else>
+                        <p-text-input v-if="schemaProperty.type === 'array'"
+                                      :selected="rawFormData[schemaProperty.propertyName]"
+                                      :type="schemaProperty.inputType"
+                                      :invalid="invalid"
+                                      :placeholder="schemaProperty.inputPlaceholder"
+                                      :disabled="schemaProperty.disabled"
+                                      multi-input
+                                      @update:selected="handleUpdateFormValue(schemaProperty, ...arguments)"
+                        />
+                        <p-text-input v-else
+                                      :value="rawFormData[schemaProperty.propertyName]"
+                                      :type="schemaProperty.inputType"
+                                      :invalid="invalid"
+                                      :placeholder="schemaProperty.inputPlaceholder"
+                                      :masking-mode="schemaProperty.inputType === 'password'"
+                                      :disabled="schemaProperty.disabled"
+                                      @update:value="handleUpdateFormValue(schemaProperty, ...arguments)"
+                        />
+                    </template>
                 </template>
             </p-field-group>
         </template>
