@@ -27,6 +27,7 @@ import {
     defineComponent,
 } from 'vue';
 
+import type { SpinnerSize, SpinnerStyleType } from '@/feedbacks/loading/spinner/type';
 import { SPINNER_SIZE, SPINNER_STYLE_TYPE } from '@/feedbacks/loading/spinner/type';
 
 interface Props {
@@ -40,11 +41,11 @@ export default defineComponent<Props>({
     },
     props: {
         size: {
-            type: String as PropType<keyof typeof SPINNER_SIZE>,
+            type: String as PropType<SpinnerSize>,
             default: SPINNER_SIZE.md,
         },
         styleType: {
-            type: String as PropType<keyof typeof SPINNER_STYLE_TYPE>,
+            type: String as PropType<SpinnerStyleType>,
             default: SPINNER_STYLE_TYPE.gray,
         },
     },
