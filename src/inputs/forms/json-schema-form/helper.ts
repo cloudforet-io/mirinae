@@ -1,5 +1,3 @@
-import { cloneDeep } from 'lodash';
-
 import type { SelectDropdownMenu } from '@/inputs/dropdown/select-dropdown/type';
 import type {
     ComponentName, InnerJsonSchema, JsonSchema, TextInputType,
@@ -42,7 +40,11 @@ export const initFormDataWithSchema = (schema?: JsonSchema, formData?: object): 
         const property = properties[key];
         result[key] = formData?.[key] ?? property.default ?? undefined;
         if (property.type === 'array' && result[key]) { // array type needs conversion for component.
-            result[key] = cloneDeep(result[key]).map(d => ({ value: d }));
+            if (!Array.isArray(result[key])) {
+                result[key] = undefined;
+            } else {
+                result[key] = result[key].map(d => ({ value: d }));
+            }
         }
     });
     return result;
