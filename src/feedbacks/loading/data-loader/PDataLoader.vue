@@ -88,7 +88,7 @@ export default defineComponent<Props>({
             },
         },
         spinnerSize: {
-            type: Number,
+            type: String,
             default: SPINNER_SIZE.xl,
         },
         disableEmptyCase: {
