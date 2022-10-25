@@ -61,6 +61,7 @@ export const getDefaultSchema = () => ({
             examples: [
                 'user1@test.com, user2@test.com',
             ],
+            default: ['user1@test.com'],
             uniqueItems: true,
         },
         homepage: {
