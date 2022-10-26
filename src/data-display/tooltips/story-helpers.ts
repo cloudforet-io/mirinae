@@ -61,7 +61,7 @@ export const getTooltipArgTypes = (): ArgTypes => ({
     options: {
         name: 'options',
         type: { name: 'object' },
-        description: 'Position of tooltip.',
+        description: 'Options of Tooltip. This must be options of [v-tooltip](https://www.npmjs.com/package/v-tooltip#other-options).',
         defaultValue: { autoHide: false },
         table: {
             type: {
