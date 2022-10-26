@@ -19,12 +19,15 @@
     </span>
 </template>
 <script lang="ts">
-import { computed, reactive, toRefs } from 'vue';
+import {
+    computed, defineComponent, reactive, toRefs,
+} from 'vue';
 
+import type { DictDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/dict/type';
 import PTag from '@/data-display/tags/PTag.vue';
 import PAnchor from '@/inputs/anchors/PAnchor.vue';
 
-export default {
+export default defineComponent<DictDynamicFieldProps>({
     name: 'PDynamicFieldDict',
     components: {
         PTag,
@@ -61,5 +64,5 @@ export default {
             ...toRefs(state),
         };
     },
-};
+});
 </script>
