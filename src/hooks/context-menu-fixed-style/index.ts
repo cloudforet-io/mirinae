@@ -79,8 +79,8 @@ export const useContextMenuFixedStyle = ({ useFixedMenuStyle, visibleMenu }: Sta
         contextMenuFixedStyleState.contextMenuStyle = contextMenuStyle;
     };
 
-    watch(() => visibleMenu.value, async () => {
-        if (!visibleMenu.value || !contextMenuFixedStyleState.targetRef) {
+    watch(() => state.visibleMenu, async () => {
+        if (!state.visibleMenu || !contextMenuFixedStyleState.targetRef) {
             contextMenuFixedStyleState.contextMenuStyle = {};
         }
 
