@@ -34,7 +34,7 @@
                         ref="menuRef"
                         :menu="bindingMenu"
                         :highlight-term="proxyValue"
-                        :loading="proxyLoading"
+                        :loading="disableHandler ? loading : handlerLoading"
                         :style="{...contextMenuStyle, maxWidth: contextMenuStyle.minWidth, width: contextMenuStyle.minWidth}"
                         @select="handleClickMenuItem"
                         @focus="handleFocusMenuItem"
@@ -147,7 +147,7 @@ export default defineComponent<SearchProps>({
         });
         const state = reactive({
             proxyIsFocused: useProxyValue('isFocused', props, emit),
-            proxyLoading: useProxyValue('loading', props, emit),
+            handlerLoading: false,
             placeholderText: computed<TranslateResult>(() => {
                 if (props.placeholder === undefined) return i18n.t('COMPONENT.SEARCH.PLACEHOLDER');
                 return props.placeholder;
@@ -172,7 +172,7 @@ export default defineComponent<SearchProps>({
             if (props.disableHandler) return;
             if (props.handler) {
                 try {
-                    state.loading = true;
+                    state.handlerLoading = true;
                     let res = props.handler(val, state.searchableItems);
                     if (res instanceof Promise) res = await res;
                     state.filteredMenu = Array.isArray(res) ? res : (res.results ?? []);
@@ -180,7 +180,7 @@ export default defineComponent<SearchProps>({
                     console.error(e);
                     throw e;
                 } finally {
-                    state.loading = false;
+                    state.handlerLoading = false;
                 }
             } else {
                 const results = defaultHandler(val, state.searchableItems);

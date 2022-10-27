@@ -4,6 +4,8 @@ import { getContextMenuArgTypes } from '@/inputs/context-menu/story-helper';
 
 const initContextMenuArgTypes = (): ArgTypes => {
     const contextMenuArgTypes = getContextMenuArgTypes();
+    // eslint-disable-next-line max-len
+    contextMenuArgTypes.loading.description = 'Use this prop to display loading animation from the drop-down menu.<br/>This `loading` works when `disableHandler` is `true`.<br/>(Already implemented for injected handlers internally.)';
     const argTypes: ArgTypes = {
         menu: contextMenuArgTypes.menu,
         loading: contextMenuArgTypes.loading,
@@ -384,19 +386,6 @@ export const getSearchArgTypes = (): ArgTypes => {
                 defaultValue: {
                     summary: null,
                 },
-            },
-        },
-        onUpdateLoading: {
-            name: 'update:loading',
-            description: 'Event emitted when loading state changed. Works with `v-model` and `loading` props sync.',
-            table: {
-                type: {
-                    summary: null,
-                },
-                defaultValue: {
-                    summary: null,
-                },
-                category: 'events',
             },
         },
     });
