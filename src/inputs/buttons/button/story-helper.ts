@@ -96,24 +96,6 @@ export const getButtonArgTypes = (): ArgTypes => ({
             type: 'boolean',
         },
     },
-    outline: {
-        name: 'outline',
-        type: { name: 'boolean' },
-        description: 'Outlined when true',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false,
-            },
-        },
-        control: {
-            type: 'boolean',
-        },
-    },
     block: {
         name: 'block',
         type: { name: 'boolean' },
@@ -130,25 +112,6 @@ export const getButtonArgTypes = (): ArgTypes => ({
         },
         control: {
             type: 'boolean',
-        },
-    },
-    fontWeight: {
-        name: 'fontWeight',
-        type: { name: 'string' },
-        description: 'Font Weight',
-        defaultValue: 'bold',
-        table: {
-            type: {
-                summary: 'string',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'bold',
-            },
-        },
-        control: {
-            type: 'select',
-            options: ['light', 'normal', 'bold'],
         },
     },
     icon: {
