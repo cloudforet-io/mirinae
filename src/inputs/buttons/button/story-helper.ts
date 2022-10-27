@@ -114,10 +114,29 @@ export const getButtonArgTypes = (): ArgTypes => ({
             type: 'boolean',
         },
     },
-    icon: {
-        name: 'icon',
+    iconLeft: {
+        name: 'iconLeft',
         type: { name: 'string' },
-        description: 'Icon name',
+        description: 'Name of icon to the left of the text.',
+        defaultValue: null,
+        table: {
+            type: {
+                summary: 'string',
+            },
+            category: 'props',
+            defaultValue: {
+                summary: 'null',
+            },
+        },
+        control: {
+            type: 'select',
+            options: [null, ...Object.keys(icon.icons)],
+        },
+    },
+    iconRight: {
+        name: 'iconRight',
+        type: { name: 'string' },
+        description: 'Name of icon to the right of the text.',
         defaultValue: null,
         table: {
             type: {

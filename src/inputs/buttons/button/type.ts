@@ -27,5 +27,6 @@ export interface ButtonProps {
     styleType?: ButtonStyle;
     size?: ButtonSize;
     block?: boolean;
-    icon?: string;
+    iconLeft?: string;
+    iconRight?: string;
 }
