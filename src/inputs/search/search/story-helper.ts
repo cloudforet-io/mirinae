@@ -386,5 +386,18 @@ export const getSearchArgTypes = (): ArgTypes => {
                 },
             },
         },
+        onUpdateLoading: {
+            name: 'update:loading',
+            description: 'Event emitted when loading state changed. Works with `v-model` and `loading` props sync.',
+            table: {
+                type: {
+                    summary: null,
+                },
+                defaultValue: {
+                    summary: null,
+                },
+                category: 'events',
+            },
+        },
     });
 };

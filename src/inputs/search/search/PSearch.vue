@@ -34,7 +34,7 @@
                         ref="menuRef"
                         :menu="bindingMenu"
                         :highlight-term="proxyValue"
-                        :loading="loading"
+                        :loading="proxyLoading"
                         :style="{...contextMenuStyle, maxWidth: contextMenuStyle.minWidth, width: contextMenuStyle.minWidth}"
                         @select="handleClickMenuItem"
                         @focus="handleFocusMenuItem"
@@ -147,7 +147,7 @@ export default defineComponent<SearchProps>({
         });
         const state = reactive({
             proxyIsFocused: useProxyValue('isFocused', props, emit),
-            loading: useProxyValue('loading', props, emit),
+            proxyLoading: useProxyValue('loading', props, emit),
             placeholderText: computed<TranslateResult>(() => {
                 if (props.placeholder === undefined) return i18n.t('COMPONENT.SEARCH.PLACEHOLDER');
                 return props.placeholder;
