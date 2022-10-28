@@ -49,19 +49,18 @@
                 </div>
             </template>
         </p-search>
-        <div v-show="visibleMenuRef" class="menu-container">
-            <p-context-menu ref="menuRef"
-                            :loading="querySearchState.lazyLoading"
-                            :menu="querySearchState.menu"
-                            :highlight-term="querySearchState.searchText"
-                            :style="{...contextMenuStyle, maxWidth: contextMenuStyle.minWidth, width: contextMenuStyle.minWidth}"
-                            no-select-indication
-                            @keyup:up:end="focus"
-                            @keyup:down:end="focus"
-                            @select="onMenuSelect"
-                            @blur="focus"
-            />
-        </div>
+        <p-context-menu v-show="visibleMenuRef"
+                        ref="menuRef"
+                        :loading="querySearchState.lazyLoading"
+                        :menu="querySearchState.menu"
+                        :highlight-term="querySearchState.searchText"
+                        :style="{...contextMenuStyle, maxWidth: contextMenuStyle.minWidth, width: contextMenuStyle.minWidth}"
+                        no-select-indication
+                        @keyup:up:end="focus"
+                        @keyup:down:end="focus"
+                        @select="onMenuSelect"
+                        @blur="focus"
+        />
     </div>
 </template>
 
@@ -167,7 +166,16 @@ export default defineComponent<QuerySearchDropdownProps>({
             onPaste,
             onDeleteAll,
             preTreatSelectedMenuItem,
-        } = useQuerySearch(props, { strict: true });
+        } = useQuerySearch(
+            {
+                value: props.value,
+                focused: props.focused,
+                valueHandlerMap: computed(() => props.valueHandlerMap),
+                keyItemSets: computed(() => props.keyItemSets),
+                visibleMenu: visibleMenuRef,
+            },
+            { strict: true },
+        );
 
 
         /* util */
@@ -223,13 +231,10 @@ export default defineComponent<QuerySearchDropdownProps>({
 
 <style lang="postcss">
 .p-query-search-dropdown {
-    @apply w-full;
+    @apply w-full relative;
     .p-search {
         @apply text-sm font-normal;
         padding: 0.25rem 0.5rem;
-    }
-    .menu-container {
-        @apply w-full relative;
     }
     .input-set {
         display: inline-flex;

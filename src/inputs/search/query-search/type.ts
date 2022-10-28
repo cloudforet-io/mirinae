@@ -1,3 +1,5 @@
+import type { Ref, ComputedRef } from 'vue';
+
 import type { ContextMenuType } from '@/inputs/context-menu/type';
 
 
@@ -80,13 +82,12 @@ export interface KeyItemSet {
     items: KeyItem[];
 }
 
-
-export interface QuerySearchProps {
-    placeholder?: string;
-    focused: boolean;
-    keyItemSets: KeyItemSet[];
-    valueHandlerMap: ValueHandlerMap;
-    value: string;
+export interface QuerySearchStateArgs {
+    focused: ComputedRef<boolean> | boolean;
+    keyItemSets: ComputedRef<KeyItemSet[]> | KeyItemSet[];
+    valueHandlerMap: ComputedRef<ValueHandlerMap> | ValueHandlerMap;
+    value: ComputedRef<string> | string;
+    visibleMenu: Ref<boolean>;
 }
 
 export interface QuerySearchEventArgs {

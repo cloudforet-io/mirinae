@@ -62,9 +62,11 @@
 </template>
 
 <script lang="ts">
-import type { PropType, SetupContext, DirectiveFunction } from 'vue';
+import type {
+    PropType, SetupContext, DirectiveFunction, Ref,
+} from 'vue';
 import {
-    computed, defineComponent, toRefs,
+    computed, defineComponent, ref, toRefs,
 } from 'vue';
 
 import { vOnClickOutside } from '@vueuse/components';
@@ -126,16 +128,25 @@ export default defineComponent({
     },
     setup(props, context: SetupContext) {
         const { slots, emit } = context;
+        const visibleMenuRef: Ref<boolean> = ref<boolean>(false);
         const {
             state,
             focus, blur, hideMenu, showMenu,
             onInput,
-            onKeyupEnter,
             onKeydownCheck,
+            onKeyupEnter,
             onPaste,
             onDeleteAll,
             preTreatSelectedMenuItem,
-        } = useQuerySearch(props);
+        } = useQuerySearch(
+            {
+                value: props.value,
+                focused: props.focused,
+                valueHandlerMap: computed(() => props.valueHandlerMap),
+                keyItemSets: computed(() => props.keyItemSets),
+                visibleMenu: visibleMenuRef,
+            },
+        );
 
         /* event */
         const onMenuSelect = async (item: KeyMenuItem | ValueMenuItem) => {
