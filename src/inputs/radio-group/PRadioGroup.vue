@@ -14,7 +14,7 @@ import type { Direction } from '@/inputs/radio-group/type';
 import { DIRECTION } from '@/inputs/radio-group/type';
 
 interface RadioGroupProps {
-    direction?: string;
+    direction?: Direction;
 }
 export default defineComponent<RadioGroupProps>({
     name: 'PRadioGroup',
