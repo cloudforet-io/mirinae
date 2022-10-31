@@ -40,7 +40,7 @@ export default defineComponent<RadioGroupProps>({
         }
     }
     &.vertical {
-        @apply flex flex-col row-gap-2;
+        @apply flex flex-col row-gap-1;
     }
 }
 </style>
