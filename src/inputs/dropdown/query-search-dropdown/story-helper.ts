@@ -1,13 +1,10 @@
 import type { ArgTypes } from '@storybook/addons';
 
 import { getKeyItemSets, getValueHandlerMap } from '@/inputs/dropdown/query-search-dropdown/mock';
-import { getSearchArgTypes } from '@/inputs/search/search/story-helper';
 
 export const getQuerySearchDropdownArgTypes = (): ArgTypes => {
-    const searchArgTypes = getSearchArgTypes();
     const keyItemSets = getKeyItemSets(5, 1);
     return {
-        value: searchArgTypes.value,
         placeholder: {
             name: 'placeholder',
             type: { name: 'string' },
@@ -23,7 +20,6 @@ export const getQuerySearchDropdownArgTypes = (): ArgTypes => {
                 },
             },
         },
-        'v-model': searchArgTypes['v-model'],
         focused: {
             name: 'focused',
             type: { name: 'boolean' },
