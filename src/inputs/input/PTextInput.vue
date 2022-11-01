@@ -209,7 +209,7 @@ export default defineComponent<TextInputProps>({
 
     setup(props, { emit, listeners, attrs }) {
         const state = reactive({
-            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
+            proxyVisibleMenu: useProxyValue<boolean | undefined>('visibleMenu', props, emit),
             menuRef: null,
             targetRef: null,
             isFocused: false,

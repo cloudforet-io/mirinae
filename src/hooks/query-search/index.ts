@@ -36,7 +36,7 @@ export interface QuerySearchStateArgs {
     value?: Ref<string>;
     keyItemSets: Ref<KeyItemSet[]>;
     valueHandlerMap: Ref<ValueHandlerMap>;
-    visibleMenu: Ref<boolean>;
+    visibleMenu: Ref<boolean | undefined>;
 }
 
 export const useQuerySearch = (stateArgs: QuerySearchStateArgs, options: QuerySearchOptions = {}) => {

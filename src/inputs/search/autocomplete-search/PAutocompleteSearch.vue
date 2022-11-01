@@ -145,7 +145,7 @@ export default defineComponent<AutocompleteSearchProps>({
         const vm = getCurrentInstance()?.proxy as Vue;
 
         const state = reactive({
-            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
+            proxyVisibleMenu: useProxyValue<boolean | undefined>('visibleMenu', props, emit),
             menuRef: null,
             proxyValue: makeOptionalProxy('value', vm, ''),
             isAutoMode: computed(() => props.visibleMenu === undefined),

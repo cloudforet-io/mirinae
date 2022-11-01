@@ -164,7 +164,7 @@ export default defineComponent<SelectDropdownProps>({
     },
     setup(props, { emit, slots }: SetupContext) {
         const state = reactive({
-            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
+            proxyVisibleMenu: useProxyValue<boolean | undefined>('visibleMenu', props, emit),
             contextMenuRef: null as null|any,
             proxySelected: useProxyValue('selected', props, emit),
             selectedItem: computed<MenuItem|null>(() => {

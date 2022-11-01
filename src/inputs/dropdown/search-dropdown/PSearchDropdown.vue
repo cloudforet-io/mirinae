@@ -196,7 +196,7 @@ export default defineComponent<SearchDropdownProps>({
     },
     setup(props, { emit, slots, listeners }: SetupContext) {
         const state = reactive({
-            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
+            proxyVisibleMenu: useProxyValue<boolean | undefined>('visibleMenu', props, emit),
             menuRef: null as null|Vue,
             searchDropdownType: computed<SEARCH_DROPDOWN_TYPE | undefined>(() => {
                 if (props.type) return props.type;

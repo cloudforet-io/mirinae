@@ -113,7 +113,7 @@ export default defineComponent<QuerySearchDropdownProps>({
         },
         visibleMenu: {
             type: Boolean,
-            default: false,
+            default: undefined,
         },
         useFixedMenuStyle: {
             type: Boolean,
@@ -140,7 +140,7 @@ export default defineComponent<QuerySearchDropdownProps>({
     setup(props, { emit }: SetupContext) {
         const state = reactive({
             proxySelected: useProxyValue('selected', props, emit),
-            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
+            proxyVisibleMenu: useProxyValue<boolean | undefined>('visibleMenu', props, emit),
         });
 
         const {
