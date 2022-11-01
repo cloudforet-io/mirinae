@@ -42,14 +42,14 @@
                         />
                     </span>
                     <span class="dropdown-button" :class="{'text-blue-600': querySearchState.isFocused}" @click="handleClickDropdownButton">
-                        <p-i class="icon" :name="visibleMenuRef ? 'ic_arrow_top' : 'ic_arrow_bottom'"
+                        <p-i class="icon" :name="visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
                              color="inherit"
                         />
                     </span>
                 </div>
             </template>
         </p-search>
-        <p-context-menu v-show="visibleMenuRef"
+        <p-context-menu v-show="visibleMenu"
                         ref="menuRef"
                         :loading="querySearchState.lazyLoading"
                         :menu="querySearchState.menu"
@@ -66,11 +66,11 @@
 
 <script lang="ts">
 import type {
-    PropType, DirectiveFunction, SetupContext, Ref,
+    PropType, DirectiveFunction, SetupContext,
 } from 'vue';
 import {
     computed, ref,
-    defineComponent, reactive, toRefs,
+    defineComponent, reactive, toRefs, toRef,
 } from 'vue';
 
 import { vOnClickOutside } from '@vueuse/components';
@@ -103,10 +103,6 @@ export default defineComponent<QuerySearchDropdownProps>({
         event: 'update:value',
     },
     props: {
-        value: {
-            type: String,
-            default: '',
-        },
         placeholder: {
             type: String,
             default: undefined,
@@ -144,17 +140,17 @@ export default defineComponent<QuerySearchDropdownProps>({
     setup(props, { emit }: SetupContext) {
         const state = reactive({
             proxySelected: useProxyValue('selected', props, emit),
+            visibleMenu: ref(props.visibleMenu || false),
         });
-        const visibleMenuRef: Ref<boolean> = ref<boolean>(props.visibleMenu || false);
 
         const {
             targetRef, targetElement, contextMenuStyle,
         } = useContextMenuFixedStyle({
             useFixedMenuStyle: computed(() => props.useFixedMenuStyle),
-            visibleMenu: visibleMenuRef,
+            visibleMenu: toRef(state, 'visibleMenu'),
         });
         const contextMenuFixedStyleState = reactive({
-            visibleMenuRef, targetRef, targetElement, contextMenuStyle,
+            targetRef, targetElement, contextMenuStyle,
         });
 
         const {
@@ -168,11 +164,10 @@ export default defineComponent<QuerySearchDropdownProps>({
             preTreatSelectedMenuItem,
         } = useQuerySearch(
             {
-                value: props.value,
                 focused: props.focused,
-                valueHandlerMap: computed(() => props.valueHandlerMap),
-                keyItemSets: computed(() => props.keyItemSets),
-                visibleMenu: visibleMenuRef,
+                valueHandlerMap: toRef(props, 'valueHandlerMap'),
+                keyItemSets: toRef(props, 'keyItemSets'),
+                visibleMenu: toRef(state, 'visibleMenu'),
             },
             { strict: true },
         );
@@ -204,7 +199,7 @@ export default defineComponent<QuerySearchDropdownProps>({
         };
 
         const handleClickDropdownButton = () => {
-            if (querySearchState.visibleMenu) hideMenu();
+            if (state.visibleMenu) hideMenu();
             else showMenu(true);
         };
 

@@ -63,10 +63,10 @@
 
 <script lang="ts">
 import type {
-    PropType, SetupContext, DirectiveFunction, Ref,
+    PropType, SetupContext, DirectiveFunction,
 } from 'vue';
 import {
-    computed, defineComponent, ref, toRefs,
+    computed, defineComponent, reactive, ref, toRef, toRefs,
 } from 'vue';
 
 import { vOnClickOutside } from '@vueuse/components';
@@ -128,9 +128,12 @@ export default defineComponent({
     },
     setup(props, context: SetupContext) {
         const { slots, emit } = context;
-        const visibleMenuRef: Ref<boolean> = ref<boolean>(false);
+        const state = reactive({
+            visibleMenu: ref<boolean>(false),
+            value: ref(props.value),
+        });
         const {
-            state,
+            state: querySearchState,
             focus, blur, hideMenu, showMenu,
             onInput,
             onKeydownCheck,
@@ -140,11 +143,11 @@ export default defineComponent({
             preTreatSelectedMenuItem,
         } = useQuerySearch(
             {
-                value: props.value,
                 focused: props.focused,
-                valueHandlerMap: computed(() => props.valueHandlerMap),
-                keyItemSets: computed(() => props.keyItemSets),
-                visibleMenu: visibleMenuRef,
+                valueHandlerMap: toRef(props, 'valueHandlerMap'),
+                keyItemSets: toRef(props, 'keyItemSets'),
+                visibleMenu: toRef(state, 'visibleMenu'),
+                value: toRef(state, 'value'),
             },
         );
 
@@ -174,7 +177,7 @@ export default defineComponent({
         }, {}));
 
         return {
-            ...toRefs(state),
+            ...toRefs(querySearchState),
             focus,
             blur,
             showMenu,

@@ -1,6 +1,6 @@
-import type { WatchStopHandle } from 'vue';
+import type { WatchStopHandle, Ref } from 'vue';
 import {
-    computed, onMounted, onUnmounted, reactive, watch,
+    computed, onMounted, onUnmounted, reactive, ref, watch,
 } from 'vue';
 
 import {
@@ -17,13 +17,13 @@ import {
 import {
     findKey, getKeyMenuForm, getRootKeyItemHandler, getValueMenuForm,
 } from '@/inputs/search/query-search/helper';
+import { OPERATOR, operators } from '@/inputs/search/query-search/type';
 import type {
     KeyItem, OperatorType, KeyDataType,
     HandlerResponse, MenuType, ValueHandler,
     KeyMenuItem, ValueMenuItem,
-    QueryItem, ValueItem, QuerySearchStateArgs,
+    QueryItem, ValueItem, KeyItemSet, ValueHandlerMap,
 } from '@/inputs/search/query-search/type';
-import { OPERATOR, operators } from '@/inputs/search/query-search/type';
 
 const ROOT_KEY_SETTER = ':';
 const NUMBER_TYPES = ['integer', 'float'];
@@ -31,10 +31,17 @@ interface QuerySearchOptions {
     strict?: boolean;
 }
 
+export interface QuerySearchStateArgs {
+    focused: boolean;
+    value?: Ref<string>;
+    keyItemSets: Ref<KeyItemSet[]>;
+    valueHandlerMap: Ref<ValueHandlerMap>;
+    visibleMenu: Ref<boolean>;
+}
 
 export const useQuerySearch = (stateArgs: QuerySearchStateArgs, options: QuerySearchOptions = {}) => {
     const {
-        focused, value, visibleMenu, valueHandlerMap, keyItemSets,
+        value, focused, visibleMenu, valueHandlerMap, keyItemSets,
     } = stateArgs;
     const { strict } = options;
     const state = reactive({
@@ -44,7 +51,7 @@ export const useQuerySearch = (stateArgs: QuerySearchStateArgs, options: QuerySe
 
         /* Input */
         isFocused: focused,
-        searchText: value,
+        searchText: value || ref(''),
         inputRef: null as null|HTMLElement,
         currentPlaceholder: computed(() => placeholderMap[state.currentDataType] || undefined),
         inputElType: computed(() => inputTypeMap[state.currentDataType] || 'text'),
