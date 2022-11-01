@@ -5,13 +5,13 @@
              invalid,
              disabled,
              'read-only': readOnly,
-             active: visibleMenu && !readOnly,
+             active: proxyVisibleMenu && !readOnly,
          }"
     >
         <p-icon-button v-if="styleType === SELECT_DROPDOWN_STYLE_TYPE.ICON_BUTTON"
                        ref="targetRef"
-                       :name="buttonIcon || (visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom')"
-                       :activated="visibleMenu"
+                       :name="buttonIcon || (proxyVisibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom')"
+                       :activated="proxyVisibleMenu"
                        :disabled="disabled"
                        color="inherit"
                        class="icon-button"
@@ -34,14 +34,14 @@
                 </slot>
             </span>
             <p-i v-if="!(styleType === SELECT_DROPDOWN_STYLE_TYPE.TRANSPARENT && readOnly)"
-                 :name="visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
-                 :activated="visibleMenu"
+                 :name="proxyVisibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
+                 :activated="proxyVisibleMenu"
                  :disabled="disabled"
                  color="inherit"
                  class="dropdown-icon"
             />
         </button>
-        <p-context-menu v-show="visibleMenu"
+        <p-context-menu v-show="proxyVisibleMenu"
                         ref="contextMenuRef"
                         :class="{ [menuPosition]: !useFixedMenuStyle }"
                         :menu="items"
@@ -68,7 +68,7 @@ import {
     defineComponent,
     reactive,
     toRefs,
-    nextTick, ref, toRef,
+    nextTick, toRef,
 } from 'vue';
 import type { DirectiveFunction, SetupContext } from 'vue';
 
@@ -164,7 +164,7 @@ export default defineComponent<SelectDropdownProps>({
     },
     setup(props, { emit, slots }: SetupContext) {
         const state = reactive({
-            visibleMenu: ref(props.visibleMenu || false),
+            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
             contextMenuRef: null as null|any,
             proxySelected: useProxyValue('selected', props, emit),
             selectedItem: computed<MenuItem|null>(() => {
@@ -193,7 +193,7 @@ export default defineComponent<SelectDropdownProps>({
             targetRef, targetElement, contextMenuStyle,
         } = useContextMenuFixedStyle({
             useFixedMenuStyle: computed(() => props.useFixedMenuStyle),
-            visibleMenu: toRef(state, 'visibleMenu'),
+            visibleMenu: toRef(state, 'proxyVisibleMenu'),
         });
         const contextMenuFixedStyleState = reactive({
             targetRef, targetElement, contextMenuStyle,
@@ -208,18 +208,18 @@ export default defineComponent<SelectDropdownProps>({
                 emit('select', item.name, event);
                 state.proxySelected = item.name;
             }
-            state.visibleMenu = false;
+            state.proxyVisibleMenu = false;
         };
         const handleClick = (e: MouseEvent) => {
             if (props.readOnly || props.disabled) return;
-            state.visibleMenu = !state.visibleMenu;
+            state.proxyVisibleMenu = !state.proxyVisibleMenu;
             e.stopPropagation();
         };
         const handleClickOutside = (): void => {
             state.visibleMenu = false;
         };
         const handlePressDownKey = () => {
-            if (!state.visibleMenu) state.visibleMenu = true;
+            if (!state.proxyVisibleMenu) state.proxyVisibleMenu = true;
             nextTick(() => {
                 if (state.contextMenuRef) {
                     if (slots['menu-menu']) emit('focus-menu');

@@ -14,7 +14,7 @@
         >
             <div v-if="searchDropdownType === SEARCH_DROPDOWN_TYPE.radioButton &&
                      proxySelected.length &&
-                     !visibleMenu &&
+                     !proxyVisibleMenu &&
                      !proxyIsFocused"
                  class="selected-radio-label"
             >
@@ -37,7 +37,7 @@
                 />
             </template>
             <template v-if="searchDropdownType !== SEARCH_DROPDOWN_TYPE.default || !proxySelected.length || visibleMenu" #right>
-                <p-i :name="visibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
+                <p-i :name="proxyVisibleMenu ? 'ic_arrow_top' : 'ic_arrow_bottom'"
                      color="inherit" class="dropdown-button" :class="disabled"
                      @click.stop="handleClickDropdownButton"
                 />
@@ -46,7 +46,7 @@
                 <slot :name="`search-${slot}`" v-bind="{...scope}" />
             </template>
         </p-search>
-        <p-context-menu v-show="visibleMenu"
+        <p-context-menu v-show="proxyVisibleMenu"
                         ref="menuRef"
                         :menu="bindingMenu"
                         :loading="loading"
@@ -81,7 +81,7 @@
 
 <script lang="ts">
 import {
-    computed, defineComponent, onMounted, onUnmounted, reactive, toRefs, watch, nextTick, ref, toRef,
+    computed, defineComponent, onMounted, onUnmounted, reactive, toRefs, watch, nextTick, toRef,
 } from 'vue';
 import type Vue from 'vue';
 import type { DirectiveFunction, SetupContext } from 'vue';
@@ -196,7 +196,7 @@ export default defineComponent<SearchDropdownProps>({
     },
     setup(props, { emit, slots, listeners }: SetupContext) {
         const state = reactive({
-            visibleMenu: ref(props.visibleMenu || false),
+            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
             menuRef: null as null|Vue,
             searchDropdownType: computed<SEARCH_DROPDOWN_TYPE | undefined>(() => {
                 if (props.type) return props.type;
@@ -227,7 +227,7 @@ export default defineComponent<SearchDropdownProps>({
             targetRef, targetElement, contextMenuStyle,
         } = useContextMenuFixedStyle({
             useFixedMenuStyle: computed(() => props.useFixedMenuStyle),
-            visibleMenu: toRef(state, 'visibleMenu'),
+            visibleMenu: toRef(state, 'proxyVisibleMenu'),
         });
         const contextMenuFixedStyleState = reactive({
             targetRef, targetElement, contextMenuStyle,
@@ -276,7 +276,7 @@ export default defineComponent<SearchDropdownProps>({
         };
 
         const hideMenu = (mode?: string) => {
-            if (!state.visibleMenu) return;
+            if (!state.proxyVisibleMenu) return;
             // placeholder
             const isRadioItemSelected = state.searchDropdownType === SEARCH_DROPDOWN_TYPE.radioButton && (mode === 'click' || state.proxySelected.length);
             if (isRadioItemSelected) {
@@ -298,12 +298,12 @@ export default defineComponent<SearchDropdownProps>({
                 state.proxyValue = '';
             }
 
-            state.visibleMenu = false;
+            state.proxyVisibleMenu = false;
             emit('hide-menu');
         };
 
         const showMenu = () => {
-            if (state.visibleMenu) return;
+            if (state.proxyVisibleMenu) return;
 
             if (
                 state.proxySelected.length && (
@@ -320,7 +320,7 @@ export default defineComponent<SearchDropdownProps>({
                 filterMenu(state.proxyValue);
             }
 
-            state.visibleMenu = true;
+            state.proxyVisibleMenu = true;
             emit('show-menu');
         };
 
@@ -371,7 +371,7 @@ export default defineComponent<SearchDropdownProps>({
         };
 
         const onInput = (val: string, e) => {
-            if (!state.visibleMenu) showMenu();
+            if (!state.proxyVisibleMenu) showMenu();
 
             state.proxyValue = val;
             emit('input', val, e);
@@ -425,7 +425,7 @@ export default defineComponent<SearchDropdownProps>({
 
         const handleClickDropdownButton = () => {
             if (props.disabled) return;
-            if (state.visibleMenu) hideMenu();
+            if (state.proxyVisibleMenu) hideMenu();
             else showMenu();
         };
 
@@ -456,7 +456,7 @@ export default defineComponent<SearchDropdownProps>({
         };
 
         const onWindowKeydown = (e: KeyboardEvent) => {
-            if (state.visibleMenu && ['ArrowDown', 'ArrowUp'].includes(e.key)) {
+            if (state.proxyVisibleMenu && ['ArrowDown', 'ArrowUp'].includes(e.key)) {
                 e.preventDefault();
             }
         };

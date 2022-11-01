@@ -66,7 +66,7 @@ import type {
     PropType, SetupContext, DirectiveFunction,
 } from 'vue';
 import {
-    computed, defineComponent, reactive, ref, toRef, toRefs,
+    computed, defineComponent, reactive, toRef, toRefs,
 } from 'vue';
 
 import { vOnClickOutside } from '@vueuse/components';
@@ -129,8 +129,8 @@ export default defineComponent({
     setup(props, context: SetupContext) {
         const { slots, emit } = context;
         const state = reactive({
-            visibleMenu: ref<boolean>(false),
-            value: ref(props.value),
+            visibleMenu: false,
+            value: props.value,
         });
         const {
             state: querySearchState,

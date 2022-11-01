@@ -66,7 +66,7 @@
                 <slot name="right-edge" v-bind="{ value }" />
             </span>
         </div>
-        <p-context-menu v-if="visibleMenu && useAutoComplete"
+        <p-context-menu v-if="proxyVisibleMenu && useAutoComplete"
                         ref="menuRef"
                         :menu="bindingMenu"
                         :highlight-term="proxyValue"
@@ -81,7 +81,7 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import {
-    computed, defineComponent, reactive, ref, toRef, toRefs, watch,
+    computed, defineComponent, reactive, toRef, toRefs, watch,
 } from 'vue';
 
 import vClickOutside from 'v-click-outside';
@@ -209,7 +209,7 @@ export default defineComponent<TextInputProps>({
 
     setup(props, { emit, listeners, attrs }) {
         const state = reactive({
-            visibleMenu: ref(props.visibleMenu || false),
+            proxyVisibleMenu: useProxyValue('visibleMenu', props, emit),
             menuRef: null,
             targetRef: null,
             isFocused: false,
@@ -235,7 +235,7 @@ export default defineComponent<TextInputProps>({
             targetRef, targetElement, contextMenuStyle,
         } = useContextMenuFixedStyle({
             useFixedMenuStyle: computed(() => props.useFixedMenuStyle),
-            visibleMenu: toRef(state, 'visibleMenu'),
+            visibleMenu: toRef(state, 'proxyVisibleMenu'),
         });
         const contextMenuFixedStyleState = reactive({
             targetRef, targetElement, contextMenuStyle,
@@ -256,12 +256,12 @@ export default defineComponent<TextInputProps>({
         };
 
         const hideMenu = () => {
-            state.visibleMenu = false;
+            state.proxyVisibleMenu = false;
             emit('hide-menu');
         };
 
         const showMenu = () => {
-            state.visibleMenu = true;
+            state.proxyVisibleMenu = true;
             emit('show-menu');
         };
 
