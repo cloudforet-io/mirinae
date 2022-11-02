@@ -34,6 +34,7 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import {
     computed, defineComponent, reactive, toRefs,
 } from 'vue';
@@ -41,7 +42,7 @@ import {
 import PSpinner from '@/feedbacks/loading/spinner/PSpinner.vue';
 import { SPINNER_SIZE } from '@/feedbacks/loading/spinner/type';
 import PI from '@/foundation/icons/PI.vue';
-import type { TextButtonSize, TextButtonStyle } from '@/inputs/buttons/text-button/type';
+import type { TextButtonSize, TextButtonStyle, TextButtonProps } from '@/inputs/buttons/text-button/type';
 import { TEXT_BUTTON_SIZE, TEXT_BUTTON_STYLE } from '@/inputs/buttons/text-button/type';
 
 
@@ -56,19 +57,19 @@ const LOADING_SIZE: Record<TextButtonSize, string> = {
     lg: SPINNER_SIZE.sm,
 };
 
-export default defineComponent({
+export default defineComponent<TextButtonProps>({
     name: 'PTextButton',
     components: { PI, PSpinner },
     props: {
         styleType: {
-            type: String,
+            type: String as PropType<TextButtonStyle>,
             default: TEXT_BUTTON_STYLE.default,
             validator(value: TextButtonStyle): boolean {
                 return Object.values(TEXT_BUTTON_STYLE).includes(value);
             },
         },
         size: {
-            type: String,
+            type: String as PropType<TextButtonSize>,
             default: TEXT_BUTTON_SIZE.md,
             validator(value: TextButtonSize): boolean {
                 return Object.values(TEXT_BUTTON_SIZE).includes(value);

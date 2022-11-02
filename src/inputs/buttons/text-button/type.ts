@@ -12,3 +12,12 @@ export const TEXT_BUTTON_STYLE = {
 } as const;
 
 export type TextButtonStyle = typeof TEXT_BUTTON_STYLE[keyof typeof TEXT_BUTTON_STYLE];
+
+export interface TextButtonProps {
+    styleType: TextButtonStyle;
+    size: TextButtonSize;
+    iconLeft?: string;
+    iconRight?: string;
+    loading?: boolean;
+    disabled?: boolean;
+}
