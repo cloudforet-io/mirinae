@@ -23,6 +23,9 @@
             </keep-alive>
             <slot v-if="nonKeepAliveTabNames.includes(activeTab)" :name="activeTab" v-bind="currentTabItem" />
         </div>
+        <div class="footer">
+            <slot name="footer" />
+        </div>
     </div>
 </template>
 
@@ -91,6 +94,7 @@ export default defineComponent<TabProps>({
 .p-tab {
     @apply rounded-lg border border-gray-200 bg-white;
     min-height: 19rem;
+    position: relative;
     ul.tab-item-wrapper {
         @apply border-gray-100;
         display: flex;
@@ -145,6 +149,10 @@ export default defineComponent<TabProps>({
 
     .tab-pane {
         @apply w-full pb-8;
+    }
+    .footer {
+        position: absolute;
+        bottom: 0;
     }
 }
 </style>
