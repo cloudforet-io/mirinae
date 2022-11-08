@@ -94,9 +94,11 @@ export default defineComponent<TabProps>({
 .p-tab {
     @apply rounded-lg border border-gray-200 bg-white;
     min-height: 19rem;
-    position: relative;
+    display: flex;
+    flex-direction: column;
     ul.tab-item-wrapper {
         @apply border-gray-100;
+        flex: 0 0;
         display: flex;
         flex-wrap: wrap;
         border-bottom-width: 4px;
@@ -149,10 +151,10 @@ export default defineComponent<TabProps>({
 
     .tab-pane {
         @apply w-full pb-8;
+        flex: 1 1;
     }
     .footer {
-        position: absolute;
-        bottom: 0;
+        flex: 0 0;
     }
 }
 </style>
