@@ -5,6 +5,7 @@ import PCardListItem
 import { reactive, toRefs, computed } from "vue";
 
 import { getCardListItemArgTypes } from '@/data-display/cards/card-list/card-list-item/story-helper';
+import { getButtonEventHandlerMap } from '@/data-display/cards/card-list/card-list-item/mock';
 
 <Meta title='Data Display/Cards/Card List/Card List Item' parameters={{
     design: {
@@ -36,8 +37,8 @@ export const Template = (args, {argTypes}) => ({
         const state = reactive({
             leftIcon: computed(() => props.leftIcon),
             rounded: computed(() => props.rounded),
-            rightButtonSet: computed(() => props.rightButtonSet ?? []),
-            buttonHandlerMap: computed(() => props.buttonHandlerMap ?? {}),
+            rightButtonSet: computed(() => props.rightButtonSet),
+            buttonHandlerMap: computed(() => props.buttonHandlerMap),
         });
         return { state };
     }
@@ -46,6 +47,39 @@ export const Template = (args, {argTypes}) => ({
 # Card List Item
 <br/>
 <br/>
+
+## Basic
+<br/>
+<br/>
+
+<Canvas>
+    <Story name="Basic">
+        {{
+            i18n,
+            components: { PCardListItem },
+            template: `
+    <div class="h-full w-full overflow p-8">
+        <p-card-list-item
+            left-icon="ic_more"
+            :right-button-set="['EDIT', 'DUPLICATE', 'TRASHCAN']"
+            :button-handler-map="getButtonEventHandlerMap(['EDIT', 'DUPLICATE', 'TRASHCAN'])"
+        >
+            <template #content>
+                <p>Content</p>
+                <p>loooong loooong loooong description.......</p>
+                <p>very very very very loooong loooong loooong description.......</p>
+            </template>
+        </p-card-list-item>
+    </div>
+    `,
+            setup() {
+                return {
+                    getButtonEventHandlerMap,
+                }
+            }
+        }}
+    </Story>
+</Canvas>
 
 
 ## Playground

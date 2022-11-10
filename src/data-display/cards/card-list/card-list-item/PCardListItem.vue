@@ -65,7 +65,7 @@ import { computed, defineComponent, reactive } from 'vue';
 import type { PropType } from 'vue';
 
 import { CARD_BUTTON_ICON_NAME_TYPE } from '@/data-display/cards/card-list/card-list-item/type';
-import type { RightContentType, CardListItemProps, ButtonEventHandlerMap } from '@/data-display/cards/card-list/card-list-item/type';
+import type { RightContentType, CardListItemProps } from '@/data-display/cards/card-list/card-list-item/type';
 import PI from '@/foundation/icons/PI.vue';
 import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
 import PSelectDropdown from '@/inputs/dropdown/select-dropdown/PSelectDropdown.vue';
@@ -99,16 +99,9 @@ export default defineComponent<CardListItemProps>({
     setup(props) {
         const state = reactive({
             rightButtonSet: computed(() => props.rightButtonSet ?? []),
-            buttonHandlerMap: computed(() => props.buttonHandlerMap ?? getEventHandlerMap(state.rightButtonSet)),
+            buttonHandlerMap: computed(() => props.buttonHandlerMap),
         });
 
-        const getEventHandlerMap = (buttonTypeSet: RightContentType[]) => {
-            const result = {} as ButtonEventHandlerMap;
-            buttonTypeSet.forEach((d) => {
-                result[d] = () => {};
-            });
-            return result;
-        };
 
         return {
             state,
