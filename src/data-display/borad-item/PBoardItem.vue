@@ -15,7 +15,7 @@
             <div v-if="iconActionSet.length > 0" class="right-overlay-wrapper desktop">
                 <div class="overlay-contents">
                     <p-icon-button v-for="(iconAction, index) in iconActionSet"
-                                   :key="`${iconAction.iconName}-${index}`"
+                                   :key="`${iconAction.iconName}-desktop-${index}`"
                                    :name="iconAction.iconName"
                                    @click="iconAction.eventAction"
                     />
@@ -32,7 +32,7 @@
                         <template #menu-menu>
                             <div class="custom-button-menu">
                                 <p-icon-button v-for="(iconAction, index) in iconActionSet"
-                                               :key="`${iconAction.iconName}-${index}`"
+                                               :key="`${iconAction.iconName}-context-menu-${index}`"
                                                :name="iconAction.iconName"
                                                @click="iconAction.eventAction"
                                 />
