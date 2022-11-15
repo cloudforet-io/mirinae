@@ -8,7 +8,7 @@
 
 <script lang="ts">
 export default {
-    name: 'PFiledTitle',
+    name: 'PFieldTitle',
     props: {
         label: {
             type: String,
