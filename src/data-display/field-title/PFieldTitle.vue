@@ -7,7 +7,14 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+interface Props {
+    label: string;
+}
+
+
+export default defineComponent<Props>({
     name: 'PFieldTitle',
     props: {
         label: {
@@ -15,7 +22,7 @@ export default {
             default: '',
         },
     },
-};
+});
 </script>
 <style lang="postcss">
 .p-field-title {
