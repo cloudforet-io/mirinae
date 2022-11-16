@@ -1,7 +1,7 @@
 import { standardIconActionSet } from '@/data-display/board-item/mock';
-import type { BoardItemProps } from '@/data-display/board-item/type';
+import type { BoardSet } from '@/data-display/board/type';
 
-export const basicItemSets: BoardItemProps[] = [
+export const basicItemSets: BoardSet[] = [
     {
         title: 'title',
         description1: 'description1',
