@@ -60,7 +60,7 @@ export default defineComponent<BoardProps>({
         });
 
         const handleClickBoardItem = (item: BoardSet, index) => {
-            emit('click', item, index);
+            emit('item-click', item, index);
         };
 
         return {

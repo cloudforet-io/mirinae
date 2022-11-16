@@ -40,7 +40,7 @@ export const basicItemSets: BoardSet[] = [
     },
 ];
 
-export const boardStandardItemSets: BoardItemProps[] = [
+export const boardStandardItemSets: BoardSet[] = [
     {
         leftIcon: 'admin',
         iconButtonSets: standardIconActionSet,

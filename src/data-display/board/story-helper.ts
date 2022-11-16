@@ -91,8 +91,8 @@ export const getBoardArgTypes = (): ArgTypes => ({
         },
     },
     // events
-    click: {
-        name: 'click',
+    itemClick: {
+        name: 'item-click',
         description: 'This event is emitted when board item is clicked.',
         defaultValue: null,
         table: {
