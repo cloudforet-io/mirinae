@@ -7,7 +7,7 @@
                           :left-icon="board.leftIcon"
                           :icon-button-sets="board.iconButtonSets"
                           :rounded="board.rounded"
-                          @click="handleClickBoardItem(board, index)"
+                          @click.stop="handleClickBoardItem(board, index)"
             >
                 <template #left-content>
                     <slot name="item-left-content" v-bind="{...$props, board, index}" />
