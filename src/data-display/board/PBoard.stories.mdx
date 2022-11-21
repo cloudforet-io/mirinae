@@ -24,6 +24,7 @@ export const Template = (args, {argTypes}) => ({
             <p-board
                 :style-type="styleType"
                 :board-sets="boardItemList"
+                :style-options="styleOptions"
             >
                 <template #item-content>
                     <strong>Example Title</strong>
@@ -36,6 +37,7 @@ export const Template = (args, {argTypes}) => ({
         const state = reactive({
             boardItemList: computed(() => props.boardSets),
             styleType: computed(() => props.styleType),
+            styleOptions: computed(() => props.styleOptions),
             pageLimit: computed(() => props.pageLimit),
         });
         return {
@@ -48,6 +50,30 @@ export const Template = (args, {argTypes}) => ({
 
 <br/>
 <br/>
+
+## Style Type and Style Options
+
+Board component has two style props: `styleType` and `styleOptions`.<br/>
+`styleType` is the highest standard that determines the style of `Board`, and `styleOptions` is an option that each `styleType` has independently.<br/>
+In order to use `Board` component, it is first necessary to understand what `styleOptions` each `styleType` has.
+
+|Style Type|Style Options Properties|Description|
+|-|-|-|
+|`list`| - |It is not affected by any styleOptions.|
+|`cards`|`column`|In the cards type, Board Items have a user-defined number of columns. The default is 1.|
+
+<br/>
+
+### cards - styleOptions
+```
+interface StyleOptions {
+    column: number;
+}
+```
+
+<br/>
+<br/>
+
 
 ## Board Set Properties
 
@@ -161,7 +187,7 @@ Board's `boardSets` props is an `array` of `BoardSet`.
 <br/>
 <br/>
 
-## Style Type - Cards
+### Style Type - Cards
 
 The Board component receives an object type prop called `styleOptions`.<br/>
 In the `cards` type case, `styleOptions` takes the number of columns.<br/>
@@ -172,10 +198,10 @@ interface StyleOptions {
     column: number;
 }
 ```
+When no value is given to styleOptions, it defaults to 1 column.<br/>
 In screen **breakpoints below tablet (less than 1024px)**, the given number of columns is ignored and **only has one column**.
 
 
-<br/>
 <br/>
 
 <Canvas>
