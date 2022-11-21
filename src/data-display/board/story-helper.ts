@@ -23,6 +23,21 @@ export const getBoardArgTypes = (): ArgTypes => ({
             options: Object.values(BOARD_STYLE_TYPE),
         },
     },
+    styleOptions: {
+        name: 'styleOptions',
+        type: { name: 'object' },
+        description: "Card style type's options. Optional props",
+        defaultValue: undefined,
+        table: {
+            type: {
+                summary: 'object',
+            },
+            category: 'props',
+            defaultValue: {
+                summary: undefined,
+            },
+        },
+    },
     boardSets: {
         name: 'boardSets',
         type: { name: 'array' },

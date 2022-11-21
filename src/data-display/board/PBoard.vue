@@ -1,5 +1,5 @@
 <template>
-    <div class="p-board" :class="{ [`${styleType}-style`]: true }">
+    <div class="p-board" :class="[ [`${styleType}-style`], ...classByStyleOptions ]">
         <template v-for="(board, index) in boardList">
             <p-board-item :key="`board-${index}`"
                           class="p-board-item"
@@ -31,7 +31,7 @@ import type { PropType, SetupContext } from 'vue';
 
 import PBoardItem from '@/data-display/board-item/PBoardItem.vue';
 import { BOARD_STYLE_TYPE } from '@/data-display/board/type';
-import type { BoardProps, BoardSet } from '@/data-display/board/type';
+import type { BoardProps, BoardSet, StyleOptions } from '@/data-display/board/type';
 
 
 export default defineComponent<BoardProps>({
@@ -45,6 +45,10 @@ export default defineComponent<BoardProps>({
                 return Object.values(BOARD_STYLE_TYPE).includes(styleType);
             },
         },
+        styleOptions: {
+            type: Object as PropType<StyleOptions>,
+            default: undefined,
+        },
         boardSets: {
             type: Array as PropType<BoardSet[]>,
             default: () => [],
@@ -57,6 +61,16 @@ export default defineComponent<BoardProps>({
     setup(props, { emit }: SetupContext) {
         const state = reactive({
             boardList: computed<BoardSet[]>(() => props.boardSets),
+            classByStyleOptions: computed(() => {
+                const classes: string[] = [];
+                if (!props.styleOptions) return classes;
+                if (BOARD_STYLE_TYPE.cards) {
+                    if (props.styleOptions.column) {
+                        classes.push(`lg:grid-cols-${props.styleOptions.column}`);
+                    }
+                }
+                return classes;
+            }),
         });
 
         const handleClickBoardItem = (item: BoardSet, index) => {
@@ -72,10 +86,8 @@ export default defineComponent<BoardProps>({
 </script>
 
 <style lang="postcss">
-.p-board {
-    @apply flex flex-col;
-}
 .list-style {
+    @apply flex flex-col;
     .p-board-item {
         @apply border-b-0;
     }
@@ -87,7 +99,8 @@ export default defineComponent<BoardProps>({
     }
 }
 .cards-style {
-    row-gap: 0.5rem;
+    @apply grid;
+    gap: 0.5rem;
     .p-board-item {
         @apply rounded-md;
     }
