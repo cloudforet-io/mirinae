@@ -1,5 +1,5 @@
 <template>
-    <div class="p-board" :class="[ [`${styleType}-style`], ...classByStyleOptions ]">
+    <div class="p-board" :class="[ [`${styleType}-style`] ]" :style="{...inlineStylesByOptions}">
         <template v-for="(board, index) in boardList">
             <p-board-item :key="`board-${index}`"
                           class="p-board-item"
@@ -61,15 +61,15 @@ export default defineComponent<BoardProps>({
     setup(props, { emit }: SetupContext) {
         const state = reactive({
             boardList: computed<BoardSet[]>(() => props.boardSets),
-            classByStyleOptions: computed(() => {
-                const classes: string[] = [];
-                if (!props.styleOptions) return classes;
+            inlineStylesByOptions: computed(() => {
+                const styles = {} as {[prop: string]: string};
+                if (!props.styleOptions) return styles;
                 if (BOARD_STYLE_TYPE.cards) {
                     if (props.styleOptions.column) {
-                        classes.push(`lg:grid-cols-${props.styleOptions.column}`);
+                        styles.gridTemplateColumns = `repeat(${props.styleOptions.column}, minmax(0, 1fr))`;
                     }
                 }
-                return classes;
+                return styles;
             }),
         });
 
@@ -103,6 +103,10 @@ export default defineComponent<BoardProps>({
     gap: 0.5rem;
     .p-board-item {
         @apply rounded-md;
+    }
+
+    @screen tablet {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
     }
 }
 </style>
