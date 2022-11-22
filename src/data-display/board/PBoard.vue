@@ -1,5 +1,5 @@
 <template>
-    <div class="p-board" :class="[ [`${styleType}-style`] ]" :style="{...inlineStylesByOptions}">
+    <div class="p-board" :class="[ [`${styleType}-style`] ]" :style="styleVariableByOptions">
         <template v-for="(board, index) in boardList">
             <p-board-item :key="`board-${index}`"
                           class="p-board-item"
@@ -28,6 +28,7 @@ import {
     computed, defineComponent, reactive, toRefs,
 } from 'vue';
 import type { PropType, SetupContext } from 'vue';
+
 
 import PBoardItem from '@/data-display/board-item/PBoardItem.vue';
 import { BOARD_STYLE_TYPE } from '@/data-display/board/type';
@@ -61,17 +62,18 @@ export default defineComponent<BoardProps>({
     setup(props, { emit }: SetupContext) {
         const state = reactive({
             boardList: computed<BoardSet[]>(() => props.boardSets),
-            inlineStylesByOptions: computed(() => {
-                const styles = {} as {[prop: string]: string};
+            styleVariableByOptions: computed(() => {
+                const styles = {} as {[prop: string]: any};
                 if (!props.styleOptions) return styles;
                 if (BOARD_STYLE_TYPE.cards) {
                     if (props.styleOptions.column) {
-                        styles.gridTemplateColumns = `repeat(${props.styleOptions.column}, minmax(0, 1fr))`;
+                        styles['--columns'] = props.styleOptions.column;
                     }
                 }
                 return styles;
             }),
         });
+
 
         const handleClickBoardItem = (item: BoardSet, index) => {
             emit('item-click', item, index);
@@ -100,13 +102,16 @@ export default defineComponent<BoardProps>({
 }
 .cards-style {
     @apply grid;
+
+    --columns: 1;
     gap: 0.5rem;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
     .p-board-item {
         @apply rounded-md;
     }
 
     @screen tablet {
-        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 }
 </style>
