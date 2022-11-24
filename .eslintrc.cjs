@@ -3,25 +3,41 @@ module.exports = {
 
     env: {
         node: true,
-        jest: true,
+        es2021: true,
     },
 
     extends: [
-        '@vue/airbnb',
-        '@vue/typescript',
         'plugin:@typescript-eslint/recommended',
         'plugin:vue/recommended',
+        'plugin:vue/base',
         'plugin:import/recommended',
         'plugin:import/typescript',
+        'airbnb',
     ],
 
     rules: {
+        // vue
         'vue/component-name-in-template-casing': ['error', 'kebab-case'],
-        'vue/valid-v-slot': ['off', { allowModifiers: true }],
+        'vue/valid-v-slot': ['error', { allowModifiers: true }],
+        'vue/html-indent': ['error', 4],
+        'vue/first-attribute-linebreak': ['off'],
+        'vue/max-attributes-per-line': 1,
+        'vue/no-v-html': 0,
+        'vue/no-mutating-props': 1,
+        'vue/multi-word-component-names': 0,
+
+        // js
         'max-len': ['error', { code: 200 }],
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-        'vue/html-indent': ['error', 4],
+        'no-unsafe-optional-chaining': 1,
+        'no-undef': 1,
+        'no-useless-catch': 1,
+        'no-unused-vars': 1,
+        'no-mixed-operators': 0,
+        'no-promise-executor-return': 1,
+        'prefer-regex-literals': 1,
+        'prefer-const': 1,
         indent: ['error', 4],
         'prefer-destructuring': ['error', { object: false, array: false }],
         radix: ['error', 'as-needed'],
@@ -38,16 +54,6 @@ module.exports = {
             },
         ],
         camelcase: 'off',
-        'vue/max-attributes-per-line': [
-            'error',
-            {
-                singleline: 3,
-                multiline: {
-                    max: 3,
-                    allowFirstLine: true,
-                },
-            },
-        ],
         'no-this-before-super': ['off'],
         'no-useless-constructor': ['off'],
         'no-empty-function': ['error', { allow: ['constructors', 'arrowFunctions'] }],
@@ -66,7 +72,6 @@ module.exports = {
         'no-tabs': ['off'],
         'no-shadow': ['off'],
         'no-use-before-define': ['off'],
-
         // typescript rules
         '@typescript-eslint/explicit-member-accessibility': [
             'error',
@@ -87,10 +92,14 @@ module.exports = {
         ],
         '@typescript-eslint/camelcase': ['off'],
         '@typescript-eslint/naming-convention': [
-            'error',
+            'off',
             {
                 selector: 'variable',
                 format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+                filter: {
+                    regex: '(total_count)',
+                    match: false,
+                },
                 leadingUnderscore: 'allow',
             },
             {
@@ -112,11 +121,19 @@ module.exports = {
         '@typescript-eslint/no-use-before-define': ['off'], // use eslint no-use-before-define rule
         '@typescript-eslint/ban-ts-ignore': ['off'],
         '@typescript-eslint/explicit-function-return-type': ['off'],
+        '@typescript-eslint/explicit-module-boundary-types': ['off'],
         '@typescript-eslint/no-explicit-any': ['off'],
-        '@typescript-eslint/no-unused-vars': ['error', { args: 'after-used' }],
+        '@typescript-eslint/no-unused-vars': ['error'],
         '@typescript-eslint/no-shadow': ['error'],
-        '@typescript-eslint/ban-ts-comment': ['off'],
         '@typescript-eslint/consistent-type-imports': ['error'],
+
+        semi: 'off',
+        '@typescript-eslint/semi': ['error'],
+
+        // core-lib as a package
+        'default-param-last': ['off'],
+        'no-redeclare': ['off'],
+        'max-classes-per-file': ['off'],
 
         // eslint-plugin-import rules
         'import/order': [
@@ -147,7 +164,7 @@ module.exports = {
                         position: 'after',
                     },
                 ],
-                pathGroupsExcludedImportTypes: ['@vue/test-utils', 'vue/types'],
+                pathGroupsExcludedImportTypes: ['@vue/test-utils'],
                 alphabetize: {
                     order: 'asc',
                     caseInsensitive: true,
@@ -159,10 +176,11 @@ module.exports = {
     },
     ignorePatterns: ['src/assets/**', '**/node_modules/**',
         'dist/**', '.out/**'],
+    parser: 'vue-eslint-parser',
     parserOptions: {
         parser: '@typescript-eslint/parser',
         sourceType: 'module',
-        ecmaVersion: 2018,
+        ecmaVersion: 'latest',
     },
     settings: {
         'import/resolver': {
