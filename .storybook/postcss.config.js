@@ -1,13 +1,12 @@
 /* eslint-disable global-require, @typescript-eslint/no-var-requires */
-
+const path = require('path')
 module.exports = {
     parser: 'postcss-comment',
-    plugins: () => {
-        const res = [
+    plugins:  [
             require('postcss-easy-import')({
                 path: ['../src', 'node_modules'],
             }),
-            require('tailwindcss'),
+            require('tailwindcss')({ config: path.resolve(__dirname, 'tailwind.config.js') }),
             require('postcss-hexrgba'),
             require('postcss-mixins'),
             require('postcss-conditionals'),
@@ -19,7 +18,5 @@ module.exports = {
             }),
             require('autoprefixer'),
             require('postcss-preset-env')({ stage: 3 }),
-        ];
-        return res;
-    },
+        ]
 };

@@ -2,8 +2,9 @@ import path from 'path';
 
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import vuePlugin from '@vitejs/plugin-vue2';
+import copy from 'rollup-plugin-copy';
 import { defineConfig } from 'vite';
-import StylelintPlugin from 'vite-plugin-stylelint';
+// import StylelintPlugin from 'vite-plugin-stylelint';
 
 export default defineConfig({
     build: {
@@ -11,9 +12,12 @@ export default defineConfig({
             entry: path.resolve(__dirname, './src/index.ts'),
             name: 'Mirinae',
             fileName: 'mirinae',
+            formats: ['es'],
         },
         rollupOptions: {
-            external: ['vue'],
+            external: [
+                'vue',
+            ],
             output: {
                 globals: {
                     vue: 'Vue',
@@ -24,11 +28,16 @@ export default defineConfig({
     plugins: [
         viteCommonjs(),
         vuePlugin(),
-        StylelintPlugin({
-            include: ['src/**/*.{css,vue,pcss,scss}'],
-            exclude: ['node_modules'],
-            lintOnStart: true,
-            emitErrorAsWarning: true,
+        // StylelintPlugin({
+        //     include: ['src/**/*.{css,vue,pcss,scss}'],
+        //     exclude: ['node_modules'],
+        //     lintOnStart: false,
+        //     emitErrorAsWarning: true,
+        // }),
+        copy({
+            targets: [
+                { src: 'css', dest: 'dist/' },
+            ],
         }),
     ],
     test: {
