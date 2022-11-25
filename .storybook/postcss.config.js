@@ -14,7 +14,7 @@ module.exports = {
             require('postcss-nested'),
             require('postcss-simple-vars')({
                 variables() {
-                    return require('../src/styles/variables');
+                    return require('../src/styles/variables.cjs');
                 },
             }),
             require('autoprefixer'),

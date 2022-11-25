@@ -6,9 +6,9 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 const plugin = require('tailwindcss/plugin');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const colors = require('./src/styles/colors').tailwindColors;
+const colors = require('./src/styles/colors.cjs').tailwindColors;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const screens = require('./src/styles/screens');
+const screens = require('./src/styles/screens.cjs');
 
 const rawSize = Array(32)
     .fill('')
@@ -20,7 +20,7 @@ const rawPercent = [
 ];
 
 // eslint-disable-next-line no-eval
-const percent = _.fromPairs(rawPercent.map(value => [value, `${eval(value) * 100}%`]));
+const percent = _.fromPairs(rawPercent.map((value) => [value, `${eval(value) * 100}%`]));
 module.exports = {
     theme: {
         borderRadius: {
@@ -41,7 +41,7 @@ module.exports = {
             px: '1px',
             ...size,
         },
-        minWidth: theme => ({
+        minWidth: (theme) => ({
             ...defaultTheme.minWidth,
             ...theme('spacing'),
             ...percent,
@@ -63,12 +63,12 @@ module.exports = {
             laptop: theme('screens.laptop.max'),
             desktop: theme('screens.desktop.max'),
         }),
-        minHeight: theme => ({
+        minHeight: (theme) => ({
             ...defaultTheme.minHeight,
             ...theme('spacing'),
             ...percent,
         }),
-        maxHeight: theme => ({
+        maxHeight: (theme) => ({
             ...defaultTheme.maxHeight,
             ...theme('spacing'),
             ...percent,

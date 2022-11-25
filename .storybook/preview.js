@@ -12,14 +12,14 @@ import SvgIcon from 'vue-svgicon';
 import Fragment from "vue-fragment";
 
 import webFontLoader from 'webfontloader';
-import { fontUrls, webFonts } from '@/styles/web-fonts';
+import { fontUrls, webFonts } from '@/styles/web-fonts.cjs';
 
 import VTooltip from 'v-tooltip';
 
 import SpaceOneTheme from './CloudforetTheme';
 import {i18n} from '@/translations'
 import { applyAmchartsGlobalSettings } from '@/plugins/amcharts';
-import screens from "@/styles/screens";
+import screens from "@/styles/screens.cjs";
 
 Vue.use(VueRouter)
 Vue.use(VueI18n);
