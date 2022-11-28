@@ -39,6 +39,7 @@
     "build:watch": "NODE_OPTIONS=--max_old_space_size=8192 vite build --watch",
     "build:storybook": "NODE_OPTIONS=--max_old_space_size=4096 build-storybook -o .out -s public",
     "tsc": "tsc --project tsconfig.build.json",
+    "tsc:watch": "rm -rf dist/src & npx tsc --project tsconfig.build.json --watch",
     "storybook": "start-storybook -p 6006 -s public",
     "icon": "vsvg -s ./src/assets/icons -t src/foundation/icons/p-icons --es6",
     "lottie": "node build/lottie.js",

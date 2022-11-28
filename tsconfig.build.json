@@ -17,6 +17,7 @@
     "baseUrl": ".",
     "declaration": true,
     "outDir": "dist/src",
+    "declarationDir": "dist/src",
     "types": ["webpack-env", "@types/jest"],
     "paths": {
       "@/*": ["src/*"]
@@ -24,5 +25,5 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
-  "exclude": ["node_modules", "src/**/*.stories.ts"]
+  "exclude": ["node_modules", "src/**/*.stories.ts",  "src/**/story-helper.ts", "src/**/mock.ts"]
 }
