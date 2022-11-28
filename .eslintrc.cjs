@@ -73,6 +73,7 @@ module.exports = {
         'no-tabs': ['off'],
         'no-shadow': ['off'],
         'no-use-before-define': ['off'],
+
         // typescript rules
         '@typescript-eslint/explicit-member-accessibility': [
             'error',

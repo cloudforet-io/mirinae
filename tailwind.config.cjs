@@ -1,13 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const _ = require('lodash');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const defaultTheme = require('tailwindcss/defaultTheme');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const plugin = require('tailwindcss/plugin');
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const colors = require('./src/styles/colors.cjs').tailwindColors;
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const screens = require('./src/styles/screens.cjs');
 
 const rawSize = Array(32)
@@ -19,7 +13,6 @@ const rawPercent = [
     '1/2',
 ];
 
-// eslint-disable-next-line no-eval
 const percent = _.fromPairs(rawPercent.map((value) => [value, `${eval(value) * 100}%`]));
 module.exports = {
     theme: {

@@ -44,7 +44,7 @@
     "icon": "vsvg -s ./src/assets/icons -t src/foundation/icons/p-icons --es6",
     "lottie": "node build/lottie.js",
     "css": "node build/css.js",
-    "eslint": "eslint --ext .js,.vue,.ts .",
+    "eslint": "eslint --quiet --ext .js,.vue,.ts ./src/",
     "stylelint": "stylelint \"src/**/*.{css,vue,pcss,scss}\"",
     "lint": "npm run eslint && npm run stylelint",
     "test": "jest",

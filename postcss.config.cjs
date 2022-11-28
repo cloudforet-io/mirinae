@@ -1,5 +1,3 @@
-/* eslint-disable global-require, @typescript-eslint/no-var-requires */
-
 module.exports = {
     parser: 'postcss-comment',
     plugins: [
