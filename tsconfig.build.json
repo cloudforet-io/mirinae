@@ -15,15 +15,15 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "declaration": true,
     "outDir": "dist/src",
-    "declarationDir": "dist/src",
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "types": ["webpack-env", "@types/jest"],
     "paths": {
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "src/**/*.stories.ts",  "src/**/story-helper.ts", "src/**/mock.ts"]
 }
