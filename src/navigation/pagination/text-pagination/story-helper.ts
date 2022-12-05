@@ -53,4 +53,22 @@ export const getTextPaginationArgTypes = (): ArgTypes => ({
             type: 'boolean',
         },
     },
+    isExistNextPage: {
+        name: 'isExistNextPage',
+        type: { name: 'boolean' },
+        description: 'This prop used only for "only this page number". When allPage is undefined, you can use isExistNextPage to activate the next icons',
+        defaultValue: true,
+        table: {
+            type: {
+                summary: 'boolean',
+            },
+            category: 'props',
+            defaultValue: {
+                summary: true,
+            },
+        },
+        control: {
+            type: 'boolean',
+        },
+    },
 });
