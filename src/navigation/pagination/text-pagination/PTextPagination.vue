@@ -17,7 +17,7 @@
         <p-icon-button class="text"
                        name="ic_arrow_right"
                        color="inherit transparent"
-                       :disabled="thisPage === allPage || !isExistNextPage"
+                       :disabled="thisPage === allPage || disableNextPage"
                        @click="update(thisPage+1)"
         />
     </nav>
@@ -49,7 +49,7 @@ export default {
             type: Boolean,
             default: true,
         },
-        isExistNextPage: {
+        disableNextPage: {
             type: Boolean,
             default: true,
         },

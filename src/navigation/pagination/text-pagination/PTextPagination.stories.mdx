@@ -97,7 +97,7 @@ export const Template = (args, { argTypes }) => ({
               <div style="display: flex; align-items:center; justify-content:center;">
               <p-text-pagination
                   :this-page.sync="thisPage"
-                  :is-exist-next-page="!isMax"
+                  :disable-next-page="isMax"
               />
               </div>
             `,
