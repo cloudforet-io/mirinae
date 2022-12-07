@@ -29,7 +29,7 @@
                   :class="{placeholder: !$scopedSlots.default && !selectedItem}"
             >
                 <slot name="default"
-                      v-bind="selectedItem"
+                      v-bind="{item: selectedItem}"
                 >
                     {{
                         selectedItem ?
