@@ -1,7 +1,7 @@
 import type { ArgTypes } from '@storybook/addons';
 
 import { getContextMenuArgTypes } from '@/inputs/context-menu/story-helper';
-import { INPUT_SIZE } from '@/inputs/input/config';
+import { INPUT_SIZE } from '@/inputs/input/type';
 
 const initContextMenuArgTypes = (): ArgTypes => {
     const contextMenuArgTypes = getContextMenuArgTypes();
