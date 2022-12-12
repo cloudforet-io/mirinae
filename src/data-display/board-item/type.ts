@@ -8,5 +8,6 @@ export type ButtonEventHandler = (...args: any[] | any) => Promise<void> | void;
 
 export interface IconSet {
     iconName: string;
+    tooltipText?: string;
     eventAction: ButtonEventHandler;
 }
