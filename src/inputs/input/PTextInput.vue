@@ -116,8 +116,8 @@ import PButton from '@/inputs/buttons/button/PButton.vue';
 import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import type { MenuItem } from '@/inputs/context-menu/type';
 import type { SearchDropdownMenuItem } from '@/inputs/dropdown/search-dropdown/type';
-import { INPUT_SIZE } from '@/inputs/input/config';
-import type { SelectedItem, TextInputHandler } from '@/inputs/input/type';
+import { INPUT_SIZE } from '@/inputs/input/type';
+import type { SelectedItem, TextInputHandler, InputSizeType } from '@/inputs/input/type';
 
 
 interface TextInputProps {
@@ -162,9 +162,9 @@ export default defineComponent<TextInputProps>({
             default: undefined,
         },
         size: {
-            type: String,
+            type: String as PropType<InputSizeType>,
             default: INPUT_SIZE.md,
-            validator(size: any) {
+            validator(size: InputSizeType) {
                 return Object.values(INPUT_SIZE).includes(size);
             },
         },
