@@ -117,7 +117,7 @@ import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import type { MenuItem } from '@/inputs/context-menu/type';
 import type { SearchDropdownMenuItem } from '@/inputs/dropdown/search-dropdown/type';
 import { INPUT_SIZE } from '@/inputs/input/type';
-import type { SelectedItem, TextInputHandler, InputSizeType } from '@/inputs/input/type';
+import type { SelectedItem, TextInputHandler, InputSize } from '@/inputs/input/type';
 
 
 interface TextInputProps {
@@ -137,7 +137,7 @@ interface TextInputProps {
     exactMode: boolean;
     useAutoComplete: boolean;
     maskingMode: boolean;
-    size?: string;
+    size?: InputSize;
 }
 
 export default defineComponent<TextInputProps>({
@@ -162,9 +162,9 @@ export default defineComponent<TextInputProps>({
             default: undefined,
         },
         size: {
-            type: String as PropType<InputSizeType>,
+            type: String as PropType<InputSize>,
             default: INPUT_SIZE.md,
-            validator(size: InputSizeType) {
+            validator(size: InputSize) {
                 return Object.values(INPUT_SIZE).includes(size);
             },
         },

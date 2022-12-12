@@ -17,5 +17,5 @@ export const INPUT_SIZE = {
     sm: 'sm',
     md: 'md',
 } as const;
-export type InputSizeType = typeof INPUT_SIZE[keyof typeof INPUT_SIZE];
+export type InputSize = typeof INPUT_SIZE[keyof typeof INPUT_SIZE];
 
