@@ -97,7 +97,7 @@ export const getJsonSchemaFormArgTypes = (): ArgTypes => ({
             type: 'text',
         },
     },
-    selectDropdownExtra: {
+    selectDropdownExtraSlot: {
         name: 'select-dropdown-extra',
         description: 'Slot for add something into right area of selected item of `PSelectDropdown`.',
         defaultValue: null,
@@ -114,7 +114,7 @@ export const getJsonSchemaFormArgTypes = (): ArgTypes => ({
             type: 'text',
         },
     },
-    searchDropdownExtra: {
+    searchDropdownExtraSlot: {
         name: 'search-dropdown-extra',
         description: 'Slot for add something into right area of selected item of `PSearchDropdown`.',
         defaultValue: null,
