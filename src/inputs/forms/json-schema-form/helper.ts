@@ -155,6 +155,6 @@ export const getMenuItemsBySchemaProperty = (schemaProperty: InnerJsonSchema): S
 };
 
 export const getMultiInputMode = (schemaProperty: InnerJsonSchema): boolean => {
-    if (typeof schemaProperty.multiInputMode === 'boolean') return schemaProperty.multiInputMode;
-    return schemaProperty.type === 'array';
+    if (schemaProperty.type !== 'array') return false;
+    return schemaProperty?.maxItems !== 1;
 };
