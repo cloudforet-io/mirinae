@@ -51,7 +51,6 @@ export const initFormDataWithSchema = (schema?: JsonSchema, formData?: object): 
                 result[key] = undefined;
             } else {
                 const isSearchDropdownType = !!getMenuItemsFromSchema(property);
-                console.debug('isSearchDropdownType', isSearchDropdownType, schema);
                 const keyProperty = isSearchDropdownType ? 'name' : 'value'; // 'name' for PSearchDropdown, 'value' for PTextInput
                 result[key] = result[key].map((d) => ({ [keyProperty]: d }));
             }
