@@ -75,7 +75,7 @@
                                        @update:selected="handleUpdateFormValue(schemaProperty, ...arguments)"
                     >
                         <template #default="{ item }">
-                            <slot name="select-dropdown-extra"
+                            <slot name="dropdown-extra"
                                   v-bind="{...schemaProperty, selectedItem: item }"
                             />
                         </template>
@@ -90,7 +90,7 @@
                                        @update:selected="handleUpdateFormValue(schemaProperty, ...arguments)"
                     >
                         <template #selected-extra="{ items }">
-                            <slot name="search-dropdown-extra"
+                            <slot name="dropdown-extra"
                                   v-bind="{...schemaProperty, selectedItems: items}"
                             />
                         </template>
