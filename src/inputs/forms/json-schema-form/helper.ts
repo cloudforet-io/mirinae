@@ -24,8 +24,27 @@ const refineArrayTypeValue = (schema: JsonSchema, val?: any[]): string[] | undef
 };
 
 const getMenuItemsFromSchema = (schemaProperty: JsonSchema): any[]|undefined => {
-    if (typeof schemaProperty.items === 'object') return schemaProperty.items.enum;
+    if (Array.isArray(schemaProperty.items)) {
+        let items: any[]|undefined;
+        schemaProperty.items.forEach((item) => {
+            if (typeof item === 'object' && Array.isArray(item.enum)) {
+                items = items ? items.concat(item.enum) : item.enum;
+            }
+        });
+        return items;
+    }
+
+    if (typeof schemaProperty.items === 'object') return Array.isArray(schemaProperty.items.enum) ? schemaProperty.items.enum : undefined;
+
     return undefined;
+};
+
+// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+const isDropdownStrictSelect = (schemaProperty: JsonSchema): boolean => {
+    if (typeof schemaProperty.items === 'object') {
+        return !!schemaProperty.items.enum;
+    }
+    return false;
 };
 
 export const refineValueByProperty = (schema: JsonSchema, val?: any): any => {
