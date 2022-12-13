@@ -80,11 +80,10 @@ export const getDefaultSchema = () => ({
             description: 'Favorite Colors',
             title: 'Favorite Colors',
             type: 'array',
-            prefixItems: [
-                { type: 'string' },
-                { enum: ['red', 'blue', 'gold', 'purple', 'gray'] },
-            ],
-            default: ['gray', 'blue'],
+            items: {
+                enum: ['red', 'blue', 'gold', 'purple', 'gray'],
+            },
+            default: ['gray', 'blue', 'hello!'],
         },
         homepage: {
             type: 'string',
