@@ -23,26 +23,33 @@ const refineArrayTypeValue = (schema: JsonSchema, val?: any[]): string[] | undef
     return val.map((d) => d.value);
 };
 
-const getMenuItemsFromSchema = (schemaProperty: JsonSchema): any[]|undefined => {
-    if (Array.isArray(schemaProperty.items)) {
-        let items: any[]|undefined;
-        schemaProperty.items.forEach((item) => {
-            if (typeof item === 'object' && Array.isArray(item.enum)) {
-                items = items ? items.concat(item.enum) : item.enum;
-            }
-        });
-        return items;
+const getMenuItemsFromSchema = (schemaProperty: JsonSchema): string[]|undefined => {
+    let items: any[]|undefined;
+
+    // PSelectDropdown case (string, strict, single select)
+    if (schemaProperty.type === 'string' && Array.isArray(schemaProperty.enum)) {
+        items = schemaProperty.enum;
+    } else if (schemaProperty.type === 'array') {
+        // PTextInput multi input case (array, non-strict select) - not used yet
+        if (Array.isArray(schemaProperty.items)) {
+            schemaProperty.items.forEach((item) => {
+                if (typeof item === 'object' && Array.isArray(item.enum)) {
+                    items = items ? items.concat(item.enum) : item.enum;
+                }
+            });
+            // PSearchDropdown case (array, strict select)
+        } else if (typeof schemaProperty.items === 'object') {
+            items = Array.isArray(schemaProperty.items.enum) ? schemaProperty.items.enum : undefined;
+        }
     }
 
-    if (typeof schemaProperty.items === 'object') return Array.isArray(schemaProperty.items.enum) ? schemaProperty.items.enum : undefined;
-
-    return undefined;
+    return items?.filter((d) => typeof d === 'string');
 };
 
 // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
-const isDropdownStrictSelect = (schemaProperty: JsonSchema): boolean => {
+const isStrictArraySelectMode = (schemaProperty: JsonSchema): boolean => {
     if (typeof schemaProperty.items === 'object') {
-        return !!schemaProperty.items.enum;
+        return Array.isArray(schemaProperty.items.enum);
     }
     return false;
 };
@@ -119,9 +126,9 @@ export const initRefinedFormData = (schema?: JsonSchema, formData?: any, isRoot?
 export const getComponentNameBySchemaProperty = (schemaProperty: InnerJsonSchema): ComponentName => {
     if (schemaProperty.format === 'generate_id') return 'GenerateIdFormat';
     if (schemaProperty.type === 'object') return 'PJsonSchemaForm';
+    if (Array.isArray(schemaProperty.enum) && schemaProperty.type === 'string') return 'PSelectDropdown';
     const items = getMenuItemsFromSchema(schemaProperty);
     if (items) return 'PSearchDropdown';
-    if (Array.isArray(schemaProperty.enum) && schemaProperty.type === 'string') return 'PSelectDropdown';
     return 'PTextInput';
 };
 
@@ -135,27 +142,14 @@ export const getInputTypeBySchemaProperty = (schemaProperty: InnerJsonSchema): T
 export const getInputPlaceholderBySchemaProperty = (schemaProperty: InnerJsonSchema) => schemaProperty.examples?.[0] ?? '';
 
 export const getMenuItemsBySchemaProperty = (schemaProperty: InnerJsonSchema): SelectDropdownMenu[]|undefined => {
+    // get menu items from menuItems
     if (Array.isArray(schemaProperty.menuItems) && schemaProperty.menuItems.length) {
         return schemaProperty.menuItems;
     }
-    if (Array.isArray(schemaProperty.enum)) {
-        try {
-            return schemaProperty.enum.map((d) => {
-                if (typeof d === 'string') {
-                    return { name: d, label: d };
-                }
-
-                throw new Error('Invalid enum value');
-            });
-        } catch (e: unknown) {
-            console.error(e);
-            return undefined;
-        }
-    } else {
-        const items = getMenuItemsFromSchema(schemaProperty);
-        if (items) {
-            return items.map((item) => ({ name: item, label: item }));
-        }
+    // get menu items from other schema keywords
+    const items = getMenuItemsFromSchema(schemaProperty);
+    if (items) {
+        return items.map((item) => ({ name: item, label: item }));
     }
     return undefined;
 };
