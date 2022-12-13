@@ -198,7 +198,7 @@ const extraArgTypes: ArgTypes = {
             type: { summary: null },
         },
     },
-    'selected-extra': {
+    selectedExtraSlot: {
         name: 'selected-extra',
         description: 'This is a slot for right space of selected items.',
         defaultValue: { summary: null },
