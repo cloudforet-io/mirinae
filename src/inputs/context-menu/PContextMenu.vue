@@ -21,7 +21,6 @@
                     {{ $t('COMPONENT.CONTEXT_MENU.DONE') }}
                 </p-button>
             </div>
-            <slot name="help-text" />
             <p-text-button v-if="showClearSelection && multiSelectable"
                            class="clear-all-wrapper"
                            style-type="highlight"
@@ -81,8 +80,8 @@
                          :class="{disabled: item.disabled}"
                     >
                         <p-button :disabled="item.disabled"
-                                  size="sm"
-                                  style-type="tertiary"
+                                  size="md"
+                                  style-type="secondary"
                                   :block="true"
                                   :icon-left="item.icon"
                                   @click="$emit('click-button', item, index, $event)"
@@ -342,7 +341,7 @@ export default defineComponent<ContextMenuProps>({
         border-top-style: solid;
     }
     > .context-button {
-        padding: 0.5rem 0.5rem 0.75rem 0.5rem;
+        padding: 0.5rem;
 
         @media (hover: hover) {
             &:hover:not(.disabled) {
@@ -351,7 +350,7 @@ export default defineComponent<ContextMenuProps>({
         }
     }
     > .context-show-more {
-        padding: 0.5rem 0.5rem 0.75rem 0.5rem;
+        padding: 0.5rem;
     }
     > .bottom-slot-area {
         padding: 0.5rem;

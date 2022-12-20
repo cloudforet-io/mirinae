@@ -175,9 +175,8 @@ Each `MenuItem` has the following type to represent it:
 
 ## Slots
 
-Context Menu have 8 slots:
-
 <Description markdown={`
+Context Menu have ${contextMenuSlots.length} slots:
 |Slot|Description|
 |-|-|
 ${contextMenuSlots.map(([name, description]) => `|${name}|${description}|`).join('\n')}
@@ -355,31 +354,6 @@ ${contextMenuSlots.map(([name, description]) => `|${name}|${description}|`).join
                 })
                 return {...toRefs((state))}
             }
-        }}
-    </Story>
-</Canvas>
-
-<br/>
-<br/>
-
-
-### Help Text Slot
-
-<Canvas>
-    <Story name="Help Text Slot" args={{menu: menuItems}}>
-        {{
-            props: Object.keys(getContextMenuArgTypes()),
-            components: { PContextMenu },
-            template: `
-        <div class="flex h-full flex-col">
-            <div class="mt-4">
-                <p-context-menu :menu="menu">
-                    <template #help-text>This is help text slot.</template>
-                </p-context-menu>
-            </div>
-        </div>
-<!--<div>-->
-`,
         }}
     </Story>
 </Canvas>
