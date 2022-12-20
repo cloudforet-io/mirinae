@@ -90,6 +90,18 @@
                             {{ item.label }}
                         </p-button>
                     </div>
+                    <div v-else-if="item.type === 'showMore'"
+                         :key="`show-more-${index}`"
+                         class="context-show-more"
+                    >
+                        <p-text-button style-type="highlight"
+                                       size="sm"
+                                       icon-right="ic_arrow_bottom"
+                                       @click="$emit('click-show-more', item, index, $event)"
+                        >
+                            {{ item.label ? item.label : $t('COMPONENT.CONTEXT_MENU.SHOW_MORE') }}
+                        </p-text-button>
+                    </div>
                 </template>
             </slot>
             <div v-if="$slots.bottom"
@@ -337,6 +349,9 @@ export default defineComponent<ContextMenuProps>({
                 @apply bg-blue-100;
             }
         }
+    }
+    > .context-show-more {
+        padding: 0.5rem 0.5rem 0.75rem 0.5rem;
     }
     > .bottom-slot-area {
         padding: 0.5rem;
