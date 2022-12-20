@@ -95,7 +95,11 @@
                     </div>
                 </template>
             </slot>
-            <slot name="bottom" />
+            <div v-if="$slots.bottom"
+                 class="bottom-slot-area"
+            >
+                <slot name="bottom" />
+            </div>
         </slot>
         <div v-show="menu.length === 0"
              class="no-data"
@@ -341,6 +345,9 @@ export default defineComponent<ContextMenuProps>({
                 @apply bg-blue-100;
             }
         }
+    }
+    > .bottom-slot-area {
+        padding: 0.5rem;
     }
 
     > .loader-wrapper {
