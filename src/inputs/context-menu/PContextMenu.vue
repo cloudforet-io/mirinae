@@ -11,7 +11,7 @@
             >
                 <div>
                     <b>{{ $t('COMPONENT.CONTEXT_MENU.SELECTED_LIST') }}</b>
-                    <span class="pl-2">({{ selectedCountInFilteredMenu }} / {{ menuItemLength }})</span>
+                    <span class="pl-2">({{ selectedCountInFilteredMenu }})</span>
                 </div>
                 <p-button size="sm"
                           style-type="primary"
