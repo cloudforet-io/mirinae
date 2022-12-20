@@ -360,10 +360,10 @@ ${contextMenuSlots.map(([name, description]) => `|${name}|${description}|`).join
 <br/>
 
 
-### Help Text Slots
+### Help Text Slot
 
 <Canvas>
-    <Story name="Help Text Slots" args={{menu: menuItems}}>
+    <Story name="Help Text Slot" args={{menu: menuItems}}>
         {{
             props: Object.keys(getContextMenuArgTypes()),
             components: { PContextMenu },
@@ -372,6 +372,30 @@ ${contextMenuSlots.map(([name, description]) => `|${name}|${description}|`).join
             <div class="mt-4">
                 <p-context-menu :menu="menu">
                     <template #help-text>This is help text slot.</template>
+                </p-context-menu>
+            </div>
+        </div>
+<!--<div>-->
+`,
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
+### Bottom Slot
+
+<Canvas>
+    <Story name="Bottom Slot" args={{menu: menuItems}}>
+        {{
+            props: Object.keys(getContextMenuArgTypes()),
+            components: { PContextMenu },
+            template: `
+        <div class="flex h-full flex-col">
+            <div class="mt-4">
+                <p-context-menu :menu="menu">
+                    <template #bottom><div class="border border-coral-300">This is bottom slot.</div></template>
                 </p-context-menu>
             </div>
         </div>
