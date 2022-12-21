@@ -86,6 +86,7 @@ module.exports = {
             desktop: { max: `${screens.desktop.max}px` },
         },
         fontSize: {
+            ...defaultTheme.fontSize,
             ...semanticFont.fontSize,
             'display-2xl': semanticFont.semanticFontSize["display-2xl"],
             'display-xl': semanticFont.semanticFontSize["display-xl"],
