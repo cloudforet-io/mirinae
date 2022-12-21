@@ -87,7 +87,6 @@ module.exports = {
         },
         fontSize: {
             ...defaultTheme.fontSize,
-            ...semanticFont.fontSize,
             'display-2xl': semanticFont.semanticFontSize["display-2xl"],
             'display-xl': semanticFont.semanticFontSize["display-xl"],
             'display-lg': semanticFont.semanticFontSize["display-lg"],
