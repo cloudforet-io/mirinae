@@ -74,10 +74,11 @@ describe('Context Menu Controller', () => {
             visibleMenu: ref(false),
             useReorderBySelection: true,
             menu: ref([]),
+            useFixedStyle: true,
         }));
         // const contextMenuRef = wrapper.findComponent({ ref: 'contextMenuRef' });
         // expect(contextMenuRef).toBeTruthy();
-        const { showContextMenu, hideContextMenu } = result as UseContextMenuControllerReturns;
+        const { showContextMenu, hideContextMenu, fixedMenuStyle } = result as UseContextMenuControllerReturns;
         const contextMenuElement = wrapper.find('#menu');
 
         describe('showContextMenu()', () => {
@@ -93,6 +94,12 @@ describe('Context Menu Controller', () => {
                 hideContextMenu();
                 await Vue.nextTick();
                 expect(contextMenuElement?.isVisible()).toBeFalsy();
+            });
+        });
+
+        describe('fixedMenuStyle', () => {
+            it('should exist if useFixedStyle option is true.', async () => {
+                expect(fixedMenuStyle).toBeTruthy();
             });
         });
     });
