@@ -22,6 +22,7 @@ export interface UseContextMenuControllerReturns {
     focusOnContextMenu: FocusOnContextMenu;
     reorderMenuBySelection: ReorderMenuBySelection;
     fixedMenuStyle?: Ref<Partial<CSSStyleDeclaration>>;
+    menu?: Ref<MenuItem[]>|ComputedRef<MenuItem[]>;
 }
 
 interface FocusOnContextMenu { (position?: number): void }
@@ -79,12 +80,14 @@ export const useContextMenuController = ({
         } else {
             newItems = unselected;
         }
+        state.menu = newItems;
         return newItems;
     };
 
 
     return {
         visibleMenu: toRef(state, 'visibleMenu'),
+        menu: toRef(state, 'menu'),
         showContextMenu,
         hideContextMenu,
         focusOnContextMenu,
