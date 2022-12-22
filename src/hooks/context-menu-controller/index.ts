@@ -38,6 +38,7 @@ export const useContextMenuController = ({
         targetRef,
         contextMenuRef,
         visibleMenu: visibleMenu ?? false,
+        menu: menu ?? [],
     });
 
     let fixedMenuStyle: Ref<Partial<CSSStyleDeclaration>>|undefined;
@@ -63,8 +64,23 @@ export const useContextMenuController = ({
         if (state.contextMenuRef) state.contextMenuRef.focus(position);
     };
 
-    // TODO
-    const reorderMenuBySelection: ReorderMenuBySelection = (selected: MenuItem[]) => selected;
+    const reorderMenuBySelection: ReorderMenuBySelection = (selected: MenuItem[]) => {
+        const selectedMap = {};
+        selected.forEach((item) => {
+            if (!item.name) return;
+            selectedMap[item.name] = item;
+        });
+        const unselected = state.menu.filter((item) => !item.name || !selectedMap[item.name]);
+        let newItems: MenuItem[] = [];
+        if (selected.length) {
+            newItems = newItems.concat(selected);
+            newItems.push({ type: 'divider', name: 'selection-divider' });
+            newItems = newItems.concat(unselected);
+        } else {
+            newItems = unselected;
+        }
+        return newItems;
+    };
 
 
     return {
