@@ -1,7 +1,9 @@
 <template>
     <div class="p-page-title">
         <div class="title-wrapper">
-            <span v-if="child" class="back-btn">
+            <span v-if="child"
+                  class="back-btn"
+            >
                 <p-icon-button name="ic_back"
                                @click="$emit('goBack',$event)"
                 />
@@ -10,17 +12,25 @@
             <h2 :class="{'has-left': !!$slots['title-left-extra'], 'has-right': useTotalCount || !!$slots['title-right-extra']}">
                 <slot>
                     <slot name="title">
-                        <span>{{ title }}&zwnj;</span>
+                        <span @click="$emit('clickTitle', $event)">{{ title }}&zwnj;</span>
                     </slot>
                 </slot>
             </h2>
-            <slot v-if="useTotalCount" name="total-count">
-                <span v-if="useSelectedCount && selectedCount" class="total-count">({{ $t('COMPONENT.PAGE_TITLE.SELECTED_OF',{ selectedCount, totalCount }) }})</span>
-                <span v-else class="total-count">({{ commaFormatter(totalCount) }})</span>
+            <slot v-if="useTotalCount"
+                  name="total-count"
+            >
+                <span v-if="useSelectedCount && selectedCount"
+                      class="total-count"
+                >({{ $t('COMPONENT.PAGE_TITLE.SELECTED_OF',{ selectedCount, totalCount }) }})</span>
+                <span v-else
+                      class="total-count"
+                >({{ commaFormatter(totalCount) }})</span>
             </slot>
             <slot name="title-right-extra" />
         </div>
-        <div v-if="$slots['extra']" class="extra">
+        <div v-if="$slots['extra']"
+             class="extra"
+        >
             <slot name="extra" />
         </div>
     </div>

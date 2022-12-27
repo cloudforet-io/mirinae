@@ -205,4 +205,14 @@ export const getPageTitleArgTypes = (): ArgTypes => ({
             category: 'events',
         },
     },
+    clickTitle: {
+        name: 'clickTitle',
+        description: 'Emitted when title area is clicked',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'events',
+        },
+    },
 });
