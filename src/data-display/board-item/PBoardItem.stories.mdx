@@ -167,7 +167,6 @@ and when you want a custom ui, use the `left-content` slot to replace it.<br/>
                 const state = reactive({ selected: false });
                 const handleSelect = (e) => {
                     state.selected = !state.selected
-                    console.log(e);
                 };
                 return {...toRefs(state), handleSelect}
             }
