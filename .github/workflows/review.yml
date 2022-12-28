@@ -52,3 +52,7 @@ jobs:
       run: |
         npm run build
 
+    - name: Transpile
+      run: |
+        npm run tsc
+
