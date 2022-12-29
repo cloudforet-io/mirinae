@@ -130,6 +130,9 @@ export default defineComponent<BoardItemProps>({
     &.rounded {
         @apply rounded-md;
     }
+    &.selectable {
+        cursor: pointer;
+    }
     &.selected {
         @apply border-blue-600 text-blue-600;
         border-bottom-width: 1px !important;
