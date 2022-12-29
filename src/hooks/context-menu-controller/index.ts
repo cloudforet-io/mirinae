@@ -108,7 +108,11 @@ export const useContextMenuController = ({
             newItems = unselected;
         }
 
-        if (useReorderBySelection) state.reorderedMenu = newItems;
+        if (useReorderBySelection) {
+            if (JSON.stringify(state.reorderedMenu) !== JSON.stringify(newItems)) {
+                state.reorderedMenu = newItems;
+            }
+        }
         return newItems;
     };
 
