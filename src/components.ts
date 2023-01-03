@@ -73,7 +73,7 @@ export { default as PAutocompleteSearch } from './inputs/search/autocomplete-sea
 export { default as PFilterableDropdown } from './inputs/dropdown/filterable-dropdown/PFilterableDropdown.vue';
 export { default as PQuerySearch } from './inputs/search/query-search/PQuerySearch.vue';
 export { default as PQuerySearchTags } from './inputs/search/query-search-tags/PQuerySearchTags.vue';
-export { default as PQuerySearchDropdown } from './inputs/dropdown/query-search-dropdown/PQuerySearchDropdown.vue';
+export { default as PFilterableQueryDropdown } from './inputs/dropdown/filterable-query-dropdown/PFilterableQueryDropdown.vue';
 export { default as PDataTable } from './data-display/tables/data-table/PDataTable.vue';
 export { default as PDefinitionTable } from './data-display/tables/definition-table/PDefinitionTable.vue';
 export { default as PQuerySearchTable } from './data-display/tables/query-search-table/PQuerySearchTable.vue';
