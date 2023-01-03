@@ -1,7 +1,7 @@
 <template>
     <component :is="isAnchor ? 'router-link' : 'span'"
                class="p-context-menu-item"
-               :class="{selected, disabled, 'is-anchor': isAnchor}"
+               :class="{selected, disabled, 'is-anchor': isAnchor, readonly}"
                v-bind="{...routerLinkProps, ...$attrs}"
                v-on="$listeners"
     >
@@ -71,6 +71,7 @@ export interface ContextMenuItemProps {
     selectMarker?: SelectMarker;
     ellipsis?: boolean;
     highlightTerm?: string;
+    readonly?: boolean;
 }
 
 export default defineComponent<ContextMenuItemProps>({
@@ -118,6 +119,10 @@ export default defineComponent<ContextMenuItemProps>({
         highlightTerm: {
             type: String,
             default: '',
+        },
+        readonly: {
+            type: Boolean,
+            default: false,
         },
     },
     setup(props) {
@@ -174,6 +179,9 @@ export default defineComponent<ContextMenuItemProps>({
     &.disabled {
         @apply text-gray-300;
         cursor: not-allowed;
+    }
+    &.readonly {
+        cursor: text;
     }
     &.selected:not(.disabled) {
         @apply bg-blue-200;
