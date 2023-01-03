@@ -70,7 +70,7 @@ export { default as PTableCheckModal } from './others/console/modals/table-modal
 export { default as PPagination } from './navigation/pagination/pagination/PPagination.vue';
 export { default as PTextPagination } from './navigation/pagination/text-pagination/PTextPagination.vue';
 export { default as PAutocompleteSearch } from './inputs/search/autocomplete-search/PAutocompleteSearch.vue';
-export { default as PSearchDropdown } from './inputs/dropdown/search-dropdown/PSearchDropdown.vue';
+export { default as PFilterableDropdown } from './inputs/dropdown/filterable-dropdown/PFilterableDropdown.vue';
 export { default as PQuerySearch } from './inputs/search/query-search/PQuerySearch.vue';
 export { default as PQuerySearchTags } from './inputs/search/query-search-tags/PQuerySearchTags.vue';
 export { default as PQuerySearchDropdown } from './inputs/dropdown/query-search-dropdown/PQuerySearchDropdown.vue';
