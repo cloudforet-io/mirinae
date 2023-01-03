@@ -1,10 +1,14 @@
 <template>
     <div class="p-toolbox">
         <div class="toolbox-inner">
-            <div v-if="$scopedSlots['left-area']" class="left-area-wrapper">
+            <div v-if="$scopedSlots['left-area']"
+                 class="left-area-wrapper"
+            >
                 <slot name="left-area" />
             </div>
-            <div v-if="searchable" class="search-wrapper" :class="{simple: !$scopedSlots['left-area']}">
+            <div v-if="searchable"
+                 class="search-wrapper"
+            >
                 <p-search v-if="searchType === SEARCH_TYPES.plain"
                           v-model="proxyState.searchText"
                           @search="onSearch"
@@ -16,41 +20,54 @@
                                 @search="onSearch"
                 />
             </div>
-            <div class="tools-wrapper" :class="{simple: !$scopedSlots['left-area']}">
-                <div v-if="paginationVisible" class="tool">
+            <div class="tools-wrapper">
+                <div v-if="paginationVisible"
+                     class="tool"
+                >
                     <p-text-pagination :this-page="proxyState.thisPage"
                                        :all-page="allPage"
                                        @pageChange="onChangeThisPage"
                     />
                 </div>
-                <div v-if="pageSizeChangeable" class="tool">
-                    <p-dropdown-menu-btn class="dropdown-list"
-                                         :menu="pageMenu"
-                                         @select="onChangePageSize"
+                <div v-if="pageSizeChangeable"
+                     class="tool"
+                >
+                    <p-select-dropdown class="dropdown-list"
+                                       :items="pageMenu"
+                                       @select="onChangePageSize"
                     >
                         {{ proxyState.pageSize }}
-                    </p-dropdown-menu-btn>
+                    </p-select-dropdown>
                 </div>
-                <div v-if="sortable" class="tool">
-                    <p-dropdown-menu-btn class="dropdown-list"
-                                         :menu="sortByMenu"
-                                         @select="onChangeSortBy"
+                <div v-if="sortable"
+                     class="tool"
+                >
+                    <p-select-dropdown class="dropdown-list"
+                                       :items="sortByOptions"
+                                       :sort-by="sortBy"
+                                       @select="onChangeSortBy"
                     >
-                        {{ proxyState.sortBy }}
-                    </p-dropdown-menu-btn>
+                        {{ selectedSortBy }}
+                    </p-select-dropdown>
                 </div>
-                <div>
-                    <div v-if="exportable" class="tool">
+                <div class="right-tool-group">
+                    <div v-if="exportable"
+                         class="tool"
+                    >
                         <p-icon-button name="ic_excel"
-                                       @click="$emit('export',$event)"
+                                       @click="$emit('export', $event)"
                         />
                     </div>
-                    <div v-if="settingsVisible" class="tool">
+                    <div v-if="settingsVisible"
+                         class="tool"
+                    >
                         <p-icon-button name="ic_setting"
-                                       @click="$emit('click-settings',$event)"
+                                       @click="$emit('click-settings', $event)"
                         />
                     </div>
-                    <div v-if="refreshable" class="tool">
+                    <div v-if="refreshable"
+                         class="tool"
+                    >
                         <p-icon-button name="ic_refresh"
                                        @click="$emit('refresh', $event)"
                         />
@@ -59,10 +76,9 @@
             </div>
             <div class="filters-wrapper">
                 <p-query-search-tags v-show="searchable && filtersVisible && searchType === SEARCH_TYPES.query"
-                                     ref="tagRef"
-                                     :tags="proxyState.queryTags"
+                                     :tags.sync="proxyState.queryTags"
                                      :timezone="timezone"
-                                     @init="onQueryTagsInit"
+                                     :converter="queryTagConverter"
                                      @change="onQueryTagsChange"
                 />
             </div>
@@ -71,51 +87,37 @@
 </template>
 
 <script lang="ts">
-import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
-import PDropdownMenuBtn from '@/inputs/dropdown/dropdown-menu-btn/PDropdownMenuBtn.vue';
-import PTextPagination from '@/navigation/pagination/text-pagination/PTextPagination.vue';
 import {
-    ComponentRenderProxy, computed, defineComponent, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import { makeOptionalProxy } from '@/util/composition-helpers';
-import PQuerySearch from '@/inputs/search/query-search/PQuerySearch.vue';
-import { QueryTag } from '@/inputs/search/query-search-tags/type';
-import { KeyItemSet, QueryItem, ValueHandlerMap } from '@/inputs/search/query-search/type';
-import PSearch from '@/inputs/search/search/PSearch.vue';
+    computed, defineComponent, getCurrentInstance, reactive, toRefs,
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
+import { groupBy } from 'lodash';
+
+import { useProxyValue } from '@/hooks/proxy-state';
+import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+import type { MenuItem } from '@/inputs/context-menu/type';
+import PSelectDropdown from '@/inputs/dropdown/select-dropdown/PSelectDropdown.vue';
+import { defaultConverter } from '@/inputs/search/query-search-tags/helper';
 import PQuerySearchTags from '@/inputs/search/query-search-tags/PQuerySearchTags.vue';
+import type { QueryTag } from '@/inputs/search/query-search-tags/type';
+import PQuerySearch from '@/inputs/search/query-search/PQuerySearch.vue';
+import type { QueryItem, ValueSet } from '@/inputs/search/query-search/type';
+import PSearch from '@/inputs/search/search/PSearch.vue';
+import PTextPagination from '@/navigation/pagination/text-pagination/PTextPagination.vue';
 import { SEARCH_TYPES } from '@/navigation/toolbox/config';
-import { ToolboxOptions } from '@/navigation/toolbox/type';
+import type { ToolboxOptions, ToolboxProps } from '@/navigation/toolbox/type';
+import { makeOptionalProxy } from '@/util/composition-helpers';
 
-interface Props {
-    paginationVisible: boolean;
-    pageSizeChangeable: boolean;
-    sortable: boolean;
-    exportable: boolean;
-    refreshable: boolean;
-    searchable: boolean;
-    filtersVisible: boolean;
-    settingsVisible: boolean;
-    searchType: string;
-    proxyState?: number;
-    pageSize?: number;
-    totalCount: number;
-    pageSizeOptions: number[];
-    sortByOptions: string[];
-    keyItemSets: KeyItemSet[];
-    valueHandlerMap: ValueHandlerMap;
-    queryTags?: QueryTag[];
-    searchText?: string;
-    timezone: string;
-}
 
-export default defineComponent<Props>({
+export default defineComponent<ToolboxProps>({
     name: 'PToolbox',
     components: {
+        PSelectDropdown,
         PQuerySearchTags,
         PSearch,
         PQuerySearch,
         PTextPagination,
-        PDropdownMenuBtn,
         PIconButton,
     },
     props: {
@@ -153,7 +155,7 @@ export default defineComponent<Props>({
         },
         searchType: {
             type: String,
-            default: 'plain',
+            default: SEARCH_TYPES.plain,
             validator(searchType) {
                 return Object.values(SEARCH_TYPES).includes(searchType as any);
             },
@@ -183,7 +185,7 @@ export default defineComponent<Props>({
         },
         sortByOptions: {
             type: Array,
-            default: () => [],
+            default: () => [] as MenuItem[],
         },
         keyItemSets: {
             type: Array,
@@ -195,7 +197,7 @@ export default defineComponent<Props>({
         },
         queryTags: {
             type: Array,
-            default: undefined,
+            default: () => [],
         },
         searchText: {
             type: String,
@@ -206,34 +208,49 @@ export default defineComponent<Props>({
             default: 'UTC',
         },
     },
-    setup(props: Props) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
-
+    setup(props: ToolboxProps, { emit }) {
+        const vm = getCurrentInstance()?.proxy as Vue;
         const initPageSize = props.pageSizeOptions ? props.pageSizeOptions[0] || 24 : 24;
+
         const proxyState = reactive({
             thisPage: makeOptionalProxy<number>('thisPage', vm, 1),
             pageSize: makeOptionalProxy<number>('pageSize', vm, initPageSize),
-            sortBy: makeOptionalProxy<string>('sortBy', vm, props.sortByOptions[0] || ''),
+            sortBy: useProxyValue('sortBy', props, emit),
             searchText: makeOptionalProxy<string>('searchText', vm, ''),
-            queryTags: makeOptionalProxy<QueryTag[]>('queryTags', vm, []),
+            queryTags: useProxyValue('queryTags', props, emit),
         });
-
+        const sortByOptionsData = (props.sortable ? groupBy(props.sortByOptions, 'name') : undefined);
         const state = reactive({
             pageStart: computed(() => ((proxyState.thisPage - 1) * proxyState.pageSize) + 1),
-            allPage: computed(() => Math.ceil(props.totalCount / proxyState.pageSize) || 1),
+            allPage: computed(() => Math.ceil((props.totalCount || 0) / proxyState.pageSize) || 1),
             pageMenu: computed(() => {
                 if (!Array.isArray(props.pageSizeOptions)) return [];
-                return props.pageSizeOptions.map(d => ({
+                return props.pageSizeOptions.map((d) => ({
                     name: d, label: d, type: 'item',
                 }));
             }),
-            sortByMenu: computed(() => {
-                if (!Array.isArray(props.sortByOptions)) return [];
-                return props.sortByOptions.map(d => ({
-                    name: d, label: d, type: 'item',
+            selectedSortBy: computed(() => ((sortByOptionsData && props.sortable) ? sortByOptionsData[proxyState.sortBy][0]?.label : proxyState.sortBy)),
+            valueSetMap: computed<Record<string, ValueSet>>(() => {
+                const valueSetMap: Record<string, ValueSet> = {};
+                (props.keyItemSets ?? []).forEach((keyItemSet) => keyItemSet.items.forEach((item) => {
+                    if (item.valueSet) valueSetMap[item.name] = item.valueSet;
                 }));
+                return valueSetMap;
             }),
-            tagRef: null as any,
+            queryTagConverter: computed(() => {
+                const valueSetMap = state.valueSetMap;
+                return (queryTag: QueryItem) => {
+                    const { key, value } = queryTag;
+                    if (key && value && valueSetMap[key.name]) {
+                        const valueLabel = valueSetMap[key.name]?.[value.name]?.label;
+                        return {
+                            ...queryTag,
+                            value: { ...value, label: valueLabel ?? value.label ?? value.name },
+                        };
+                    }
+                    return defaultConverter(queryTag, props.timezone);
+                };
+            }),
         });
 
 
@@ -273,21 +290,9 @@ export default defineComponent<Props>({
                 vm.$nextTick(() => {
                     emitChange({ searchText: val, pageStart: state.pageStart });
                 });
-            } else if (state.tagRef) {
-                state.tagRef.addTag(val);
             } else {
-                proxyState.queryTags.push(val);
+                proxyState.queryTags = [...proxyState.queryTags, val];
             }
-        };
-
-        const onQueryTagsInit = ({ tags }) => {
-            vm.$emit('init-tags', {
-                pageStart: state.pageStart,
-                pageLimit: proxyState.pageSize,
-                searchText: proxyState.searchText,
-                sortBy: proxyState.sortBy,
-                queryTags: tags,
-            } as ToolboxOptions);
         };
 
         const onQueryTagsChange = (tags: QueryTag[]) => {
@@ -308,7 +313,6 @@ export default defineComponent<Props>({
             onChangePageSize,
             onChangeSortBy,
             onSearch,
-            onQueryTagsInit,
             onQueryTagsChange,
         };
     },
@@ -336,6 +340,9 @@ export default defineComponent<Props>({
         flex-grow: 1;
         order: 2;
         flex-wrap: wrap;
+        .right-tool-group {
+            display: flex;
+        }
         .dropdown-list {
             .p-dropdown-btn {
                 min-width: 6rem;
@@ -344,26 +351,12 @@ export default defineComponent<Props>({
         .tool {
             @apply ml-2 mb-4;
             display: inline-block;
+            flex-shrink: 0;
         }
     }
     .filters-wrapper {
         @apply w-full;
         order: 4;
-    }
-
-    @screen md {
-        .search-wrapper {
-            &.simple {
-                order: 2;
-                width: auto;
-                flex-grow: 100;
-            }
-        }
-        .tools-wrapper {
-            &.simple {
-                order: 3;
-            }
-        }
     }
 
     @screen lg {

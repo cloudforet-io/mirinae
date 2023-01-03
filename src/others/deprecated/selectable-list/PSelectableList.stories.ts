@@ -1,12 +1,14 @@
 import {
     toRefs, reactive,
-} from '@vue/composition-api';
+} from 'vue';
+
 import { action } from '@storybook/addon-actions';
 import {
     object, boolean, text, select,
 } from '@storybook/addon-knobs';
-import PSelectableList from '@/others/deprecated/selectable-list/PSelectableList.vue';
+
 import { themes } from '@/others/deprecated/selectable-item/config';
+import PSelectableList from '@/others/deprecated/selectable-list/PSelectableList.vue';
 
 export default {
     title: 'Others/Deprecated/Selectable List',
@@ -87,7 +89,7 @@ export const defaultCase = () => ({
                              v-on="actions"
             ></p-selectable-list>
         </div>`,
-    setup(props, context) {
+    setup() {
         const state = reactive({
             items,
             selectedIndexes: [],
@@ -117,7 +119,7 @@ export const extraSlot = () => ({
                 </template>
             </p-selectable-list>
         </div>`,
-    setup(props, context) {
+    setup() {
         const state = reactive({
             items,
             selectedIndexes: [],

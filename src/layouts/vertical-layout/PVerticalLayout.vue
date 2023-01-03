@@ -36,7 +36,8 @@
 <script lang="ts">
 import {
     toRefs, reactive, computed, onMounted, onUnmounted,
-} from '@vue/composition-api';
+} from 'vue';
+
 import PI from '@/foundation/icons/PI.vue';
 
 const SCREEN_WIDTH_SM = 767;
@@ -69,7 +70,7 @@ export default {
             default: 500,
         },
     },
-    setup(props, context) {
+    setup(props) {
         const state = reactive({
             width: props.initWidth,
             resizing: false,
@@ -179,6 +180,8 @@ export default {
     margin: unset;
 }
 .sidebar-container {
+    @apply bg-white;
+    box-shadow: 0.0625rem 0 0.25rem rgba(0, 0, 0, 0.12);
     &.transition {
         transition: width 0.2s;
     }

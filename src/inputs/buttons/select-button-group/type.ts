@@ -1,6 +1,8 @@
-import { Button } from '@/inputs/buttons/button/type';
+import type { ButtonProps } from '@/inputs/buttons/button/type';
 
-export interface SelectButtonType extends Button {
+type ButtonType = 'default' | 'text';
+
+export interface SelectButtonType extends ButtonProps {
     label: string;
     name: string;
 }
@@ -8,4 +10,5 @@ export interface SelectButtonType extends Button {
 export interface SelectButtonGroupProps {
     buttons: Array<string|SelectButtonType>;
     selected: string | number;
+    buttonType: ButtonType;
 }

@@ -1,35 +1,47 @@
 <template>
-    <span v-tooltip.bottom="isError ? errorMessage : ''"
+    <span v-tooltip.bottom="invalid ? errorMessage : ''"
           class="p-tag"
-          :class="{deletable: deletable, activated: activated, outline: outline, error: isError}"
+          :class="{deletable: deletable, selected: selected, outline: outline, invalid: invalid}"
           v-on="$listeners"
     >
-        <p-i v-if="isError" class="error-icon"
+        <p-i v-if="invalid" class="invalid-icon"
              name="ic_alert"
              width="0.8rem"
              height="0.8rem"
         />
-        <span class="text"><slot /></span>
+        <span class="tag-contents">
+            <slot name="default">
+                <span v-if="categoryItem" class="category"><slot name="category">[{{ categoryItem.label || categoryItem.name }}]</slot></span>
+                <span v-if="keyItem" class="key"><slot name="key">{{ keyItem.label || keyItem.name }}:</slot></span>
+                <span v-if="valueItem"><slot name="value">{{ valueItem.label || valueItem.name }}</slot></span>
+            </slot>
+        </span>
         <p-i v-if="deletable"
              name="ic_delete"
              width="1rem"
              height="1rem"
              class="delete-icon"
              color="inherit"
-             @click="$emit('delete')"
+             @click.stop="$emit('delete')"
         />
     </span>
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
+
 import PI from '@/foundation/icons/PI.vue';
-import { defineComponent } from '@vue/composition-api';
+import type { CategoryItem, KeyItem, ValueItem } from '@/inputs/search/query-search/type';
 
 interface Props {
+    keyItem?: KeyItem;
+    valueItem: ValueItem;
+    categoryItem?: CategoryItem;
     deletable?: boolean;
     outline?: boolean;
-    activated?: boolean;
-    isError?: boolean;
+    selected?: boolean;
+    invalid?: boolean;
     errorMessage?: string;
 }
 
@@ -39,6 +51,18 @@ export default defineComponent<Props>({
         PI,
     },
     props: {
+        keyItem: {
+            type: Object as PropType<KeyItem>,
+            default: undefined,
+        },
+        valueItem: {
+            type: Object as PropType<ValueItem>,
+            default: undefined,
+        },
+        categoryItem: {
+            type: Object as PropType<CategoryItem>,
+            default: undefined,
+        },
         deletable: {
             type: Boolean,
             default: true,
@@ -47,11 +71,11 @@ export default defineComponent<Props>({
             type: Boolean,
             default: false,
         },
-        activated: {
+        selected: {
             type: Boolean,
             default: false,
         },
-        isError: {
+        invalid: {
             type: Boolean,
             default: false,
         },
@@ -68,55 +92,63 @@ export default defineComponent<Props>({
 
 <style lang="postcss">
 .p-tag {
-    @apply bg-gray-200 text-gray-dark;
+    @apply bg-gray-200 text-gray-dark rounded;
     display: inline-flex;
-    align-items: flex-start;
+    align-items: center;
     overflow: hidden;
-    padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+    padding: 0.0625rem 0.5rem 0.125rem;
     height: auto;
     max-width: 100%;
     width: fit-content;
     margin-right: 0.5rem;
-    border-radius: 4px;
+    &.selected {
+        @apply bg-blue-300;
+    }
+
     &.deletable {
+        padding-right: 0.25rem;
         .delete-icon {
             @apply text-gray-400;
             cursor: pointer;
-            margin-left: 0.25rem;
             margin-top: 1px;
             flex-shrink: 0;
         }
         &:hover {
-            @apply bg-gray-100;
-
-            &.outline, &.error {
-                @apply border-gray-100;
-            }
-
+            cursor: pointer;
             .delete-icon {
-                @apply text-alert;
+                @apply text-gray-dark;
             }
         }
-    }
-    &.activated {
-        @apply bg-blue-300;
     }
     &.outline {
         @apply text-gray-dark bg-transparent border border-gray-200;
-    }
-    &.error {
-        @apply bg-white border border-alert;
-
-        .error-icon {
-            margin-right: 0.3rem;
+        &.selected {
+            @apply bg-blue-200 border-blue-300;
         }
     }
-    .text {
-        font-size: 0.75rem;
-        line-height: 1.3;
-        white-space: normal;
-        word-break: break-word;
-        max-width: 100%;
+    &.invalid {
+        @apply bg-red-100 border border-alert;
+
+        .invalid-icon {
+            margin-right: 0.3rem;
+        }
+        &.selected {
+            @apply bg-red-200 border-red-500;
+        }
+    }
+    .tag-contents {
+        font-size: 0.875rem;
+        line-height: 1.25;
+        width: 100%;
+        word-break: break-all;
+    }
+    .category {
+        font-weight: bold;
+        margin-right: 0.25rem;
+    }
+    .key {
+        font-weight: bold;
+        margin-right: 0.25rem;
     }
 }
 </style>

@@ -1,19 +1,19 @@
 <template>
     <div class="p-field-group">
-        <div class="label-box">
-            <label v-if="label || $scopedSlots.label" class="form-label" @click="$emit('click-label')">
+        <div class="field-title-box">
+            <p-field-title v-if="label || $scopedSlots.label" class="form-label" @click="$emit('click-field-title')">
                 <slot name="label">
                     {{ label }}
                 </slot>
                 <span v-if="!required" class="optional-mark">({{ $t('COMPONENT.FIELD_GROUP.OPTIONAL') }})</span>
                 <slot name="label-extra" />
-            </label>
+            </p-field-title>
         </div>
         <small v-if="$scopedSlots.help || helpText" class="help-msg">
             <slot name="help">{{ helpText }}</slot>
         </small>
         <slot name="default" v-bind="$props" />
-        <div v-if="invalidText" class="invalid-feedback" :style="{display: invalid? 'block':'none'}">
+        <div v-show="invalid" class="invalid-feedback">
             <slot name="invalid">
                 {{ invalidText }}
             </slot>
@@ -27,10 +27,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
+
+import PFieldTitle from '@/data-display/field-title/PFieldTitle.vue';
 
 export default defineComponent({
     name: 'PFieldGroup',
+    components: { PFieldTitle },
     props: {
         label: {
             type: String,
@@ -70,15 +73,6 @@ export default defineComponent({
     .label-box {
         display: flex;
         align-items: center;
-    }
-    .form-label {
-        @apply text-gray-900;
-        display: inline-block;
-        font-size: 0.875rem;
-        font-weight: bold;
-        letter-spacing: 0;
-        line-height: 1.4rem;
-        margin-bottom: 0.25rem;
     }
     .optional-mark {
         @apply text-gray-500;

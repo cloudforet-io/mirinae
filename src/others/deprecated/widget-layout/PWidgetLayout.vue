@@ -1,5 +1,5 @@
 <template>
-    <p-pane-layout class="widget-layout">
+    <p-pane-layout class="p-widget-layout">
         <slot name="top">
             <div class="top">
                 <slot name="title">
@@ -23,7 +23,9 @@
                 </div>
             </div>
             <slot v-if="subTitle" name="sub-title">
-                <p class="sub-title"> {{ subTitle }}</p>
+                <p class="sub-title">
+                    {{ subTitle }}
+                </p>
             </slot>
         </slot>
         <div class="widget-contents">
@@ -33,12 +35,9 @@
 </template>
 
 <script lang="ts">
-import PPaneLayout from '@/layouts/pane-layout/PPaneLayout.vue';
 import PI from '@/foundation/icons/PI.vue';
+import PPaneLayout from '@/layouts/pane-layout/PPaneLayout.vue';
 import PTooltipButton from '@/others/deprecated/tooltip-button/PTooltipButton.vue';
-import {
-    WidgetLayoutPropsType,
-} from '@/others/deprecated/widget-layout/type';
 
 export default {
     name: 'PWidgetLayout',
@@ -61,15 +60,14 @@ export default {
             default: '',
         },
     },
-    setup(props: WidgetLayoutPropsType) {
+    setup() {
         return {};
     },
 };
 </script>
 
-<style lang="postcss" scoped>
-.widget-layout {
-    /*@apply border border-gray-100;*/
+<style lang="postcss">
+.p-widget-layout {
     display: inline-flex;
     flex-direction: column;
     width: 100%;

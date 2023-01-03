@@ -1,4 +1,4 @@
-$font-basic: 'Noto Sans', 'Roboto', arial, sans-serif;
+$font-basic: noto sans, roboto, arial, sans-serif;
 $primary4: #f8f8fc;
 $dark: #222532;
 
@@ -42,10 +42,13 @@ i, span, div, input, textarea, article, main, ul, li {
     vertical-align: inherit;
     text-align: inherit;
 }
-textarea:focus, input:focus {
+textarea:focus:not(:focus-visible), input:focus:not(:focus-visible) {
     outline: none;
 }
-:focus {
+:focus:not(:focus-visible) {
+    outline: none;
+}
+input:focus {
     outline: none;
 }
 h1, h2, h3, h4, h5, h6 {

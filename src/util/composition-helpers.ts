@@ -1,7 +1,9 @@
+import type { Ref } from 'vue';
 import {
-    ComponentRenderProxy,
-    computed, getCurrentInstance, onMounted, onUnmounted, ref, Ref,
-} from '@vue/composition-api';
+    computed, ref,
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
 
 /**
  * Event listeners by pass
@@ -9,9 +11,11 @@ import {
  * @param name
  * @param event params
  */
-export const makeByPassListeners = (listeners: Record<string, Function | Function[]>, name: string, ...args: any[]) => {
+export const makeByPassListeners = (listeners: Record<string, any | any[]>, name: string, ...args: any[]) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (Array.isArray(listeners[name])) listeners[name].forEach(f => f(...args));
+    if (Array.isArray(listeners[name])) listeners[name].forEach((f) => f(...args));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     else if (typeof listeners[name] === 'function') listeners[name](...args);
 };
@@ -34,7 +38,7 @@ export const makeByEvent = (emit: any, name: string) => (...event: any) => {
  * @param emit
  * @return {Ref<*>}
  */
-export const makeProxy = <T extends any>(name: string, props: any, emit: any): Ref<T> => computed({
+export const makeProxy = <T>(name: string, props: any, emit: any): Ref<T> => computed({
     get: () => props[name],
     set: (val) => {
         emit(`update:${name}`, val);
@@ -49,7 +53,7 @@ export const makeProxy = <T extends any>(name: string, props: any, emit: any): R
  * * @param events?
  * @return {Ref<*>|*}
  */
-export function makeOptionalProxy <T=any>(name: string, vm, initData: any, events?: string[]) {
+export function makeOptionalProxy <T=any>(name: string, vm: Vue, initData: any, events?: string[]) {
     let propsVal = vm.$props[name];
     const currentVal = ref(propsVal === undefined ? initData : propsVal);
     let prevVal = currentVal.value;
@@ -58,7 +62,7 @@ export function makeOptionalProxy <T=any>(name: string, vm, initData: any, event
             if (vm.$listeners[`update:${name}`]) {
                 vm.$emit(`update:${name}`, val);
             } else currentVal.value = val;
-            if (Array.isArray(events)) events.forEach(d => vm.$emit(d, val));
+            if (Array.isArray(events)) events.forEach((d) => vm.$emit(d, val));
         },
         get() {
             if (vm.$listeners[`update:${name}`]) return vm.$props[name];
@@ -75,30 +79,3 @@ export function makeOptionalProxy <T=any>(name: string, vm, initData: any, event
         },
     });
 }
-
-
-/**
- * state & functions for tracking elements whether they are mouse-over or out.
- * @param disabled
- * @return {{onMouseOut: onMouseOut, isMouseOver: Ref<HasDefined<S> extends true ? S : RefValue<T>>, onMouseOver: onMouseOver}}
- */
-export const mouseOverState = (disabled?: boolean) => {
-    const disable = disabled || false;
-    const isMouseOver = ref(false);
-    const onMouseOver = () => {
-        if (!disable && !isMouseOver.value) {
-            isMouseOver.value = true;
-        }
-    };
-    const onMouseOut = () => {
-        if (!disable && isMouseOver.value) {
-            isMouseOver.value = false;
-        }
-    };
-    return {
-        isMouseOver,
-        onMouseOver,
-        onMouseOut,
-    };
-};
-

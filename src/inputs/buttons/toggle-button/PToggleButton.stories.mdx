@@ -1,0 +1,89 @@
+import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
+import PToggleButton from '@/inputs/buttons/toggle-button/PToggleButton';
+import { getToggleButtonArgTypes } from '@/inputs/buttons/toggle-button/story-helper';
+
+<Meta
+    title='Inputs/Buttons/Toggle Button'
+    parameters={{
+        design: {
+            type: 'figma',
+            url: 'https://www.figma.com/file/wq4wSowBcADBuUrMEZLz6i/SpaceONE-Console-Design?node-id=5131%3A127311',
+        },
+    }}
+    component={ PToggleButton }
+    argTypes={getToggleButtonArgTypes()}
+/>
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { PToggleButton },
+    template: `
+<div style="display:flex; align-items:center; justify-content:center;">
+    <p-toggle-button
+        :value="value"
+        :style-type="styleType"
+        :disabled="disabled"
+        @change="onToggleChange"
+    />
+</div>`,
+    setup() {
+        const onToggleChange = () => {
+            console.log('toggle changed!');
+        }
+        return {
+            onToggleChange,
+        };
+    }
+});
+
+# Toggle Button
+
+<br/>
+<br/>
+<br/>
+
+## Basic
+<Canvas>
+    <Story name="toggle button basic">
+    {{
+        components: { PToggleButton },
+        template: `
+<div style="display:flex; align-items:center; justify-content:center;">
+    <p-toggle-button
+        :value="true"
+        class="mr-8"
+    />
+    <p-toggle-button
+        :value="true"
+        theme="peacock500"
+    />
+</div>`
+    }}
+    </Story>
+</Canvas>
+
+## Disabled
+<Canvas>
+    <Story name="toggle button disabeld">
+        {{
+            components: { PToggleButton },
+            template: `
+<div style="display:flex; align-items:center; justify-content:center;">
+    <p-toggle-button
+        :value="true"
+        :disabled="true"
+        class="mr-8"
+    />
+</div>`
+        }}
+    </Story>
+</Canvas>
+
+## Playground
+<Canvas>
+    <Story name="playground" >
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+<ArgsTable story="playground" />

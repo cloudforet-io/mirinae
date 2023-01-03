@@ -1,7 +1,9 @@
-import { select, text } from '@storybook/addon-knobs';
+import { ref } from 'vue';
+
 import { action } from '@storybook/addon-actions';
+import { text } from '@storybook/addon-knobs';
+
 import PButton from '@/inputs/buttons/button/PButton.vue';
-import { ref } from '@vue/composition-api';
 import PDoubleCheckModal from '@/others/console/modals/double-check-modal/PDoubleCheckModal.vue';
 
 export default {
@@ -13,7 +15,6 @@ const actions = {
     shown: action('shown'),
     hidden: action('hidden'),
     cancel: action('cancel'),
-    close: action('close'),
     confirm: action('confirm'),
 };
 
@@ -22,7 +23,7 @@ export const modal = () => ({
     components: { PDoubleCheckModal, PButton },
     template: `
 <div>
-<p-button styleType="primary" @click="click">Open Modal</p-button>
+<p-button @click="click">Open Modal</p-button>
 <PDoubleCheckModal
     :headerTitle="headerTitle"
     :subTitle="subTitle"
@@ -48,7 +49,7 @@ export const modal = () => ({
         },
 
     },
-    setup(props, context) {
+    setup() {
         const visible = ref(false);
         return {
             visible,
@@ -57,6 +58,7 @@ export const modal = () => ({
             },
             close() {
                 visible.value = false;
+                action('close');
             },
             ...actions,
         };

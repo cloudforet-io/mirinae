@@ -1,36 +1,73 @@
 <template>
-    <tr class="p-definition">
-        <td class="key">
-            {{ label || name }}
+    <tr class="p-definition" :class="{block}">
+        <td class="key" :class="{'auto-width': autoKeyWidth, 'no-copy-button': disableCopy}">
+            <slot name="key" v-bind="{name, label, data, value: displayData}">
+                {{ label || name }}
+            </slot>
         </td>
-        <td ref="field" class="value" :class="{hover: isMouseOver}">
-            <slot name="default" v-bind="{...$props, ...$data}">
-                {{ displayData }}
-            </slot>
-            <slot name="copy" v-bind="{...$props, ...$data}">
-                <p-copy-button v-if="showCopy"
-                               class="ml-2" width="0.8rem" height="0.8rem"
-                               @copy="copy"
-                               @mouseover="onMouseOver()" @mouseout="onMouseOut()"
-                />
-            </slot>
+        <td class="value-wrapper" :class="{'auto-width': autoKeyWidth}">
+            <span class="value">
+                <slot v-if="disableCopy" name="default" v-bind="{name, label, data, value: displayData}">
+                    <template v-if="dataType === 'object'">
+                        <p-tag v-for="([objKey, objValue], idx) in Object.entries(displayData)"
+                               :key="`tag-${idx}-${objKey}`"
+                               :key-item="{ name: objKey, label: objKey }"
+                               :value-item="{ name: objValue, label: objValue }"
+                               :deletable="false"
+                        />
+                    </template>
+                    <template v-else-if="dataType === 'array'">
+                        <p-text-list :items="displayData" />
+                    </template>
+                    <template v-else>
+                        {{ displayData }}
+                    </template>
+                </slot>
+                <p-copy-button v-else
+                               width="0.8rem" height="0.8rem"
+                               :value="copyValueFormatter ? copyValueFormatter(data, $props) : copyValue"
+                               auto-hide-icon
+                >
+                    <slot name="default" v-bind="{name, label, data, value: displayData}">
+                        <template v-if="dataType === 'object'">
+                            <p-tag v-for="([objKey, objValue], idx) in Object.entries(displayData)"
+                                   :key="`tag-${idx}-${objKey}`"
+                                   :key-item="{ name: objKey, label: objKey }"
+                                   :value-item="{ name: objValue, label: objValue }"
+                                   :deletable="false"
+                            />
+                        </template>
+                        <template v-else-if="dataType === 'array'">
+                            <p-text-list :items="displayData" />
+                        </template>
+                        <template v-else>
+                            {{ displayData }}
+                        </template>
+                    </slot>
+                </p-copy-button>
+            </span>
+            <span v-if="$scopedSlots.extra" class="extra">
+                <slot name="extra" v-bind="{name, label, data, value: displayData}" />
+            </span>
         </td>
     </tr>
 </template>
 
 <script lang="ts">
 import {
-    computed,
-    ref,
-} from '@vue/composition-api';
-import { DefinitionProps } from '@/data-display/tables/definition-table/definition/type';
-import { copyAnyData, copyTextToClipboard, isNotEmpty } from '@/util/helpers';
-import { mouseOverState } from '@/util/composition-helpers';
-import PCopyButton from '@/inputs/buttons/copy-button/PCopyButton.vue';
+    computed, defineComponent, reactive, toRefs,
+} from 'vue';
 
-export default {
+import type { DefinitionProps } from '@/data-display/tables/definition-table/definition/type';
+import PTag from '@/data-display/tags/PTag.vue';
+import PCopyButton from '@/inputs/buttons/copy-button/PCopyButton.vue';
+import PTextList from '@/others/console/text-list/PTextList.vue';
+
+export default defineComponent<DefinitionProps>({
     name: 'PDefinition',
-    components: { PCopyButton },
+    components: {
+        PTag, PTextList, PCopyButton,
+    },
     props: {
         name: {
             type: String,
@@ -52,55 +89,102 @@ export default {
             type: Function,
             default: undefined,
         },
+        block: {
+            type: Boolean,
+            default: false,
+        },
+        copyValue: {
+            type: [String, Number],
+            default: undefined,
+        },
+        copyValueFormatter: {
+            type: Function,
+            default: undefined,
+        },
+        autoKeyWidth: {
+            type: Boolean,
+            default: false,
+        },
     },
-    setup(props: DefinitionProps, { emit, slots }) {
-        const field = ref<HTMLFormElement|null>(null);
-        const displayData = computed(() => (props.formatter ? props.formatter(props.data, props) : props.data));
-        const searchElemInnerText = (elem: HTMLElement): string => elem.innerText;
-
-        const showCopy = computed(() => {
-            if (props.disableCopy) return false;
-            if (slots.default) return isNotEmpty(displayData.value);
-            if (field.value) return !!searchElemInnerText(field.value);
-            return true;
+    setup(props) {
+        const state = reactive({
+            displayData: computed(() => (props.formatter ? props.formatter(props.data, props) : props.data)),
+            dataType: computed(() => {
+                if (Array.isArray(props.data)) return 'array';
+                return typeof props.data;
+            }),
         });
 
-        const copy = (): void => {
-            if (props.formatter) copyAnyData(props.formatter(props.data, props));
-            else if (field.value) copyTextToClipboard(searchElemInnerText(field.value));
-            emit('copy', props);
-        };
-
         return {
-            field,
-            displayData,
-            showCopy,
-            copy,
-            ...mouseOverState(),
+            ...toRefs(state),
         };
     },
-};
+});
 </script>
 
 <style lang="postcss">
 .p-definition {
-    @apply flex;
-    .key {
+    display: flex;
+    > .key {
         @apply font-bold;
         width: 18rem;
-    }
-    .value {
-        @apply inline-flex items-center flex-grow cursor-text;
-        flex-wrap: wrap;
-        max-width: calc(100% - 18rem);
-        &.hover {
-            @apply text-blue-500;
+        padding: 0.65rem 1rem 0.35rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25;
+
+        &.auto-width {
+            width: auto;
+        }
+        &.no-copy-button {
+            padding: 0.5rem 1rem;
         }
     }
-    .key, .value {
-        @apply py-2 px-4 text-sm;
-        line-height: 1.45;
-        cursor: unset;
+    > .value-wrapper {
+        max-width: calc(100% - 18rem);
+        display: inline-flex;
+        align-items: center;
+        flex-grow: 1;
+        flex-wrap: wrap;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+
+        &.auto-width {
+            max-width: none;
+        }
+
+        > .value {
+            line-height: 1.25;
+            > .p-copy-button {
+                flex-shrink: 0;
+            }
+        }
+
+        > .extra {
+            flex-grow: 1;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
+        }
+    }
+
+    &.block {
+        display: flex;
+        > .value-wrapper {
+            > .value {
+                flex-grow: 1;
+            }
+            > .extra {
+                flex-grow: unset;
+            }
+        }
+    }
+
+    @screen mobile {
+        flex-wrap: nowrap;
+        flex-direction: column;
+        > .key, > .value-wrapper {
+            width: 100%;
+            max-width: 100%;
+        }
     }
 }
 </style>

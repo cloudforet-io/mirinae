@@ -1,25 +1,26 @@
+import type { MenuItem } from '@/inputs/context-menu/type';
+import type { AutocompleteHandler } from '@/inputs/search/autocomplete-search/type';
+
 export interface SearchProps {
     value: string; // sync
     placeholder?: string;
-    focused?: boolean;
-    disabled?: boolean;
     disableIcon?: boolean;
+    invalid?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
     isFocused?: boolean; // sync
+    visibleMenu: boolean;
+    useFixedMenuStyle: boolean;
+    menu: MenuItem[];
+    loading: boolean;
+    handler?: AutocompleteHandler;
+    disableHandler: boolean;
+    useAutoComplete: boolean;
 }
 
 export interface InputListeners {
-    input: Function;
-    blur: Function;
-    focus: Function;
-    keyup: Function;
-}
-
-export interface SearchSlotScope extends SearchProps {
-    inputListeners: InputListeners;
-}
-
-export interface SearchEventArgs {
-    input: [string, InputEvent];
-    search: [string, KeyboardEvent];
-    delete: [string]; // current value
+    input: any;
+    blur: any;
+    focus: any;
+    keyup: any;
 }

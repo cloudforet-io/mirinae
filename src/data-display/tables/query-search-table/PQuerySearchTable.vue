@@ -27,24 +27,23 @@
                      @export="emitExport"
                      @rowLeftClick="byPassEvent('rowLeftClick', ...arguments)"
     >
-        <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+        <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
             <slot :name="slot" v-bind="scope" />
         </template>
     </p-toolbox-table>
 </template>
 
 <script lang="ts">
-import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';
 import {
-    ComponentRenderProxy,
     getCurrentInstance, reactive,
-} from '@vue/composition-api';
-import {
+} from 'vue';
+
+import type { Options, QuerySearchTableProps } from '@/data-display/tables/query-search-table/type';
+import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';
+import type {
     QueryTag,
 } from '@/inputs/search/query-search-tags/type';
-import { Options, QuerySearchTableProps } from '@/data-display/tables/query-search-table/type';
 import { makeOptionalProxy } from '@/util/composition-helpers';
-import { ToolboxOptions } from '@/navigation/toolbox/type';
 
 export default {
     name: 'PQuerySearchTable',
@@ -134,7 +133,7 @@ export default {
         },
     },
     setup(props: QuerySearchTableProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const proxyState = reactive({
             selectIndex: makeOptionalProxy<number[]>('selectIndex', vm, [], ['select']),

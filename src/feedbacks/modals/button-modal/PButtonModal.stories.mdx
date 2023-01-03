@@ -1,11 +1,10 @@
 import {Meta, Canvas, Story, ArgsTable} from '@storybook/addon-docs/blocks';
 import PButtonModal from "@/feedbacks/modals/button-modal/PButtonModal";
-import PDropdownMenuBtn from "@/inputs/dropdown/dropdown-menu-btn/PDropdownMenuBtn";
 import PSelectDropdown from "@/inputs/dropdown/select-dropdown/PSelectDropdown";
-import { THEME_COLORS, ModalSizeType } from '@/feedbacks/modals/button-modal/type';
-import {computed, reactive, toRefs, onMounted, onUnmounted, ref} from "@vue/composition-api";
+import {computed, reactive, toRefs,  ref} from "vue";
 import PButton from "@/inputs/buttons/button/PButton";
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
+import { getButtonModalArgTypes } from '@/feedbacks/modals/button-modal/story-helper';
 
 <Meta title='Feedbacks/Modals/Button Modal' parameters={{
     centered: { disable: true },
@@ -13,379 +12,38 @@ import faker from 'faker';
         type: 'figma',
         url: 'https://www.figma.com/file/wq4wSowBcADBuUrMEZLz6i/SpaceONE-Console-Design?node-id=7654%3A182002',
     },
-}} component={PButtonModal} argTypes={{
-    size: {
-        name: 'size',
-        type: { name: 'string' },
-        description: 'Change Modal Size',
-        defaultValue: 'md',
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'md',
-            }
-        },
-        control: {
-            type: 'select',
-            options: ['sm', 'md', 'lg']
-        }
-    },
-    themeColor: {
-        name: 'themeColor',
-        type: {name: 'string'},
-        description: 'Change Modal theme',
-        defaultValue: 'primary',
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'primary',
-            }
-        },
-        control: {
-            type: 'select',
-            options: THEME_COLORS
-        }
-    },
-    contentsHeight: {
-        name: 'contentsHeight',
-        type: { name: 'number' },
-        description: 'Contents Height',
-        defaultValue: 40,
-        table: {
-            type: {
-                summary: 'number',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 40,
-            }
-        },
-        control: {
-            type: 'number'
-        }
-    },
-    visible: {
-        name: 'visible',
-        type: { name: 'boolean' },
-        description: 'Visible',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            }
-        },
-        control: {
-            type: 'boolean'
-        }
-    },
-    headerTitle: {
-        name: 'headerTitle',
-        type: { name: 'string' },
-        description: 'Header Title',
-        defaultValue: 'Header Title',
-        table: {
-            type: {
-                summary: 'string',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'Header Title'
-            }
-        },
-        control: {
-            type: 'text'
-        }
-    },
-    fade: {
-        name: 'fade',
-        type: { name: 'boolean' },
-        description: 'Fade',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            }
-        },
-        control: {
-            type: 'boolean'
-        }
-    },
-    scrollable: {
-        name: 'scrollable',
-        type: {name: 'boolean'},
-        description: 'Scrollable',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    backdrop: {
-        name: 'backdrop',
-        type: {name: 'boolean'},
-        description: 'Backdrop',
-        defaultValue: true,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: true
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    headerVisible: {
-        name: 'headerVisible',
-        type: {name: 'boolean'},
-        description: 'Show Header or Not',
-        defaultValue: true,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: true
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    bodyVisible: {
-        name: 'bodyVisible',
-        type: {name: 'boolean'},
-        description: 'Show Body or Not',
-        defaultValue: true,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: true
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    footerVisible: {
-        name: 'footerVisible',
-        type: {name: 'boolean'},
-        description: 'Show Footer or Not',
-        defaultValue: true,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: true
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    headerCloseButtonVisible: {
-        name: 'headerCloseButtonVisible',
-        type: {name: 'boolean'},
-        description: 'Show Close Button in Header or Not',
-        defaultValue: true,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: true
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    footerResetButtonVisible: {
-        name: 'footerResetButtonVisible',
-        type: {name: 'boolean'},
-        description: 'Show Reset Button in Footer or Not',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    loading: {
-        name: 'loading',
-        type: {name: 'boolean'},
-        description: 'Show Loading in confirm button',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    disabled: {
-        name: 'disabled',
-        type: {name: 'boolean'},
-        description: 'Disable confirm button or Not',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            }
-        },
-        control: {
-            type: 'boolean'
-        },
-    },
-    body: {
-        name: 'body',
-        description: 'Slot for body content',
-        defaultValue: 'Modal Content',
-        table: {
-            type: {
-                summary: 'Modal Content'
-            },
-            category: 'slots',
-            defaultValue: 'Modal Content',
-        }
-    },
-    'footer-extra': {
-        name: 'footer-extra',
-        description: 'Slot for Extra contents in Footer',
-        defaultValue: null,
-        table: {
-            type: {
-                summary: null
-            },
-            category: 'slots',
-            defaultValue: null,
-        }
-    },
-    'reset-button': {
-        name: 'reset-button',
-        description: 'Slot for changing text in reset button',
-        defaultValue: 'Reset',
-        table: {
-            type: {
-                summary: 'Reset'
-            },
-            category: 'slots',
-            defaultValue: 'Reset',
-        }
-    },
-    'close-button': {
-        name: 'cancel-button',
-        description: 'Slot for changing text in cancel button',
-        defaultValue: 'Cancel',
-        table: {
-            type: {
-                summary: 'Cancel'
-            },
-            category: 'slots',
-            defaultValue: 'Cancel',
-        }
-    },
-    'confirm-button': {
-        name: 'confirm-button',
-        description: 'Slot for changing text in confirm button',
-        defaultValue: 'Confirm',
-        table: {
-            type: {
-                summary: 'Confirm'
-            },
-            category: 'slots',
-            defaultValue: 'Confirm',
-        }
-    },
-}} />
+}} argTypes={getButtonModalArgTypes()} />
 
 export const Template = (args, {argTypes} ) => ({
     props: Object.keys(argTypes),
-    components: { PButtonModal, PButton, PDropdownMenuBtn, PSelectDropdown },
+    components: { PButtonModal, PButton, PSelectDropdown },
     template: `<div>
-                <p-button :styleType="themeColor" @click="launchModal">Launch a modal</p-button>
-                <p-button-modal
-                                :visible.sync="_visible"
-                                :show-popup.sync="isScrolling"
+                <p-button @click="launchModal">Launch a modal</p-button>
+                <p-button-modal :visible.sync="modalVisible"
+                                :size="size"
+                                :backdrop="backdrop"
+                                :theme-color="themeColor"
+                                :header-title="headerTitle"
+                                :hide-header="hideHeader"
+                                :hide-body="hideBody"
+                                :hide-footer="hideFooter"
+                                :hide-header-close-button="hideHeaderCloseButton"
+                                :hide-footer-close-button="hideFooterCloseButton"
+                                :hide-footer-confirm-button="hideFooterConfirmButton"
+                                :footer-reset-button-visible="footerResetButtonVisible"
+                                :loading="loading"
+                                :disabled="disabled"
+                                :absolute="absolute"
                                 @close="closeModal"
                 >
                     <template #body>
-                        <p-dropdown-menu-btn
-                            :menu="menu"
-                            :use-custom-style="useCustomStyle"
-                            :auto-height="autoHeight"
-                            :show-popup.sync="isScrolling"
-                        >
-                            dropdown menu btn
-                        </p-dropdown-menu-btn>
-                        <p>{{contents}}</p>
                         <p-select-dropdown
                             :items="items"
                             v-model="selectItem"
-                            :use-custom-style="useCustomStyle"
-                            :auto-height="autoHeight"
-                            :show-popup.sync="isScrolling"
+                            use-fixed-menu-style
                         >
                            select dropdown (default)
                         </p-select-dropdown>
-                        <p>{{contents}}</p>
-                        <p-dropdown-menu-btn
-                            :menu="menu"
-                            :use-custom-style="useCustomStyle"
-                            :auto-height="autoHeight"
-                            :show-popup.sync="isScrolling"
-                        >
-                            dropdown menu btn
-                        </p-dropdown-menu-btn>
                         <p>{{contents}}</p>
                     </template>
                 </p-button-modal>
@@ -393,7 +51,7 @@ export const Template = (args, {argTypes} ) => ({
     setup(props) {
         const selectItem = ref('init');
         const state = reactive({
-            _visible: props.visible,
+            modalVisible: props.visible,
             contents: computed(() => faker.lorem.lines(props.contentsHeight)),
             menu: [
                 {
@@ -419,9 +77,6 @@ export const Template = (args, {argTypes} ) => ({
                     type: 'item', label: 'Remove', name: 'remove', disabled: true,
                 },
             ],
-            autoHeight: true,
-            useCustomStyle: true,
-            isScrolling: false,
             items: [
                 { type: 'item', label: 'one', name: 'one' },
                 { type: 'item', label: 'two', name: 'two' },
@@ -453,13 +108,13 @@ export const Template = (args, {argTypes} ) => ({
                 { type: 'item', label: 'four', name: 'four' },
                 { type: 'item', label: 'five', name: 'five' },
                 { type: 'item', label: 'six', name: 'six' },
-            ]
+            ],
         });
         const launchModal = () => {
-            state._visible = true;
+            state.modalVisible = true;
         };
         const closeModal = () => {
-            state._visible = false;
+            state.modalVisible = false;
         };
         return {
             selectItem,
@@ -478,6 +133,7 @@ export const Template = (args, {argTypes} ) => ({
 
 
 ## Playground
+
 <Canvas>
     <Story name="playground">
         {Template.bind({})}

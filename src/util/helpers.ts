@@ -1,5 +1,6 @@
 import _, { get, toString } from 'lodash';
-import colors from '@/styles/colors';
+
+import colors from '@/styles/colors.cjs';
 
 /** @function
  * @name copyTextToClipboard
@@ -17,10 +18,10 @@ export const copyTextToClipboard = (t) => {
 
 export const copyAnyData = (value) => {
     if (Array.isArray(value)) {
-        copyTextToClipboard(toString(value));
+        copyTextToClipboard(toString(value).trim());
     } else if (typeof value === 'object') {
-        copyTextToClipboard(JSON.stringify(value));
-    } else copyTextToClipboard(value || '');
+        copyTextToClipboard(JSON.stringify(value).trim());
+    } else copyTextToClipboard(value.trim() || '');
 };
 
 
@@ -43,6 +44,13 @@ export const getColor = (col?: string|null) => {
     return col;
 };
 
+export const commaFormatter = (num?: number) => {
+    if (num) return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return num;
+};
+
 export const getPageStart = (thisPage: number, pageSize: number) => ((thisPage - 1) * pageSize) + 1;
 
 export const getThisPage = (pageStart = 1, pageLimit = 15) => Math.floor(pageStart / pageLimit) || 1;
+
+export const getContextKey = (): string => Math.floor(Math.random() * Date.now()).toString();

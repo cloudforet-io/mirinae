@@ -1,6 +1,14 @@
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
-import PTextInput from './PTextInput.vue';
-import { inputTypes } from './config'; import { reactive, toRefs } from '@vue/composition-api';
+import PTextInput from '@/inputs/input/PTextInput.vue';
+import PButton from "@/inputs/buttons/button/PButton";
+import PTextEditor from "@/inputs/text-editor/PTextEditor";
+import PFieldGroup from "@/inputs/forms/field-group/PFieldGroup";
+import { reactive, toRefs } from 'vue';
+import {
+    getTextInputArgTypes
+} from "@/inputs/input/story-helper";
+import {getTextInputMenu} from "@/inputs/input/mock";
+import {INPUT_SIZE} from "@/inputs/input/type";
 
 
 <Meta title='Inputs/Input' parameters={{
@@ -8,157 +16,27 @@ import { inputTypes } from './config'; import { reactive, toRefs } from '@vue/co
         type: 'figma',
         url: 'https://www.figma.com/file/wq4wSowBcADBuUrMEZLz6i/SpaceONE-Console-Design?node-id=5191%3A2'
     }
-}} component={PTextInput} argTypes={{
-    value: {
-        name: 'value',
-        type: {name: 'string, number', required: false},
-        description: 'Input value',
-        defaultValue: '',
-        table: {
-            type: {
-                summary: 'string, number'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: ''
-            },
-        },
-        control: {
-            type: 'text'
-        }
-    },
-    disabled: {
-        name: 'disabled',
-        type: {name: 'boolean'},
-        description: 'The same with disabled attribute.',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            },
-        },
-        control: {
-            type: 'boolean'
-        }
-    },
-    type: {
-        name: 'type',
-        type: {name: 'string'},
-        description: `The same with type attribute. Available: ${inputTypes}`,
-        defaultValue: inputTypes[0],
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: `'${inputTypes[0]}'`
-            }
-        },
-        control: {
-            type: 'select',
-            options: inputTypes
-        },
-    },
-    block: {
-        name: 'block',
-        type: {name: 'boolean'},
-        description: 'Make input style to be display block',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            },
-        },
-        control: {
-            type: 'boolean'
-        }
-    },
-    invalid: {
-        name: 'invalid',
-        type: {name: 'boolean'},
-        description: 'Apply invalid style',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false
-            },
-        },
-        control: {
-            type: 'boolean'
-        }
-    },
-    'v-model': {
-        name: 'v-model',
-        type: {name: 'string, number', required: false},
-        description: 'Two way binding for `value` props with `input` event.',
-        defaultValue: '',
-        table: {
-            type: {
-                summary: 'string, number'
-            },
-            category: 'model',
-            defaultValue: {
-                summary: ''
-            },
-        },
-        control: null
-    },
-    rightExtraSlot: {
-        name: 'right-extra',
-        description: 'Slot for right area of input.',
-        defaultValue: null,
-        table: {
-            type: {
-                summary: null
-            },
-            defaultValue: {
-                summary: null
-            },
-            category: 'slots'
-        },
-        control: {
-            type: 'text'
-        }
-    },
-    onInput: {
-        name: 'input',
-        description: `Event emitted when input something. Works with v-model.`,
-        defaultValue: null,
-        table: {
-            type: {
-                summary: null,
-            },
-            defaultValue: {
-                summary: null,
-            },
-            category: 'events'
-        }
-    }
-}}/>
+}} argTypes={getTextInputArgTypes()}/>
 
 
 export const Template = (args, { argTypes }) => ({
     props: Object.keys(argTypes),
     components: { PTextInput },
     template: `
-        <p-text-input :value="value" :invalid="invalid"
-                      :type="type" :disabled="disabled" :block="block"
+        <p-text-input v-bind="inputAttrs"
+                      :value="value" :invalid="invalid"
+                      :disabled="disabled" :block="block"
+                      :menu="menu" :use-fixed-menu-style="useFixedMenuStyle"
+                      :loading="loading"
+                      :masking-mode="maskingMode"
+                      :show-password="showPassword"
+                      :size="size"
         >
-            <template v-if="rightExtraSlot" #right-extra>
-                <span v-html="rightExtraSlot"></span>
+            <template v-if="inputRightSlot" #input-right>
+                <span v-html="inputRightSlot"></span>
+            </template>
+            <template v-if="rightEdgeSlot" #right-edge>
+                <span v-html="rightEdgeSlot"></span>
             </template>
         </p-text-input>
     `,
@@ -195,6 +73,41 @@ export const Template = (args, { argTypes }) => ({
 
 <br/>
 <br/>
+
+## Autocomplete Multiple Input
+<Canvas>
+    <Story name="Autocomplete Multiple Input">
+        {{
+            components: { PTextInput },
+            template: `
+                <div>
+                    <p-text-input :menu="menu" :selected.sync="selected" multi-input use-fixed-menu-style use-auto-complete />
+                    <div class="flex mt-4">
+                        <div class="mr-4 p-4 bg-blue-100 w-full max-h-64 overflow-y-auto">
+                            <p class="font-lg font-bold">menu: </p>
+                            <pre>{{menu}}</pre>
+                        </div>
+                        <div class="p-4 bg-blue-200 w-full max-h-64 overflow-y-auto">
+                            <p class="font-lg font-bold">selected: </p>
+                            <pre>{{selected}}</pre>
+                        </div>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const state = reactive({
+                    menu: getTextInputMenu(),
+                    selected: []
+                })
+                return toRefs(state)
+            }
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
 
 ## Placeholder
 <Canvas>
@@ -264,6 +177,27 @@ export const Template = (args, { argTypes }) => ({
     </Story>
 </Canvas>
 
+#### Masking Mode
+
+<Canvas>
+    <Story name="Masking Mode">
+        {{
+            components: { PTextInput },
+            template: `
+                <p-text-input v-model="value" type="password" masking-mode />
+            `,
+            setup() {
+                const state = reactive({
+                    value: 'password'
+                })
+                return {
+                    ...toRefs(state)
+                }
+            }
+        }}
+    </Story>
+</Canvas>
+
 <br/>
 <br/>
 
@@ -291,17 +225,28 @@ export const Template = (args, { argTypes }) => ({
 <br/>
 
 
-## Block
+## Block & Multi Input
 <Canvas>
-    <Story name="Block">
+    <Story name="Block & Multi Input">
         {{
             components: { PTextInput },
             template: `
-                <p-text-input v-model="value" block />
+                <div>
+                    <p-text-input :selected.sync="entered" block multi-input />
+                    <p class="my-4 font-lg font-bold">selected: </p>
+                    <pre>{{entered}}</pre>
+                </div>
             `,
             setup() {
                 const state = reactive({
-                    value: 'value'
+                    entered: [{
+                        value: 'value1',
+                        label: 'Value 1'
+                    }, {
+                        value: 'value2',
+                        label: 'Value 2',
+                        invalid: true,
+                    }]
                 })
                 return {
                     ...toRefs(state)
@@ -368,24 +313,107 @@ export const Template = (args, { argTypes }) => ({
 <br/>
 <br/>
 
-## Right Extra Slot
+## Slots
 
 <Canvas>
-    <Story name="Right Extra Slot" args={{
+    <Story name="Slots" args={{
         value: 100,
-        type: 'number',
-        rightExtraSlot: '%'
+        inputRightSlot: '%'
     }}>
         {{
-            components: { PTextInput },
+            components: { PTextInput, PButton },
             template: `
-                <p-text-input style="width: 80px;" v-model="value" type="number">
-                    <template #right-extra>%</template>
-                </p-text-input>
+<div>
+<p class="text-lg font-bold mb-4">input-right slot</p>
+<p-text-input type="number" multi-input v-model="value" >
+    <template #input-right>%</template>
+</p-text-input>
+<p class="text-lg font-bold my-4">right-edge slot</p>
+<p-text-input multi-input v-model="value2" >
+    <template #right-edge><p-button size="sm">Click me!</p-button></template>
+</p-text-input>
+<p class="text-lg font-bold my-4">default slot</p>
+<p-text-input multi-input v-model="value2" >
+    <input style="background-color: lavenderblush; padding: 0 0.25rem;" v-model="value3" />
+</p-text-input>
+</div>
+<!-- <div> -->
             `,
             setup() {
                 const state = reactive({
-                    value: 70
+                    value: 70,
+                    value2: 'wanzargen',
+                    value3: 'yuda'
+                })
+                return {
+                    ...toRefs(state)
+                }
+            }
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
+## Input Attributes
+
+<Canvas>
+    <Story name="Input Attributes">
+        {{
+            components: { PTextInput, PTextEditor, PButton, PFieldGroup },
+            template: `
+                <div>
+                    <p-text-input v-bind="attributes" />
+                    <p-field-group label="Attributes" class="mt-4" required
+                        :invalid="!!errorMessage"
+                        :invalid-text="errorMessage"
+                    >
+                        <p-text-editor :code="JSON.stringify(attributes, null, 2)"
+                                       @update:code="handleUpdateCode"
+                        />
+                </p-field-group>
+                </div>
+            `,
+            setup() {
+                const state = reactive({
+                    attributes: {type: 'number', min: 0, max: 10},
+                    errorMessage: ''
+                });
+                const handleUpdateCode = (code) => {
+                    try {
+                        state.attributes = JSON.parse(code);
+                        state.errorMessage = '';
+                    } catch (e) {
+                        state.errorMessage = e.message
+                    }
+                };
+                return {
+                    ...toRefs(state),
+                    handleUpdateCode,
+                }
+            }
+        }}
+    </Story>
+</Canvas>
+
+<br/>
+<br/>
+
+## Size
+<Canvas>
+    <Story name="Size" >
+        {{
+            components: { PTextInput },
+            template: `
+                <div  style="display:flex; flex-direction: column; row-gap: 1.5rem;">
+                    <p-text-input v-for="size in sizes" :key="size" :size="size" v-model="value" :placeholder="size" />
+                </div>
+            `,
+            setup() {
+                const state = reactive({
+                    value: '',
+                    sizes: Object.values(INPUT_SIZE)
                 })
                 return {
                     ...toRefs(state)

@@ -1,6 +1,6 @@
-export enum TOGGLE_BUTTON_THEME {
-    secondary = 'secondary',
-    gray900 = 'gray900',
-    white = 'white',
-    peacock500 = 'peacock500',
-}
+export const TOGGLE_BUTTON_THEME = Object.freeze({
+    secondary: 'secondary',
+    peacock500: 'peacock500',
+} as const);
+
+export type TOGGLE_BUTTON_THEME = typeof TOGGLE_BUTTON_THEME[keyof typeof TOGGLE_BUTTON_THEME];

@@ -26,19 +26,20 @@
                      @export="emitExport()"
                      @rowLeftClick="byPassEvent('rowLeftClick', ...arguments)"
     >
-        <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+        <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
             <slot :name="slot" v-bind="scope" />
         </template>
     </p-toolbox-table>
 </template>
 
 <script lang="ts">
-import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';
 import {
-    ComponentRenderProxy,
-    computed, getCurrentInstance, reactive, toRefs, watch,
-} from '@vue/composition-api';
-import { Options, SearchTableProps } from '@/data-display/tables/search-table/type';
+    getCurrentInstance, reactive,
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
+import type { Options, SearchTableProps } from '@/data-display/tables/search-table/type';
+import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';
 import { makeOptionalProxy } from '@/util/composition-helpers';
 
 
@@ -116,7 +117,7 @@ export default {
         },
     },
     setup(props: SearchTableProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const proxyState = reactive({
             selectIndex: makeOptionalProxy<number[]>('selectIndex', vm, [], ['select']),

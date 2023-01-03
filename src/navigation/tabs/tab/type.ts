@@ -1,4 +1,4 @@
-import { TranslateResult } from 'vue-i18n';
+import type { TranslateResult } from 'vue-i18n';
 
 export interface TabItem {
     name: string;
@@ -6,13 +6,8 @@ export interface TabItem {
     keepAlive?: boolean;
 }
 
-type TabsType = Array<string|TabItem>;
-
-interface TabStateType {
-    tabs: TabsType;
-}
-interface TabSyncType {
+export interface TabProps {
     activeTab: string;
+    tabs: Array<string|TabItem>;
+    stretch?: boolean;
 }
-
-export interface TabProps extends TabStateType, TabSyncType {}

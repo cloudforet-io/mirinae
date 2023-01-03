@@ -1,17 +1,10 @@
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
-import PDynamicLayout from '../../PDynamicLayout.vue';
-import { argTypes } from '@/data-display/dynamic/dynamic-layout/story-helper';
 import {i18n} from '@/translations';
+import PDynamicLayout from '../../PDynamicLayout.vue';
+import { getDynamicLayoutItemArgTypes } from '@/data-display/dynamic/dynamic-layout/templates/item/story-helper';
 
-<Meta title='Data Display/Dynamic/Dynamic Layout/Item'
-      component={PDynamicLayout} argTypes={{
-    name: argTypes.name,
-    options: argTypes.options,
-    data: argTypes.data,
-    loading: argTypes.loading,
-    timezone: argTypes.timezone,
-    onInit: argTypes.onInit,
-}} />
+<Meta title='Data Display/Dynamic/Dynamic Layout/- Item'
+      argTypes={getDynamicLayoutItemArgTypes()} />
 
 
 export const Template = (args, { argTypes }) => ({
@@ -23,13 +16,10 @@ export const Template = (args, { argTypes }) => ({
                           :options="options"
                           :data="data"
                           :type-options="{
-                              loading,
-                              timezone,
-                          }"
-                          :fetch-options="{
+                            loading,
+                            timezone
                           }"
                            class="w-full"
-                           @init="onInit"
             >
         </p-dynamic-layout>
     `,
@@ -39,12 +29,74 @@ export const Template = (args, { argTypes }) => ({
 });
 
 
-## Item Type
+# Item Type
+<br/>
+<br/>
+
+## Supported Options
+
+| Name | Supported |
+| ---- | ----------- |
+| root_path | O |
+| translation_id | O |
+| fields | X |
+| markdown | X |
+| layouts | X |
+| search | X |
+| disable_search | X |
+| layout | X |
+
+
+## Supported Fetch Options
+
+| Name | Supported |
+| ---- | ---- |
+| sortBy | X |
+| sortDesc | X |
+| pageStart | X |
+| pageLimit | X |
+| searchText | X |
+| queryTags | X |
+
+
+## Supported Type Options
+
+| Type Option Name | Supported |
+| ---- | ---- |
+| loading | O |
+| totalCount | X |
+| timezone | O |
+| selectIndex | X |
+| selectable | X |
+| multiSelect | X |
+| invalid | X |
+| colCopy | X |
+| excelVisible | X |
+| settingsVisible | X |
+| keyItemSets | X |
+| valueHandlerMap | X |
+| language | X |
+| popupVisible | X |
+
+
+## Supported Events
+
+| Event Name | Supported |
+| ---------- | ----------- |
+| fetch | X |
+| select | X |
+| export | X |
+| click-settings | X |
+| update-popup-visible | X |
+
+<br/>
+<br/>
+
+
+## Playground
 
 <Canvas>
-    <Story name="Playground" args={{
-        loading: false
-    }}>
+    <Story name="Playground">
         {Template.bind({})}
     </Story>
 </Canvas>

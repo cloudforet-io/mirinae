@@ -3,25 +3,26 @@
         <p-panel-top v-if="layoutName">
             {{ layoutName }}
         </p-panel-top>
-        <p-raw-data class="m-4" :item="rootData" :loading="loading"
-                    folded
+        <p-text-editor class="m-4" :code="rootData" :loading="loading"
+                       folded read-only
         />
     </div>
 </template>
 
 <script lang="ts">
 import {
-    ComponentRenderProxy,
     computed, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import { get } from 'lodash';
-import PRawData from '@/data-display/raw-data/PRawData.vue';
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
+import type { RawDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/raw/type';
+import { getValueByPath } from '@/data-display/dynamic/helper';
 import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
-import { RawDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/raw/type';
+import PTextEditor from '@/inputs/text-editor/PTextEditor.vue';
 
 export default {
     name: 'PDynamicLayoutRaw',
-    components: { PRawData, PPanelTop },
+    components: { PTextEditor, PPanelTop },
     props: {
         name: {
             type: String,
@@ -44,16 +45,17 @@ export default {
             default: undefined,
         },
     },
-    setup(props: RawDynamicLayoutProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props: RawDynamicLayoutProps) {
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
             rootData: computed<any[]>(() => {
                 if (props.options.root_path) {
-                    return get(props.data, props.options.root_path);
+                    const rootData = getValueByPath(props.data, props.options.root_path) ?? [];
+                    return Array.isArray(rootData) ? rootData : [rootData];
                 }
-                if (typeof props.data !== 'object') return {};
+                if (props.data === null || props.data === undefined) return {};
                 return props.data;
             }),
             loading: computed(() => (props.typeOptions?.loading || false)),

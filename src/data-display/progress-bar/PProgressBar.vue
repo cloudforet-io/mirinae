@@ -1,18 +1,31 @@
 <template>
-    <div class="progress-bar">
-        <label v-if="label" class="label">{{ label }}</label>
+    <div class="progress-bar"
+         :class="size"
+    >
+        <label v-if="label || $scopedSlots.label" class="label">
+            <slot name="label">
+                {{ label }}
+            </slot>
+        </label>
         <div ref="backgroundBar" class="background-bar" />
-        <transition appear @before-appear="beforeEnter" @after-appear="enter">
-            <div ref="progressBar" class="tracker-bar" :style="{'background-color': color}" />
+        <transition appear @before-appear="beforeEnter"
+                    @after-appear="enter"
+        >
+            <div ref="progressBar" class="tracker-bar" :style="progressBarStyle" />
         </transition>
     </div>
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, watch } from '@vue/composition-api';
-import { ProgressBarProps } from '@/data-display/progress-bar/type';
+import {
+    computed, defineComponent, reactive, toRefs, watch,
+} from 'vue';
 
-export default {
+import { PROGRESS_BAR_SIZE } from '@/data-display/progress-bar/config';
+import type { ProgressBarProps } from '@/data-display/progress-bar/type';
+
+
+export default defineComponent<ProgressBarProps>({
     name: 'PProgressBar',
     props: {
         percentage: {
@@ -25,16 +38,39 @@ export default {
         },
         color: {
             type: String,
-            default: 'rgba(theme(\'colors.primary1\')',
+            default: undefined,
+        },
+        gradient: {
+            type: Object,
+            default: undefined,
+        },
+        size: {
+            type: String,
+            default: PROGRESS_BAR_SIZE.md,
+            validator(size: any) {
+                return Object.values(PROGRESS_BAR_SIZE).includes(size);
+            },
+        },
+        disableAnimation: {
+            type: Boolean,
+            default: false,
         },
     },
-    setup(props: ProgressBarProps) {
+    setup(props) {
+        const linearGradientProperty = `linear-gradient(90deg, ${props.gradient?.startColor} ${props.gradient?.gradientPoint}%, ${props.gradient?.endColor} 100%)`;
+        const defaultTrackerBarColor = 'rgba(theme(\'colors.primary\'))';
+
         const state = reactive({
             progressBar: null as HTMLElement | null,
+            progressBarStyle: computed(() => ({
+                background: props.gradient ? linearGradientProperty
+                    : (props.color ?? defaultTrackerBarColor),
+                transition: props.disableAnimation ? undefined : 'width 0.5s linear',
+            })),
         });
 
         const beforeEnter = (element) => {
-            element.style.width = 0;
+            element.style.width = props.disableAnimation ? `${props.percentage}%` : 0;
         };
 
         const enter = (element) => {
@@ -54,7 +90,7 @@ export default {
             enter,
         };
     },
-};
+});
 </script>
 
 <style lang="postcss">
@@ -73,19 +109,35 @@ export default {
     .background-bar {
         @apply bg-gray-100;
         width: 100%;
-        height: 0.375rem;
         overflow: hidden;
-        border-radius: 0.125rem;
     }
 
     .tracker-bar {
         @apply bg-primary;
-        height: 0.375rem;
         width: 0;
+        max-width: 100%;
         overflow: hidden;
-        transition: width 0.5s linear;
-        border-radius: 0.125rem;
-        margin-top: -0.375rem;
+    }
+
+    @define-mixin progress-bar-size $height, $border-radius {
+        .background-bar,
+        .tracker-bar {
+            height: $height;
+            border-radius: $border-radius;
+        }
+        .tracker-bar {
+            margin-top: -$height;
+        }
+    }
+
+    &.sm {
+        @mixin progress-bar-size 0.25rem, theme('borderRadius.2xs');
+    }
+    &.md {
+        @mixin progress-bar-size 0.375rem, theme('borderRadius.xs');
+    }
+    &.lg {
+        @mixin progress-bar-size 0.75rem, theme('borderRadius.sm');
     }
 }
 </style>

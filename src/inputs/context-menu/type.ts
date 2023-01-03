@@ -1,39 +1,36 @@
-import { TranslateResult } from 'vue-i18n';
+import type { TranslateResult } from 'vue-i18n';
 
-export enum CONTEXT_MENU_TYPE {
-    divider = 'divider',
-    header = 'header',
-    item = 'item',
-    info = 'info',
-}
+export const CONTEXT_MENU_TYPE = {
+    divider: 'divider',
+    header: 'header',
+    item: 'item',
+    button: 'button',
+    showMore: 'showMore',
+} as const;
 
-export const menuTypes = ['divider', 'header', 'item', 'info'] as const;
-
-export type ContextMenuType = typeof menuTypes[number];
+export type ContextMenuType = typeof CONTEXT_MENU_TYPE[keyof typeof CONTEXT_MENU_TYPE];
 
 export interface MenuItem {
     name?: string;
     label?: string | TranslateResult;
-    type: ContextMenuType;// keyof typeof CONTEXT_MENU_TYPE;
+    type?: ContextMenuType;
     disabled?: boolean;
     link?: string;
     target?: string;
-}
-
-export enum CONTEXT_MENU_THEME {
-    secondary = 'secondary',
-    gray900 = 'gray900',
-    white = 'white',
+    icon?: string;
 }
 
 export interface ContextMenuProps {
     menu: MenuItem[];
-    theme: keyof typeof CONTEXT_MENU_THEME;
-    loading: boolean;
-    autoHeight: boolean;
-    useCustomStyle: boolean;
-    position: string;
-    offsetTop: number;
-    width: number;
-    height: number;
+    loading?: boolean;
+    selected?: MenuItem[];
+    multiSelectable?: boolean;
+    showRadioIcon?: boolean;
+    strictSelectMode?: boolean;
+    itemHeightFixed?: boolean;
+    highlightTerm?: string;
+    noSelectIndication?: boolean;
+    showSelectHeader?: boolean;
+    showClearSelection?: boolean;
+    searchable?: boolean;
 }

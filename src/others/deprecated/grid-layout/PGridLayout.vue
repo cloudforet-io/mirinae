@@ -14,8 +14,9 @@
 </template>
 
 <script lang="ts">
-import { reactive, computed, toRefs } from '@vue/composition-api';
-import { GridLayoutProps } from '@/others/deprecated/grid-layout/type';
+import { reactive, computed, toRefs } from 'vue';
+
+import type { GridLayoutProps } from '@/others/deprecated/grid-layout/type';
 
 export default {
     name: 'PGridLayout',
@@ -67,7 +68,7 @@ export default {
             default: '',
         },
     },
-    setup(props: GridLayoutProps, context) {
+    setup(props: GridLayoutProps) {
         const state = reactive({
             containerStyle: computed(() => ({
                 display: 'grid',
@@ -91,8 +92,7 @@ export default {
     }
 
     .card-item {
-        @apply bg-white border border-gray-200;
-        border-radius: 2px;
+        @apply bg-white border border-gray-200 rounded-sm;
         cursor: pointer;
         &:hover {
             @apply border-l border-secondary;

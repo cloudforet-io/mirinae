@@ -1,8 +1,7 @@
 import "@/styles/style.pcss";
 
-import '@storybook/addon-console';
 import { withDesign } from 'storybook-addon-designs';
-import VueCompositionApi from '@vue/composition-api';
+
 import Notifications from 'vue-notification';
 
 import Vue from 'vue';
@@ -13,17 +12,17 @@ import SvgIcon from 'vue-svgicon';
 import Fragment from "vue-fragment";
 
 import webFontLoader from 'webfontloader';
-import { fontUrls, webFonts } from '@/styles/web-fonts';
+import { fontUrls, webFonts } from '@/styles/web-fonts.cjs';
 
-import tailwindConfig from './tailwind.config';
 import VTooltip from 'v-tooltip';
 
-import SpaceOneTheme from './SpaceOneTheme';
+import SpaceOneTheme from './CloudforetTheme';
 import {i18n} from '@/translations'
+import { applyAmchartsGlobalSettings } from '@/plugins/amcharts';
+import screens from "@/styles/screens.cjs";
 
 Vue.use(VueRouter)
 Vue.use(VueI18n);
-Vue.use(VueCompositionApi);
 Vue.use(Notifications, { velocity });
 Vue.use(SvgIcon, {
     tagName: 'svgicon',
@@ -31,6 +30,8 @@ Vue.use(SvgIcon, {
 })
 Vue.use(Fragment.Plugin);
 Vue.use(VTooltip, { defaultClass: 'p-tooltip', defaultBoundariesElement: document.body });
+
+applyAmchartsGlobalSettings()
 
 Vue.prototype.toJSON = function () {
     return this;
@@ -45,8 +46,8 @@ webFontLoader.load({
 
 
 const viewports = {}
-Object.keys(tailwindConfig.theme.screens).forEach(k => {
-    const v = tailwindConfig.theme.screens[k];
+Object.keys(screens).forEach(k => {
+    const v = screens[k];
     viewports[k] = {
         name: k,
         styles: {
@@ -56,13 +57,18 @@ Object.keys(tailwindConfig.theme.screens).forEach(k => {
     }
 })
 
+
+
 export const decorators = [
     withDesign,
-    () => ({
-        i18n,
-        router: new VueRouter(),
-        template: '<story/>',
-    })
+    (story, { globals: { locale } }) => {
+        i18n.locale = locale;
+        return {
+            i18n,
+            router: new VueRouter(),
+            template: '<story/>',
+        }
+    }
 ]
 
 export const parameters = {
@@ -84,5 +90,21 @@ export const parameters = {
         storySort: (a, b) =>
             a[1].kind === b[1].kind ? 0 : a[1].id.localeCompare(b[1].id, undefined, { numeric: true }),
     },
-    actions: { argTypesRegex: "^on[A-Z].*" },
+    actions: { argTypesRegex:  '^on.*' },
 }
+
+export const globalTypes = {
+    locale: {
+        name: 'locale',
+        description: 'Internationalization locale',
+        defaultValue: 'en',
+        toolbar: {
+            icon: 'globe',
+            items: [
+                { value: 'en', right: '🇺🇸', title: 'English' },
+                { value: 'ko', right: '🇰🇷', title: '한국어' },
+                { value: 'jp', right: '🇯🇵', title: '日本語' },
+            ],
+        },
+    },
+};

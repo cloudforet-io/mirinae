@@ -71,8 +71,7 @@
 
         <slot name="bottom">
             <div class="bottom">
-                <p-button :outline="true"
-                          style-type="gray900"
+                <p-button style-type="tertiary"
                           :disabled="loading"
                           size="lg"
                           class="txt-btn" @click="$emit('cancel', $event)"
@@ -81,18 +80,16 @@
                 </p-button>
                 <div class="nav-btn-box">
                     <p-button v-if="!isFirstTab"
-                              :outline="true"
                               :disabled="loading"
-                              style-type="secondary"
+                              style-type="highlight"
                               size="lg"
                               @click="onClickPrev"
                     >
                         <p-i name="ic_back" color="inherit" />{{ $t('COMPONENT.PROGRESS_WIZARD.PREV') }}
                     </p-button>
                     <p-button v-if="!isLastTab"
-                              :outline="true"
                               :disabled="loading"
-                              style-type="secondary"
+                              style-type="highlight"
                               size="lg"
                               @click="onClickNext"
                     >
@@ -101,7 +98,7 @@
                     <p-button :loading="loading"
                               :disabled="disabled"
                               class="txt-btn"
-                              style-type="secondary"
+                              style-type="highlight"
                               size="lg"
                               @click="$emit('confirm', tabs, $event)"
                     >
@@ -116,17 +113,19 @@
 <script lang="ts">
 import {
     toRefs, reactive, computed,
-} from '@vue/composition-api';
-import { makeProxy } from '@/util/composition-helpers';
+} from 'vue';
 
-import PPaneLayout from '@/layouts/pane-layout/PPaneLayout.vue';
+
+import { size } from 'lodash';
+
 import PI from '@/foundation/icons/PI.vue';
 import PButton from '@/inputs/buttons/button/PButton.vue';
-import {
+import PPaneLayout from '@/layouts/pane-layout/PPaneLayout.vue';
+import type {
     ProgressWizardProps,
 } from '@/navigation/wizards/progress-wizard/type';
-import { size } from 'lodash';
 import PTooltipButton from '@/others/deprecated/tooltip-button/PTooltipButton.vue';
+import { makeProxy } from '@/util/composition-helpers';
 
 
 export default {
@@ -230,13 +229,13 @@ export default {
                 @mixin triangle calc($(height) / 2), 1, theme('colors.black');
             }
             &:last-child {
-                @apply border-r border-black;
+                @apply border-r border-black rounded-r-lg;
                 .triangle, .triangle-bg {
                     display: none;
                 }
             }
             &:first-child {
-                @apply border-l border-black;
+                @apply border-l border-black rounded-l-lg;
             }
             &.active {
                 @apply text-lg font-bold bg-black text-white;

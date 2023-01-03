@@ -20,15 +20,17 @@
 </template>
 
 <script lang="ts">
-import dayjs, { Dayjs } from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-
 import {
     reactive, toRefs, computed,
-} from '@vue/composition-api';
+} from 'vue';
+
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
 
 import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
-import { DatePaginationProps } from '@/navigation/pagination/date-pagination/type';
+import type { DatePaginationProps } from '@/navigation/pagination/date-pagination/type';
 
 dayjs.extend(isSameOrAfter);
 

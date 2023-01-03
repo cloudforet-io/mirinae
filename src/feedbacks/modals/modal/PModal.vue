@@ -1,7 +1,13 @@
 <template>
-    <transition v-if="visible" name="modal">
-        <div class="modal-mask" :class="{'no-backdrop':!backdrop}">
-            <div class="modal-wrapper" :class="dialogClassObject">
+    <transition v-if="visible"
+                name="modal"
+    >
+        <div class="modal-mask"
+             :class="{'no-backdrop':!backdrop}"
+        >
+            <div class="modal-wrapper"
+                 :class="dialogClassObject"
+            >
                 <slot />
             </div>
         </div>
@@ -9,30 +15,11 @@
 </template>
 
 <script lang="ts">
-import { computed } from '@vue/composition-api';
-import { ModalProps, sizeMapping } from '@/feedbacks/modals/type';
+import { computed } from 'vue';
 
+import type { ModalProps } from '@/feedbacks/modals/type';
+import { SizeMapping } from '@/feedbacks/modals/type';
 
-const setup = (props, { emit }) => {
-    const dialogClassObject = computed(() => [
-        { scrollable: props.scrollable },
-        props.size,
-    ]);
-    const hide = () => {
-        if (props.visible) { emit('update:visible', false); }
-    };
-
-    return {
-        dialogClassObject,
-        show() {
-            if (!props.visible) { emit('update:visible', true); }
-        },
-        hide,
-        toggle() {
-            emit('update:visible', !props.visible);
-        },
-    };
-};
 
 export default {
     name: 'PModal',
@@ -48,7 +35,7 @@ export default {
         size: {
             type: String,
             default: 'md',
-            validator: value => Object.keys(sizeMapping).includes(value),
+            validator: (value) => Object.keys(SizeMapping).includes(value),
         },
         backdrop: {
             type: Boolean,

@@ -12,16 +12,17 @@
 
 <script lang="ts">
 import {
-    ComponentRenderProxy,
     computed, getCurrentInstance,
     reactive, toRefs,
-} from '@vue/composition-api';
-import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
-import PMarkdown from '@/data-display/markdown/PMarkdown.vue';
-import { get } from 'lodash';
-import {
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
+import type {
     MarkdownDynamicLayoutProps,
 } from '@/data-display/dynamic/dynamic-layout/templates/markdown/type';
+import { getValueByPath } from '@/data-display/dynamic/helper';
+import PMarkdown from '@/data-display/markdown/PMarkdown.vue';
+import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
 
 
 export default {
@@ -51,13 +52,13 @@ export default {
             default: undefined,
         },
     },
-    setup(props: MarkdownDynamicLayoutProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props: MarkdownDynamicLayoutProps) {
+        const vm = getCurrentInstance()?.proxy as Vue;
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
             rootData: computed<any[]>(() => {
                 if (props.options.root_path) {
-                    return get(props.data, props.options.root_path);
+                    return getValueByPath(props.data, props.options.root_path);
                 }
                 return props.data;
             }),

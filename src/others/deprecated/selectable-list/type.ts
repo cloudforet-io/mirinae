@@ -1,4 +1,4 @@
-import { ThemeType } from '@/others/deprecated/selectable-item/type';
+import type { ThemeType } from '@/others/deprecated/selectable-item/type';
 
 export type MapperKeyType = string | ((item: any) => string);
 interface MapperType {
@@ -9,8 +9,8 @@ interface MapperType {
     icon?: MapperKeyType;
 }
 
-export interface SelectableListProps<item=any> {
-    items: item[];
+export interface SelectableListProps<Item=any> {
+    items: Item[];
     mapper?: MapperType;
     multiSelectable?: boolean;
     mustSelect?: boolean;

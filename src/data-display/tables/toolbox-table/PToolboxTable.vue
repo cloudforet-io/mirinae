@@ -1,37 +1,38 @@
 <template>
     <p-pane-layout class="p-toolbox-table">
-        <slot name="toolbox-top" />
-        <p-toolbox :pagination-visible="paginationVisible"
-                   :page-size-changeable="pageSizeChangeable"
-                   :settings-visible="settingsVisible"
-                   :exportable="exportable"
-                   :refreshable="refreshable"
-                   :searchable="searchable"
-                   :sortable="false"
-                   :filters-visible="filtersVisible"
-                   :search-type="searchType"
-                   :this-page.sync="proxyState.thisPage"
-                   :page-size.sync="proxyState.pageSize"
-                   :total-count="totalCount"
-                   :page-size-options="pageSizeOptions"
-                   :key-item-sets="keyItemSets"
-                   :value-handler-map="valueHandlerMap"
-                   :query-tags.sync="proxyState.queryTags"
-                   :search-text.sync="proxyState.searchText"
-                   :timezone="timezone"
-                   @init-tags="emitInitTags"
-                   @change="emitChange"
-                   @export="$emit('export')"
-                   @refresh="$emit('refresh')"
-                   @click-settings="$emit('click-settings')"
-        >
-            <template v-if="$scopedSlots['toolbox-left']" #left-area>
-                <div class="toolbox-left">
-                    <slot name="toolbox-left" />
-                </div>
-            </template>
-        </p-toolbox>
-        <slot name="toolbox-bottom" />
+        <div class="top-wrapper">
+            <slot name="toolbox-top" />
+            <p-toolbox :pagination-visible="paginationVisible"
+                       :page-size-changeable="pageSizeChangeable"
+                       :settings-visible="settingsVisible"
+                       :exportable="exportable"
+                       :refreshable="refreshable"
+                       :searchable="searchable"
+                       :sortable="false"
+                       :filters-visible="filtersVisible"
+                       :search-type="searchType"
+                       :this-page.sync="proxyState.thisPage"
+                       :page-size.sync="proxyState.pageSize"
+                       :total-count="totalCount"
+                       :page-size-options="pageSizeOptions"
+                       :key-item-sets="keyItemSets"
+                       :value-handler-map="valueHandlerMap"
+                       :query-tags.sync="proxyState.queryTags"
+                       :search-text.sync="proxyState.searchText"
+                       :timezone="timezone"
+                       @change="emitChange"
+                       @export="$emit('export')"
+                       @refresh="$emit('refresh')"
+                       @click-settings="$emit('click-settings')"
+            >
+                <template v-if="$scopedSlots['toolbox-left']" #left-area>
+                    <div class="toolbox-left">
+                        <slot name="toolbox-left" />
+                    </div>
+                </template>
+            </p-toolbox>
+            <slot name="toolbox-bottom" />
+        </div>
 
         <p-data-table :fields="fields"
                       :items="items"
@@ -45,37 +46,41 @@
                       :table-style-type="tableStyleType"
                       :striped="striped"
                       :bordered="bordered"
-                      :hover="hover"
+                      :disable-hover="disableHover"
                       :loading="loading"
                       :use-cursor-loading="useCursorLoading"
-                      :width="width"
                       :row-height-fixed="rowHeightFixed"
                       :row-cursor-pointer="rowCursorPointer"
                       :invalid="invalid"
+                      :get-row-class-names="getRowClassNames"
+                      :get-row-selectable="getRowSelectable"
                       v-on="$listeners"
                       @changeSort="changeSort"
-                      @rowLeftClick="byPassEvent('rowLeftClick', ...arguments)"
         >
-            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+            <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                 <slot v-if="!slot.startsWith('toolbox')" :name="slot" v-bind="scope" />
             </template>
         </p-data-table>
+        <slot name="toolbox-table-bottom" />
     </p-pane-layout>
 </template>
 
 <script lang="ts">
 import {
-    ComponentRenderProxy, getCurrentInstance, reactive, watch,
-} from '@vue/composition-api';
+    defineComponent, reactive, watch,
+} from 'vue';
+import type { SetupContext } from 'vue';
 
+import { DATA_TABLE_STYLE_TYPE } from '@/data-display/tables/data-table/config';
 import PDataTable from '@/data-display/tables/data-table/PDataTable.vue';
-import { PToolboxTableProps, ToolboxTableOptions } from '@/data-display/tables/toolbox-table/type';
-import { makeOptionalProxy } from '@/util/composition-helpers';
-import PToolbox from '@/navigation/toolbox/PToolbox.vue';
-import { ToolboxOptions } from '@/navigation/toolbox/type';
+import type { ToolboxTableOptions, ToolboxTableProps } from '@/data-display/tables/toolbox-table/type';
+import { useProxyValue } from '@/hooks';
 import PPaneLayout from '@/layouts/pane-layout/PPaneLayout.vue';
+import { SEARCH_TYPES } from '@/navigation/toolbox/config';
+import PToolbox from '@/navigation/toolbox/PToolbox.vue';
 
-export default {
+
+export default defineComponent<ToolboxTableProps>({
     name: 'PToolboxTable',
     components: {
         PPaneLayout,
@@ -83,7 +88,7 @@ export default {
         PDataTable,
     },
     props: {
-        // PDataTableProps
+        /* data table props */
         loading: {
             type: Boolean,
             default: false,
@@ -91,10 +96,11 @@ export default {
         fields: {
             type: Array,
             required: true,
+            default: () => [],
         },
         items: {
             type: Array,
-            required: true,
+            default: () => [],
         },
         sortable: {
             type: Boolean,
@@ -102,11 +108,11 @@ export default {
         },
         sortBy: {
             type: String,
-            default: undefined,
+            default: '',
         },
         sortDesc: {
             type: Boolean,
-            default: undefined,
+            default: true,
         },
         colCopy: {
             type: Boolean,
@@ -117,8 +123,8 @@ export default {
             default: false,
         },
         selectIndex: {
-            type: [Array, Number],
-            default: undefined,
+            type: Array,
+            default: () => [],
         },
         multiSelect: {
             type: Boolean,
@@ -130,7 +136,7 @@ export default {
         },
         tableStyleType: {
             type: String,
-            default: 'default',
+            default: DATA_TABLE_STYLE_TYPE.default,
         },
         striped: {
             type: Boolean,
@@ -140,13 +146,9 @@ export default {
             type: Boolean,
             default: true,
         },
-        hover: {
+        disableHover: {
             type: Boolean,
             default: false,
-        },
-        width: {
-            type: String,
-            default: undefined,
         },
         rowHeightFixed: {
             type: Boolean,
@@ -160,7 +162,15 @@ export default {
             type: Boolean,
             default: false,
         },
-        /* PToolboxTableProps */
+        getRowClassNames: {
+            type: Function,
+            default: undefined,
+        },
+        getRowSelectable: {
+            type: Function,
+            default: undefined,
+        },
+        /* toolbox props */
         paginationVisible: {
             type: Boolean,
             default: true,
@@ -191,15 +201,15 @@ export default {
         },
         searchType: {
             type: String,
-            default: 'plain',
+            default: SEARCH_TYPES.plain,
         },
         thisPage: {
             type: Number,
-            default: undefined,
+            default: 1,
         },
         pageSize: {
             type: Number,
-            default: undefined,
+            default: 15,
         },
         totalCount: {
             type: Number,
@@ -223,28 +233,26 @@ export default {
         },
         queryTags: {
             type: Array,
-            default: undefined,
+            default: () => [],
         },
         searchText: {
             type: String,
-            default: undefined,
+            default: '',
         },
         timezone: {
             type: String,
             default: 'UTC',
         },
     },
-    setup(props: PToolboxTableProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
-
+    setup(props, { emit }: SetupContext) {
         const proxyState = reactive({
-            selectIndex: makeOptionalProxy<number[]>('selectIndex', vm, [], ['select']),
-            sortBy: makeOptionalProxy<string>('sortBy', vm, ''),
-            sortDesc: makeOptionalProxy<boolean>('sortDesc', vm, true),
-            thisPage: makeOptionalProxy<number>('thisPage', vm, 1),
-            pageSize: makeOptionalProxy<number>('pageSize', vm, 15),
-            queryTags: makeOptionalProxy<number>('queryTags', vm, []),
-            searchText: makeOptionalProxy<number>('searchText', vm, ''),
+            selectIndex: useProxyValue<number[]>('selectIndex', props, emit, ['select']),
+            sortBy: useProxyValue<string>('sortBy', props, emit),
+            sortDesc: useProxyValue<boolean>('sortDesc', props, emit),
+            thisPage: useProxyValue<number>('thisPage', props, emit),
+            pageSize: useProxyValue<number>('pageSize', props, emit),
+            queryTags: useProxyValue<number>('queryTags', props, emit),
+            searchText: useProxyValue<number>('searchText', props, emit),
         });
 
 
@@ -255,18 +263,6 @@ export default {
         const changeSort = (sortBy, sortDesc) => {
             proxyState.thisPage = 1;
             emitChange({ sortBy, sortDesc });
-        };
-
-        const byPassEvent = (name, ...args) => {
-            emit(name, ...args);
-        };
-
-        const emitInitTags = (options: Required<ToolboxOptions>) => {
-            emit('init-tags', {
-                ...options,
-                sortBy: proxyState.sortBy,
-                sortDesc: proxyState.sortDesc,
-            });
         };
 
         const checkSelectIndex = () => {
@@ -283,7 +279,6 @@ export default {
         watch(() => props.items, () => {
             checkSelectIndex();
         });
-
         watch(() => proxyState.thisPage, () => {
             proxyState.selectIndex = [];
         }, { immediate: false });
@@ -291,18 +286,19 @@ export default {
         return {
             proxyState,
             changeSort,
-            byPassEvent,
-            emitInitTags,
             emitChange,
         };
     },
-};
+});
 </script>
 
 <style lang="postcss">
 .p-toolbox-table {
-    @apply flex flex-col bg-white border border-gray-200 rounded-sm;
+    @apply flex flex-col bg-white border border-gray-200 rounded-xs;
 
+    .top-wrapper {
+        @apply flex flex-col rounded-xs;
+    }
     .p-data-table {
         overflow: auto;
     }

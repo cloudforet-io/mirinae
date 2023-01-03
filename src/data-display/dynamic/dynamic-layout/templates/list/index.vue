@@ -10,7 +10,7 @@
                           :field-handler="fieldHandler"
                           v-on="getListeners(layout.name, idx)"
         >
-            <template v-for="(slot) of slotNames" v-slot:[slot]="scope">
+            <template v-for="(slot) of slotNames" #[slot]="scope">
                 <slot :name="`${name}-${slot}`" v-bind="scope" />
             </template>
         </p-dynamic-layout>
@@ -20,15 +20,17 @@
 <script lang="ts">
 import {
     computed, reactive, toRefs,
-} from '@vue/composition-api';
-import { map, replace, get } from 'lodash';
+} from 'vue';
+
+import { map, replace } from 'lodash';
+
 import PDynamicLayout from '@/data-display/dynamic/dynamic-layout/PDynamicLayout.vue';
-import {
+import type {
     ListDynamicLayoutProps,
 } from '@/data-display/dynamic/dynamic-layout/templates/list/type';
+import type { DynamicLayout } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
+import { getValueByPath } from '@/data-display/dynamic/helper';
 import { makeByPassListeners } from '@/util/composition-helpers';
-import { DynamicLayout } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
-import { DynamicLayoutTypeOptions, DynamicLayoutFetchOptions } from '@/data-display/dynamic/dynamic-layout/type';
 
 export default {
     name: 'PDynamicLayoutList',
@@ -63,8 +65,10 @@ export default {
         const state = reactive({
             layouts: computed<DynamicLayout[]>(() => props.options.layouts || []),
             rootData: computed(() => {
-                if (!props.options.root_path) return props.data;
-                return get(props.data, props.options.root_path, undefined);
+                if (props.options.root_path) {
+                    return getValueByPath(props.data, props.options.root_path);
+                }
+                return props.data;
             }),
             slotNames: computed(() => (map(slots, (slot: string, name) => replace(name, `${props.name}-`, '')))),
         });

@@ -1,10 +1,10 @@
 <template>
     <p-text-list :items="items"
-                 :delimiter="options.delimiter"
+                 :delimiter="options.delimiter === undefined ? '<br>' : options.delimiter"
                  :sub-key="options.sub_key"
                  :link="options.link"
     >
-        <template #default="{value, data}">
+        <template #default="{value}">
             <p-dynamic-field :type="options.item ? options.item.type : 'text'"
                              :options="options.item ? options.item.options : undefined"
                              :data="value"
@@ -13,18 +13,16 @@
                              :handler="handler"
             />
         </template>
-        <template v-if="!options.delimiter" #delimiter>
-            <br>
-        </template>
     </p-text-list>
 </template>
 
 <script lang="ts">
+import { computed, reactive, toRefs } from 'vue';
+
 import PDynamicField from '@/data-display/dynamic/dynamic-field/PDynamicField.vue';
+import type { ListDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/list/type';
 import PTextList from '@/others/console/text-list/PTextList.vue';
-import { computed, reactive, toRefs } from '@vue/composition-api';
 import { isNotEmpty } from '@/util/helpers';
-import { ListDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/list/type';
 
 export default {
     name: 'PDynamicFieldList',

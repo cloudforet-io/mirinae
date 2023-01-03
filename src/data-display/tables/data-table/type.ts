@@ -1,3 +1,5 @@
+import type { DATA_TABLE_CELL_TEXT_ALIGN, DATA_TABLE_STYLE_TYPE } from '@/data-display/tables/data-table/config';
+
 export interface DataTableEventListeners {
     select?: (selectIndex: number[]) => void|Promise<void>;
     rowLeftClick?: (item: any, index: number, event: MouseEvent) => void|Promise<void>;
@@ -7,17 +9,25 @@ export interface DataTableEventListeners {
     'update:sortDesc'?: (sortDesc: boolean) => void|Promise<void>;
 }
 
+export type DataTableCellTextAlign = typeof DATA_TABLE_CELL_TEXT_ALIGN[keyof typeof DATA_TABLE_CELL_TEXT_ALIGN];
+
 export interface DataTableFieldType {
     name: string;
     label?: string;
     sortable?: boolean;
     sortKey?: string;
+    disableCopy?: boolean;
     width?: string;
+    textAlign?: DataTableCellTextAlign;
+    children?: DataTableFieldType[];
+    invisible?: boolean;
 }
-export type DataTableField = string | DataTableFieldType
+export type DataTableField = string | DataTableFieldType;
 
-export interface PDataTableProps {
-    loading: boolean;
+export type DataTableStyleType = typeof DATA_TABLE_STYLE_TYPE[keyof typeof DATA_TABLE_STYLE_TYPE];
+
+export interface DataTableProps {
+    loading?: boolean;
     fields: DataTableField[];
     items: any[];
     sortable?: boolean;
@@ -29,14 +39,15 @@ export interface PDataTableProps {
     multiSelect?: boolean;
     rowClickMultiSelectMode?: boolean;
     useCursorLoading?: boolean;
-    tableStyleType?: string;
+    tableStyleType?: DataTableStyleType;
+    tableCustomStyle?: {[key: string]: string};
     striped?: boolean;
     bordered?: boolean|null|unknown;
-    hover?: boolean;
-    width?: string;
+    disableHover?: boolean;
     rowHeightFixed?: boolean;
     rowCursorPointer?: boolean;
     invalid?: boolean;
     getRowClassNames?: (item: any, i: number) => Record<string, boolean>;
     getRowSelectable?: (item: any, i: number) => boolean;
+    beautifyText?: boolean;
 }

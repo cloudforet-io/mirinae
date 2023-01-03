@@ -1,21 +1,41 @@
-import { ContextMenuType } from '@/inputs/context-menu/type';
+import type { ContextMenuType } from '@/inputs/context-menu/type';
 
 
 export const dataTypes = ['string', 'integer', 'float', 'boolean', 'datetime', 'object'] as const;
 export type KeyDataType = typeof dataTypes[number];
 
 
-export const operators = ['', '!', '>', '>=', '<', '<=', '=', '!=', '$'] as const;
-export type OperatorType = typeof operators[number];
+export const OPERATOR = Object.freeze({
+    contain: '',
+    notContain: '!',
+    greater: '>',
+    greaterEqual: '>=',
+    less: '<',
+    lessEqual: '<=',
+    equal: '=',
+    notEqual: '!=',
+    regex: '~',
+} as const);
+
+export const operators = Object.values(OPERATOR);
+export type OperatorType = typeof OPERATOR[keyof typeof OPERATOR];
+
+export interface CategoryItem {
+    label?: string;
+    name: any;
+}
 
 export interface ValueItem {
     label: string;
     name: any;
 }
 
+export type ValueSet = Record<string, ValueItem>;
+
 export interface KeyItem {
     label: string;
     name: any;
+    valueSet?: ValueSet;
     dataType?: KeyDataType;
     operators?: OperatorType[];
 }
@@ -26,10 +46,10 @@ export interface QueryItem {
     value: ValueItem;
 }
 
-export type MenuType ='ROOT_KEY'|'KEY'|'VALUE'|'OPERATOR'
+export type MenuType ='ROOT_KEY'|'KEY'|'VALUE'|'OPERATOR';
 
 export interface MenuItem<T> {
-    type: ContextMenuType;
+    type?: ContextMenuType;
     data?: T;
 }
 
@@ -37,14 +57,18 @@ export interface KeyMenuItem extends KeyItem, MenuItem<KeyItem> {}
 export interface ValueMenuItem extends ValueItem, MenuItem<ValueItem> {}
 
 export interface HandlerResponse {
-    results: Array<ValueItem|ValueMenuItem>;
+    results: Array<ValueMenuItem>;
     totalCount?: number;
     dataType?: KeyDataType;
     operators?: OperatorType[];
 }
-export type ValueHandler = (inputText: string, rootKey: KeyItem,
-                            dataType?: KeyDataType, subPath?: string,
-                            operator?: OperatorType) => Promise<HandlerResponse>|HandlerResponse;
+export interface ValueHandler {
+    (inputText: string,
+     rootKey: KeyItem,
+     dataType?: KeyDataType,
+     subPath?: string,
+     operator?: OperatorType): Promise<HandlerResponse>|HandlerResponse;
+}
 
 
 export interface ValueHandlerMap {
@@ -56,15 +80,14 @@ export interface KeyItemSet {
     items: KeyItem[];
 }
 
-
-export interface QuerySearchProps {
-    placeholder?: string;
-    focused: boolean;
-    keyItemSets: KeyItemSet[];
-    valueHandlerMap: ValueHandlerMap;
-    value: string;
-}
-
 export interface QuerySearchEventArgs {
     search: [QueryItem];
+}
+
+export interface MenuFormatterArgs {
+    menuResponse: HandlerResponse;
+    selectedKeys: KeyItem[];
+    operator?: OperatorType;
+    subPath?: string;
+    hideKey?: boolean;
 }

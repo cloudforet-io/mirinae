@@ -2,27 +2,28 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "target": "es2018",
-    "module": "CommonJS",
+    "module": "ESNext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "allowJs": true,
+    "checkJs": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "sourceMap": true,
     "baseUrl": ".",
+    "outDir": "types",
     "declaration": true,
-    "outDir": "dist",
-    "types": ["webpack-env", "@types/jest"],
+    "emitDeclarationOnly": true,
+    "types": ["webpack-env", "vitest/globals"],
     "paths": {
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts", "tests/**/*.tsx"],
-  "exclude": ["node_modules", "src/**/*.stories.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "src/**/*.stories.ts",  "src/**/story-helper.ts", "src/**/mock.ts", "**/__tests__/**/*.ts"]
 }

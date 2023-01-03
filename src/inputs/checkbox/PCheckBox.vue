@@ -4,7 +4,7 @@
           v-on="$listeners"
     >
         <input type="checkbox">
-        <slot :slot-scope="$props" name="icon">
+        <slot :slot-scope="$props" name="icon" v-bind="{isSelected}">
             <p-i width="1.25rem" height="1.25rem"
                  class="check-icon"
                  :class="{disabled,invalid}"
@@ -17,18 +17,23 @@
               :class="{disabled,invalid}"
               @click.stop="onClick"
         >
-            <slot name="default" />
+            <slot name="default" v-bind="{isSelected}" />
         </span>
     </span>
 </template>
 
 <script lang="ts">
-import { pull } from 'lodash';
 import {
-    computed, defineComponent, reactive, toRefs,
-} from '@vue/composition-api';
+    computed, defineComponent,
+} from 'vue';
+
 import PI from '@/foundation/icons/PI.vue';
-import { CheckboxProps } from '@/inputs/checkbox/type';
+import type { SelectProps } from '@/hooks/select';
+import { useMultiSelect } from '@/hooks/select';
+
+interface CheckboxProps extends SelectProps {
+    invalid?: boolean;
+}
 
 export default defineComponent<CheckboxProps>({
     name: 'PCheckBox',
@@ -38,56 +43,61 @@ export default defineComponent<CheckboxProps>({
         event: 'change',
     },
     props: {
+        /* select props */
         value: {
-            type: [Boolean, String, Number, Object],
-            default: undefined,
+            type: [Boolean, String, Number, Object, Array],
+            default: true,
         },
         selected: {
-            type: [Boolean, Array],
+            type: [Boolean, String, Number, Object, Array],
             default: () => ([]),
         },
         disabled: {
             type: Boolean,
             default: false,
         },
+        predicate: {
+            type: Function,
+            default: undefined,
+        },
+        /* checkbox props */
         invalid: {
             type: Boolean,
             default: false,
         },
     },
-    setup(props: CheckboxProps, context) {
-        const state = reactive({
-            isSelected: computed(() => {
-                if (typeof props.selected === 'boolean') {
-                    return props.selected;
-                }
-                if (Array.isArray(props.selected)) return props.selected.includes(props.value);
-                return false;
-            }),
+    setup(props: CheckboxProps, { emit }) {
+        const {
+            isSelected,
+            getSelected,
+        } = useMultiSelect({
+            value: computed(() => props.value),
+            selected: computed(() => props.selected),
+            predicate: computed(() => props.predicate),
+            disabled: computed(() => props.disabled),
         });
-        const onClick = () => {
-            if (!props.disabled) {
-                if (typeof props.selected === 'boolean') {
-                    context.emit('change', !props.selected);
-                } else {
-                    const newResult = [...props.selected];
-                    if (state.isSelected) {
-                        pull(newResult, props.value);
-                    } else { newResult.push(props.value); }
-                    context.emit('change', newResult, state.isSelected);
-                }
-            }
-        };
+
         const iconName = computed(() => {
-            if (props.disabled) return 'ic_checkbox--disabled';
-            if (state.isSelected) return 'ic_checkbox--checked';
+            if (props.disabled) {
+                if (isSelected.value) return 'ic_checkbox-disabled-check';
+                return 'ic_checkbox--disabled';
+            }
+            if (isSelected.value) return 'ic_checkbox--checked';
             return 'ic_checkbox';
         });
 
+        /* event */
+        const onClick = () => {
+            if (!props.disabled) {
+                const newSelected = getSelected();
+                emit('change', newSelected, !isSelected.value);
+            }
+        };
+
         return {
-            ...toRefs(state),
-            onClick,
+            isSelected,
             iconName,
+            onClick,
         };
     },
 });
@@ -106,7 +116,7 @@ export default defineComponent<CheckboxProps>({
 
     &:hover {
         .text {
-            @apply text-blue-500;
+            @apply text-blue-600;
         }
         .check-icon {
             @apply text-gray-900;
@@ -123,6 +133,7 @@ export default defineComponent<CheckboxProps>({
         @apply text-gray-900 cursor-pointer;
         font-weight: 400;
         font-size: 14px;
+        vertical-align: middle;
     }
     .check-icon {
         @apply text-gray-400 cursor-pointer;

@@ -1,58 +1,65 @@
 <template>
     <p-button
         class="p-icon-button"
-        :class="[activated ? 'activated' : '', shape, size]"
-        :loading="loading"
+        :class="{ activated, [size]: true, loading, [shape]: true }"
         :style-type="styleType"
-        :outline="outline"
-        :disabled="disabled"
+        :disabled="disabled || loading"
         v-on="$listeners"
     >
-        <slot>
-            <p-lottie v-if="loading"
-                      class="spinner"
-                      name="thin-spinner"
-                      :width="width"
-                      :height="height"
-                      auto
-            />
-            <p-i v-else
-                 :name="name"
-                 :width="width"
-                 :height="height"
+        <p-spinner v-if="loading"
+                   :size="loadingSize"
+        />
+        <slot v-else>
+            <p-i :name="name"
+                 :width="sizeValue"
+                 :height="sizeValue"
                  :color="color"
+                 :animation="animation"
             />
         </slot>
     </p-button>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from '@vue/composition-api';
+import type { PropType } from 'vue';
+import {
+    computed, defineComponent, reactive, toRefs,
+} from 'vue';
 
+import PSpinner from '@/feedbacks/loading/spinner/PSpinner.vue';
+import { SPINNER_SIZE } from '@/feedbacks/loading/spinner/type';
+import type { AnimationType } from '@/foundation/icons/config';
+import { ANIMATION_TYPE } from '@/foundation/icons/config';
 import PI from '@/foundation/icons/PI.vue';
 import PButton from '@/inputs/buttons/button/PButton.vue';
-import PLottie from '@/foundation/lottie/PLottie.vue';
+import type { ButtonSize } from '@/inputs/buttons/button/type';
+import type {
+    IconButtonProps, IconButtonShape, IconButtonSize, IconButtonStyleType,
+} from '@/inputs/buttons/icon-button/type';
 import {
-    ICON_BUTTON_SHAPE, ICON_BUTTON_SIZE, ICON_BUTTON_STYLE_TYPE, IconButtonProps,
+    ICON_BUTTON_SHAPE, ICON_BUTTON_SIZE, ICON_BUTTON_STYLE_TYPE,
 } from '@/inputs/buttons/icon-button/type';
 
 
-export default defineComponent({
+const LOADING_SIZE: Record<ButtonSize, string> = {
+    sm: SPINNER_SIZE.sm,
+    md: SPINNER_SIZE.lg,
+    lg: SPINNER_SIZE.xl,
+};
+export default defineComponent<IconButtonProps>({
     name: 'PIconButton',
-    components: { PLottie, PButton, PI },
+    components: { PSpinner, PButton, PI },
     props: {
         name: {
             type: String,
             default: '',
         },
-        loading: {
-            type: Boolean,
-            default: false,
-        },
         styleType: {
             type: String,
-            default: 'transparent',
-            validator: value => Object.keys(ICON_BUTTON_STYLE_TYPE).includes(value as string),
+            default: ICON_BUTTON_STYLE_TYPE.transparent,
+            validator(value: IconButtonStyleType) {
+                return Object.values(ICON_BUTTON_STYLE_TYPE).includes(value);
+            },
         },
         color: {
             type: String,
@@ -66,25 +73,36 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
-        outline: {
+        loading: {
             type: Boolean,
             default: false,
         },
         size: {
             type: String,
             default: 'md',
-            validator: value => Object.keys(ICON_BUTTON_SIZE).includes(value as string),
+            validator(value: IconButtonSize) {
+                return Object.keys(ICON_BUTTON_SIZE).includes(value);
+            },
+        },
+        animation: {
+            type: String as PropType<AnimationType|undefined>,
+            default: undefined,
+            validator(animation: AnimationType|undefined) {
+                return animation === undefined || Object.values(ANIMATION_TYPE).includes(animation);
+            },
         },
         shape: {
             type: String,
-            default: 'circle',
-            validator: value => Object.keys(ICON_BUTTON_SHAPE).includes(value as string),
+            default: ICON_BUTTON_SHAPE.circle,
+            validator(value: IconButtonShape) {
+                return Object.values(ICON_BUTTON_SHAPE).includes(value);
+            },
         },
     },
-    setup(props: IconButtonProps) {
+    setup(props) {
         const state = reactive({
-            width: ICON_BUTTON_SIZE[props.size],
-            height: ICON_BUTTON_SIZE[props.size],
+            sizeValue: computed(() => ICON_BUTTON_SIZE[props.size] || '1.5rem'),
+            loadingSize: computed(() => LOADING_SIZE[props.size] ?? LOADING_SIZE.md),
         });
         return {
             ...toRefs(state),
@@ -95,15 +113,18 @@ export default defineComponent({
 
 <style lang="postcss">
 .p-icon-button {
-    @apply rounded-sm p-0 inline-flex justify-center items-center;
+    @apply rounded-l p-0 inline-flex justify-center items-center;
     min-width: 2rem;
     min-height: 2rem;
     max-width: 2rem;
     max-height: 2rem;
-
-    &.circle {
-        border-radius: 50%;
+    > .p-spinner {
+        flex-shrink: 0;
     }
+    > .p-i-icon {
+        flex-shrink: 0;
+    }
+
     &.lg {
         min-width: 2.5rem;
         min-height: 2.5rem;
@@ -116,23 +137,42 @@ export default defineComponent({
         max-width: 1.5rem;
         max-height: 1.5rem;
     }
-    &.loading:hover {
-        cursor: not-allowed;
-        &.transparent {
-            @apply bg-transparent;
+
+    &.loading {
+        > .p-spinner {
+            margin-right: 0;
         }
     }
-    &.gray-border {
-        @apply border-gray-300;
-        &:not(.disabled):not(.loading):not(.activated):hover {
-            @apply text-gray-900 border-gray-900;
+
+    &.circle {
+        @apply rounded-full;
+    }
+
+    &.disabled {
+        @apply border-transparent;
+        &:hover, &:active, &:focus {
+            @apply border-transparent;
         }
-        &.disabled, &.loading {
-            @apply bg-gray-200 text-gray-400 border-white;
-            cursor: not-allowed;
-        }
+    }
+
+    /* style types */
+    &.transparent {
         &.activated {
-            @apply text-secondary border-secondary;
+            @apply text-blue-600;
+        }
+        &.disabled {
+            @apply bg-transparent;
+            &:hover, &:active, &:focus {
+                @apply bg-transparent;
+            }
+        }
+    }
+    &.negative-transparent {
+        &.disabled {
+            @apply bg-transparent;
+            &:hover, &:active, &:focus {
+                @apply bg-transparent;
+            }
         }
     }
 }

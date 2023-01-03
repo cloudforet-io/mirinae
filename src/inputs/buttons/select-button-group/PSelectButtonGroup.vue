@@ -4,10 +4,16 @@
             <button v-for="(button, idx) in formattedButtons"
                     :key="`${button.name}-${idx}`"
                     class="select-button"
-                    :class="{ active:selected === button.name }"
+                    :class="[{ active:selected === button.name }, theme]"
                     @click="onClickButton(button.name, idx)"
             >
-                {{ button.label }}
+                <p-i v-if="selected === button.name && theme === 'text'"
+                     name="ic_check"
+                     width="1rem"
+                     height="1rem"
+                     :color="secondary"
+                />
+                <span>{{ button.label }}</span>
             </button>
         </div>
     </div>
@@ -16,12 +22,19 @@
 <script lang="ts">
 import {
     reactive, computed, toRefs,
-} from '@vue/composition-api';
+} from 'vue';
 
-import { SelectButtonGroupProps, SelectButtonType } from '@/inputs/buttons/select-button-group/type';
+import PI from '@/foundation/icons/PI.vue';
+import { SELECT_BUTTON_GROUP_THEME } from '@/inputs/buttons/select-button-group/config';
+import type { SelectButtonGroupProps, SelectButtonType } from '@/inputs/buttons/select-button-group/type';
+
+import { secondary } from '@/styles/colors.cjs';
 
 export default {
     name: 'PSelectButtonGroup',
+    components: {
+        PI,
+    },
     props: {
         buttons: {
             type: Array,
@@ -30,6 +43,13 @@ export default {
         selected: {
             type: String,
             default: '',
+        },
+        theme: {
+            type: String,
+            default: SELECT_BUTTON_GROUP_THEME.default,
+            validator(theme) {
+                return Object.keys(SELECT_BUTTON_GROUP_THEME).includes(theme);
+            },
         },
     },
     setup(props: SelectButtonGroupProps, context) {
@@ -57,6 +77,7 @@ export default {
         };
         return {
             ...toRefs(state),
+            secondary,
             onClickButton,
         };
     },
@@ -71,10 +92,9 @@ export default {
         margin-bottom: -0.5rem;
     }
     .select-button {
-        @apply bg-gray-100 border text-gray-900;
+        @apply bg-gray-100 border text-gray-900 rounded-2xl;
         height: 2rem;
         border-color: rgba(theme('colors.gray.400'), 0.7);
-        border-radius: 0.75rem;
         font-size: 0.875rem;
         line-height: 1.6;
         padding-left: 1rem;
@@ -86,6 +106,19 @@ export default {
         }
         &.active {
             @apply border-transparent bg-gray-700 text-white;
+        }
+        &.text {
+            @apply bg-transparent text-gray-500 border-transparent;
+            display: inline-flex;
+            align-items: center;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            &:hover {
+                @apply bg-transparent;
+            }
+            &.active {
+                @apply text-secondary;
+            }
         }
     }
 }

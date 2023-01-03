@@ -6,6 +6,7 @@
                     :backdrop="backdrop"
                     :visible.sync="proxyVisible"
                     :theme-color="themeColor"
+                    :loading="loading"
                     @cancel="cancel"
                     @close="close"
                     @confirm="confirm"
@@ -24,7 +25,7 @@
                         <p-data-table :sortable="true" :items="sortedItems" :fields="fields"
                                       :sort-by.sync="sortBy" :sort-desc.sync="sortDesc"
                         >
-                            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                            <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                                 <slot :name="slot" v-bind="scope" />
                             </template>
                         </p-data-table>
@@ -35,14 +36,19 @@
     </p-button-modal>
 </template>
 <script lang="ts">
-import { reactive, computed, toRefs } from '@vue/composition-api';
-import PButtonModal from '@/feedbacks/modals/button-modal/PButtonModal.vue';
-import PDataTable from '@/data-display/tables/data-table/PDataTable.vue';
-import { makeByEvent, makeProxy } from '@/util/composition-helpers';
-import { sizeMapping } from '@/feedbacks/modals/type';
+import {
+    reactive, computed, toRefs, defineComponent,
+} from 'vue';
+
 import { orderBy } from 'lodash';
 
-export default {
+import PDataTable from '@/data-display/tables/data-table/PDataTable.vue';
+import PButtonModal from '@/feedbacks/modals/button-modal/PButtonModal.vue';
+import { SizeMapping } from '@/feedbacks/modals/type';
+import { makeByEvent, makeProxy } from '@/util/composition-helpers';
+
+
+export default defineComponent({
     name: 'PTableCheckModal',
     components: { PButtonModal, PDataTable },
     props: {
@@ -57,7 +63,7 @@ export default {
         size: {
             type: String,
             default: 'md',
-            validator: value => Object.keys(sizeMapping).includes(value),
+            validator: (value: any) => Object.keys(SizeMapping).includes(value),
         },
         backdrop: {
             type: Boolean,
@@ -71,10 +77,26 @@ export default {
             type: String,
             default: 'primary',
         },
-        headerTitle: String,
-        subTitle: String,
-        fields: Array,
-        items: Array,
+        headerTitle: {
+            type: String,
+            default: undefined,
+        },
+        subTitle: {
+            type: String,
+            default: undefined,
+        },
+        fields: {
+            type: Array,
+            default: undefined,
+        },
+        items: {
+            type: Array,
+            default: undefined,
+        },
+        loading: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, context) {
         const state = reactive({
@@ -103,12 +125,10 @@ export default {
             confirm,
         };
     },
-
-
-};
+});
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .p-table-check-modal-sub-title {
     font-style: normal;
     font-weight: normal;

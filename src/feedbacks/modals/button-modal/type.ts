@@ -1,12 +1,10 @@
-import { Button } from '@/inputs/buttons/button/type';
-
-export enum sizeMapping {
+enum SizeMapping {
     sm = 'modal-sm',
     md = '',
     lg = 'modal-lg',
     xl = 'modal-xl',
 }
-export type ModalSizeType = keyof typeof sizeMapping;
+export type ModalSizeType = keyof typeof SizeMapping;
 
 
 export const THEME_COLORS = [
@@ -19,28 +17,26 @@ export const THEME_COLORS = [
     'safe',
     'alert',
     'gray900',
-    'gray',
-];
+] as const;
 
 export type ModalThemeColor = typeof THEME_COLORS[number];
 
 export interface ButtonModalProps {
-    fade: boolean;
-    scrollable: boolean;
-    size: ModalSizeType;
     visible: boolean; // sync
+    size: ModalSizeType;
     backdrop: boolean;
-
     themeColor: ModalThemeColor;
-    headerVisible: boolean;
-    bodyVisible: boolean;
-    footerVisible: boolean;
-
     headerTitle: string;
-    headerCloseButtonVisible: boolean;
+
+    hideHeader: boolean;
+    hideBody: boolean;
+    hideFooter: boolean;
+
+    hideHeaderCloseButton: boolean;
+    hideFooterCloseButton: boolean;
+    hideFooterConfirmButton: boolean;
+    footerResetButtonVisible: boolean;
 
     loading: boolean;
     disabled: boolean;
-
-    showPopup: boolean;
 }

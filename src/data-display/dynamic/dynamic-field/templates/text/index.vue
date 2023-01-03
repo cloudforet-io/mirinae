@@ -1,17 +1,29 @@
-<script lang="ts">
-import PAnchor from '@/inputs/anchors/PAnchor.vue';
-import { TextOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
-import { TextDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/text/type';
-import { ComponentRenderProxy, getCurrentInstance } from '@vue/composition-api';
-import { TranslateResult } from 'vue-i18n';
+<template>
+    <span class="p-dynamic-field-text">
+        <p-anchor v-if="isAnchor"
+                  v-bind="anchorProps"
+        />
+        <template v-else>{{ text }}</template>
+    </span>
+</template>
 
-export default {
+<script lang="ts">
+import type { PropType } from 'vue';
+import { computed, defineComponent } from 'vue';
+
+import type { TranslateResult } from 'vue-i18n';
+
+import type { TextDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/text/type';
+import type { TextOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
+import PAnchor from '@/inputs/anchors/PAnchor.vue';
+import { commaFormatter } from '@/util/helpers';
+
+export default defineComponent<TextDynamicFieldProps>({
     name: 'PDynamicFieldText',
-    functional: true,
     components: { PAnchor },
     props: {
         options: {
-            type: Object,
+            type: Object as PropType<TextOptions>,
             default: () => ({}),
         },
         data: {
@@ -31,26 +43,35 @@ export default {
             default: undefined,
         },
     },
-    render(h, { props, data }: {props: TextDynamicFieldProps; data: any}) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
-
-        let text: TranslateResult;
-        if (props.data === null || props.data === undefined) {
-            text = props.options.default === undefined ? '' : props.options.default;
-        } else {
-            text = typeof props.data === 'string' ? props.data : JSON.stringify(props.data);
-        }
-
-        let textEl = h('span', data, text);
-
-        if (props.options.link) {
-            textEl = h(PAnchor, {
-                attrs: { href: (props.options as TextOptions).link, target: '_blank' },
-                props: { text, showIcon: !!text },
-            }, [textEl]);
-        }
-
-        return textEl;
+    setup(props) {
+        const isAnchor = computed(() => props.options?.link);
+        const text = computed<TranslateResult|number>(() => {
+            let textValue: TranslateResult|number;
+            if (props.data === null || props.data === undefined) {
+                textValue = props.options?.default === undefined ? '' : props.options?.default;
+            } else if (typeof props.data === 'number') {
+                textValue = commaFormatter(props.data) ?? '';
+            } else {
+                textValue = typeof props.data === 'string' ? props.data : JSON.stringify(props.data);
+            }
+            return `${props.options.prefix ?? ''}${textValue}${props.options.postfix ?? ''}`;
+        });
+        const anchorProps = computed(() => {
+            if (props.options.link) {
+                return {
+                    href: props.options?.link,
+                    target: '_blank',
+                    text: text.value,
+                    showIcon: !!text.value,
+                };
+            }
+            return {};
+        });
+        return {
+            isAnchor,
+            text,
+            anchorProps,
+        };
     },
-};
+});
 </script>

@@ -8,36 +8,45 @@
                 <div class="left">
                     <slot name="toolbox-left" />
                 </div>
-                <div v-if="$slots['toolbox-center']" class="center">
+                <div v-if="$slots['toolbox-center']"
+                     class="center"
+                >
                     <slot name="toolbox-center" />
                 </div>
                 <div class="right">
                     <slot name="toolbox-right" />
-                    <div v-if="paginationVisible" class="tool">
+                    <div v-if="paginationVisible"
+                         class="tool"
+                    >
                         <p-text-pagination
                             :this-page.sync="proxyState.thisPage"
                             :all-page="allPage"
                             @pageChange="changePageNumber"
                         />
                     </div>
-                    <slot v-if="pageSizeVisible" name="page-size">
+                    <slot v-if="pageSizeVisible"
+                          name="page-size"
+                    >
                         <div class="tool">
-                            <p-dropdown-menu-btn
-                                class="page-size-dropdown"
-                                :menu="pageSizeOptions"
-                                @select="changePageSize"
+                            <p-select-dropdown class="page-size-dropdown"
+                                               :items="pageSizeOptions"
+                                               @select="changePageSize"
                             >
                                 {{ proxyState.pageSize }}
-                            </p-dropdown-menu-btn>
+                            </p-select-dropdown>
                         </div>
                     </slot>
-                    <div v-if="excelVisible" class="tool">
+                    <div v-if="excelVisible"
+                         class="tool"
+                    >
                         <p-icon-button
                             name="ic_excel"
                             @click="$emit('clickExcel',$event)"
                         />
                     </div>
-                    <div v-if="refreshVisible" class="tool">
+                    <div v-if="refreshVisible"
+                         class="tool"
+                    >
                         <p-icon-button
                             name="ic_refresh"
                             @click="$emit('clickRefresh', $event)"
@@ -49,23 +58,43 @@
                 <slot name="toolbox-bottom" />
             </div>
         </div>
-        <transition-group name="fade-in" tag="div" class="transition-group">
-            <div v-if="!items || items.length === 0" key="no-data" class="transition-item">
+        <transition-group name="fade-in"
+                          tag="div"
+                          class="transition-group"
+        >
+            <div v-if="!items || items.length === 0"
+                 key="no-data"
+                 class="transition-item"
+            >
                 <slot name="no-data" />
             </div>
-            <div v-else key="grid-layout" class="transition-item">
-                <p-grid-layout v-bind="$props" v-on="$listeners">
-                    <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
-                        <slot :name="slot" v-bind="scope" />
+            <div v-else
+                 key="grid-layout"
+                 class="transition-item"
+            >
+                <p-grid-layout v-bind="$props"
+                               v-on="$listeners"
+                >
+                    <template v-for="(_, slot) of $scopedSlots"
+                              #[slot]="scope"
+                    >
+                        <slot :name="slot"
+                              v-bind="scope"
+                        />
                     </template>
                 </p-grid-layout>
             </div>
-            <div v-if="loading" key="loading" class="loading">
+            <div v-if="loading"
+                 key="loading"
+                 class="loading"
+            >
                 <div class="loading-backdrop fade-in" />
                 <div class="loader">
                     <slot name="loading">
-                        <p-lottie name="thin-spinner" :size="2.5"
-                                  auto class="loading-spinner"
+                        <p-lottie name="thin-spinner"
+                                  :size="2.5"
+                                  auto
+                                  class="loading-spinner"
                         />
                     </slot>
                 </div>
@@ -75,27 +104,29 @@
 </template>
 
 <script lang="ts">
-import { flatMap } from 'lodash';
-import PGridLayout from '@/others/deprecated/grid-layout/PGridLayout.vue';
-import PTextPagination from '@/navigation/pagination/text-pagination/PTextPagination.vue';
-import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
-import PDropdownMenuBtn from '@/inputs/dropdown/dropdown-menu-btn/PDropdownMenuBtn.vue';
 import {
-    ComponentRenderProxy,
     computed, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import { makeOptionalProxy } from '@/util/composition-helpers';
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
+import { flatMap } from 'lodash';
+
 import PLottie from '@/foundation/lottie/PLottie.vue';
-import { ToolboxGridLayoutProps } from '@/others/deprecated/toolbox-grid-layout/type';
+import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+import PSelectDropdown from '@/inputs/dropdown/select-dropdown/PSelectDropdown.vue';
+import PTextPagination from '@/navigation/pagination/text-pagination/PTextPagination.vue';
+import PGridLayout from '@/others/deprecated/grid-layout/PGridLayout.vue';
+import type { ToolboxGridLayoutProps } from '@/others/deprecated/toolbox-grid-layout/type';
+import { makeOptionalProxy } from '@/util/composition-helpers';
 
 export default {
     name: 'PToolboxGridLayout',
     components: {
+        PSelectDropdown,
         PLottie,
         PGridLayout,
         PTextPagination,
         PIconButton,
-        PDropdownMenuBtn,
     },
     events: ['pageChange', 'select', 'clickRefresh'],
     props: {
@@ -183,7 +214,7 @@ export default {
         },
     },
     setup(props: ToolboxGridLayoutProps, context) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const proxyState = reactive({
             thisPage: makeOptionalProxy<number>('thisPage', vm, 1),
@@ -191,7 +222,7 @@ export default {
         });
 
         const state = reactive({
-            pageSizeOptions: computed(() => (flatMap(props.paginationValues, size => ({ type: 'item', label: size, name: size })))),
+            pageSizeOptions: computed(() => (flatMap(props.paginationValues, (size) => ({ type: 'item', label: size, name: size })))),
         });
         const changePageNumber = (page) => {
             proxyState.thisPage = page;

@@ -1,6 +1,9 @@
-import mock from '@/data-display/dynamic/dynamic-layout/mock';
+import type { ArgTypes } from '@storybook/addons';
 
-export const argTypes = {
+import mock, { getQueryTags } from '@/data-display/dynamic/dynamic-layout/mock';
+import { dynamicLayoutTypes } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
+
+export const getDynamicLayoutArgTypes = (): ArgTypes => ({
     name: {
         name: 'name',
         type: { name: 'string' },
@@ -23,19 +26,19 @@ export const argTypes = {
         name: 'type',
         type: { name: 'string' },
         description: 'Type of dynamic layout',
-        defaultValue: 'item',
+        defaultValue: dynamicLayoutTypes[0],
         table: {
             type: {
                 summary: 'string',
             },
             category: 'props',
             defaultValue: {
-                summary: 'item',
+                summary: dynamicLayoutTypes[0],
             },
         },
         control: {
             type: 'select',
-            options: ['item', 'html', 'markdown', 'query-search-table', 'raw-table', 'table', 'simple-table', 'raw'],
+            options: dynamicLayoutTypes,
         },
     },
     options: {
@@ -227,17 +230,17 @@ export const argTypes = {
             type: 'boolean',
         },
     },
-    searchable: {
-        name: 'searchable',
+    settingsVisible: {
+        name: 'settingsVisible',
         type: { name: 'boolean' },
-        defaultValue: true,
+        defaultValue: false,
         table: {
             type: {
                 summary: 'boolean',
             },
             category: 'typeOptions',
             defaultValue: {
-                summary: true,
+                summary: false,
             },
         },
         control: {
@@ -346,6 +349,23 @@ export const argTypes = {
             type: 'object',
         },
     },
+    popupVisible: {
+        name: 'popupVisible',
+        type: { name: 'boolean' },
+        defaultValue: false,
+        table: {
+            type: {
+                summary: 'boolean',
+            },
+            category: 'typeOptions',
+            defaultValue: {
+                summary: false,
+            },
+        },
+        control: {
+            type: 'boolean',
+        },
+    },
     // fetch options
     sortBy: {
         name: 'sortBy',
@@ -418,7 +438,7 @@ export const argTypes = {
     queryTags: {
         name: 'queryTags',
         type: { name: 'array' },
-        defaultValue: [],
+        defaultValue: getQueryTags(),
         table: {
             type: {
                 summary: 'array',
@@ -450,26 +470,10 @@ export const argTypes = {
         },
     },
     // events
-    onInit: {
-        name: 'init',
-        description: `Event emitted just before dynamic layout created.<br/>
-                    The first parameter of the handler is the entire fetch options.`,
-        defaultValue: null,
-        table: {
-            type: {
-                summary: null,
-            },
-            category: 'events',
-            defaultValue: {
-                summary: null,
-            },
-        },
-    },
     onFetch: {
         name: 'fetch',
         description: `An event emitted by an action that needs to retrieve new data, such as a refresh or a change in the page navigation.<br/>
                     The first parameter of the handler is the entire fetch options, and as the second parameter, the fetch options with only the properties changed by the action are passed.`,
-        defaultValue: null,
         table: {
             type: {
                 summary: null,
@@ -483,7 +487,6 @@ export const argTypes = {
     onSelect: {
         name: 'select',
         description: 'An event emitted by an select action.',
-        defaultValue: null,
         table: {
             type: {
                 summary: null,
@@ -495,9 +498,8 @@ export const argTypes = {
         },
     },
     onExport: {
-        name: 'fetch',
+        name: 'export',
         description: 'An event emitted by an export action.',
-        defaultValue: null,
         table: {
             type: {
                 summary: null,
@@ -508,4 +510,43 @@ export const argTypes = {
             },
         },
     },
-};
+    onClickSettings: {
+        name: 'click-settings',
+        description: 'An event emitted by an settings button click action.',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'events',
+            defaultValue: {
+                summary: null,
+            },
+        },
+    },
+    onClickRow: {
+        name: 'click-row',
+        description: 'An event emitted when table row is clicked.',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'events',
+            defaultValue: {
+                summary: null,
+            },
+        },
+    },
+    onUpdatePopupVisible: {
+        name: 'update-popup-visible',
+        description: 'An event emitted when popupVisible typeOptions is updated.',
+        table: {
+            type: {
+                summary: null,
+            },
+            category: 'events',
+            defaultValue: {
+                summary: null,
+            },
+        },
+    },
+});

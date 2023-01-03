@@ -16,10 +16,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from '@vue/composition-api';
-import { makeProxy } from '@/util/composition-helpers';
-import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+import { defineComponent, reactive, toRefs } from 'vue';
+
 import { styleTypes } from '@/feedbacks/notification/config';
+import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+import { makeProxy } from '@/util/composition-helpers';
 
 export default defineComponent({
     name: 'PNotificationBar',

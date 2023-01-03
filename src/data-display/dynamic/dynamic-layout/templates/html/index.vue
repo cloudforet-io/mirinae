@@ -15,19 +15,22 @@
 
 <script lang="ts">
 import {
-    ComponentRenderProxy,
-    computed, getCurrentInstance, reactive, toRefs, watch,
-} from '@vue/composition-api';
-import { get } from 'lodash';
-import { HtmlDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/html/type';
-import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
+    computed, getCurrentInstance, reactive, toRefs,
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
 import DOMPurify from 'dompurify';
+
+import type { HtmlDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/html/type';
+import { getValueByPath } from '@/data-display/dynamic/helper';
+import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
+
 import { iframeStyle } from './style';
 
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
     // set all elements owning target to target=_blank
-    if ('target' in node) {
+    if ('target' in node as never) {
         node.setAttribute('target', '_blank');
         node.setAttribute('rel', 'noopener');
     }
@@ -57,18 +60,18 @@ export default {
             default: undefined,
         },
     },
-    setup(props: HtmlDynamicLayoutProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props: HtmlDynamicLayoutProps) {
+        const vm = getCurrentInstance()?.proxy as Vue;
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
             rootData: computed<any[]>(() => {
                 if (props.options.root_path) {
-                    return get(props.data, props.options.root_path, '');
+                    return getValueByPath(props.data, props.options.root_path) ?? '';
                 }
                 if (typeof props.data !== 'string') return '';
                 return props.data;
             }),
-            iframeData: computed(() => DOMPurify.sanitize(state.rootData, { allowAttributes: { a: ['target'] } })),
+            iframeData: computed(() => DOMPurify.sanitize(state.rootData, { ALLOWED_TAGS: ['a'], ALLOWED_ATTR: ['target'] })),
         });
 
 

@@ -2,11 +2,11 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "target": "es2018",
-    "module": "CommonJS",
+    "module": "esnext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -15,14 +15,17 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "declaration": true,
-    "outDir": "dist",
-    "types": ["webpack-env", "@types/jest"],
+    "types": ["webpack-env", "vitest/globals"],
     "paths": {
       "@/*": ["src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts", "tests/**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
+  "exclude": [
+    "node_modules",
+    "src/assets",
+    "dist",
+    ".out"
+  ]
 }

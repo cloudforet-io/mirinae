@@ -1,5 +1,6 @@
 import { forEach, map } from 'lodash';
-import { tailwindColors } from '@/styles/colors';
+
+import { tailwindColors } from '@/styles/colors.cjs';
 
 
 const styleVariables = map(tailwindColors, (c, n) => {
@@ -39,7 +40,7 @@ tbody td {
 }
 
 a {
-    color: var(--blue-600);
+    color: var(--blue-700);
     line-height: 150%;
     margin-bottom: 1.5rem;
 }

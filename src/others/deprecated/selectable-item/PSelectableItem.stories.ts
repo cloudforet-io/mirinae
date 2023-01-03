@@ -1,8 +1,9 @@
 import {
     select, color, text, boolean,
 } from '@storybook/addon-knobs';
-import PSelectableItem from '@/others/deprecated/selectable-item/PSelectableItem.vue';
+
 import { themes } from '@/others/deprecated/selectable-item/config';
+import PSelectableItem from '@/others/deprecated/selectable-item/PSelectableItem.vue';
 
 export default {
     title: 'Others/Deprecated/Selectable Item',
@@ -44,7 +45,7 @@ export const defaultCase = () => ({
         <div style="width: 80vw;">
             <p-selectable-item v-bind="$props"></p-selectable-item>
         </div>`,
-    setup(props, context) {
+    setup() {
         return {
         };
     },
@@ -94,7 +95,7 @@ export const usingSlots = () => ({
         
         
         </div>`,
-    setup(props, context) {
+    setup() {
         return {
         };
     },

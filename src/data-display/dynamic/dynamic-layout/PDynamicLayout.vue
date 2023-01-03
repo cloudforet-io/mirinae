@@ -8,25 +8,59 @@
                :field-handler="fieldHandler"
                v-on="$listeners"
     >
-        <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+        <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
             <slot :name="slot" v-bind="scope" />
         </template>
     </component>
 </template>
 
 <script lang="ts">
-/* eslint-disable camelcase,vue/prop-name-casing,@typescript-eslint/camelcase */
-
 import {
-    computed, onMounted, reactive, toRefs, watch,
-} from '@vue/composition-api';
-import PSkeleton from '@/feedbacks/loading/skeleton/PSkeleton.vue';
+    defineComponent,
+    onMounted, reactive, toRefs, watch,
+} from 'vue';
+import type { AsyncComponent } from 'vue';
+import type { ImportedComponent } from 'vue/types/options';
+
 import { isEqual } from 'lodash';
-import { DynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/type';
+
+import type { DynamicLayoutType } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
 import { dynamicLayoutTypes } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
+import PSkeleton from '@/feedbacks/loading/skeleton/PSkeleton.vue';
 
-
-export default {
+const componentMap: Record<DynamicLayoutType, AsyncComponent> = {
+    item: () => ({
+        component: import('./templates/item/index.vue') as Promise<ImportedComponent>,
+    }),
+    'simple-table': () => ({
+        component: import('./templates/simple-table/index.vue') as Promise<ImportedComponent>,
+    }),
+    table: () => ({
+        component: import('./templates/table/index.vue') as Promise<ImportedComponent>,
+    }),
+    'query-search-table': () => ({
+        component: import('./templates/query-search-table/index.vue') as Promise<ImportedComponent>,
+    }),
+    raw: () => ({
+        component: import('./templates/raw/index.vue') as Promise<ImportedComponent>,
+    }),
+    markdown: () => ({
+        component: import('./templates/markdown/index.vue') as Promise<ImportedComponent>,
+    }),
+    list: () => ({
+        component: import('./templates/list/index.vue') as Promise<ImportedComponent>,
+    }),
+    'raw-table': () => ({
+        component: import('./templates/raw-table/index.vue') as Promise<ImportedComponent>,
+    }),
+    html: () => ({
+        component: import('./templates/html/index.vue') as Promise<ImportedComponent>,
+    }),
+    popup: () => ({
+        component: import('./templates/popup/index.vue') as Promise<ImportedComponent>,
+    }),
+};
+export default defineComponent({
     name: 'PDynamicLayout',
     components: { PSkeleton },
     props: {
@@ -59,21 +93,19 @@ export default {
             default: undefined,
         },
     },
-    setup(props: DynamicLayoutProps, { emit }) {
-        // noinspection TypeScriptCheckImport
+    setup(props) {
         const state = reactive({
-            component: null as any,
-            loader: computed<() => Promise<any>>(() => () => import(/* webpackMode: "eager" */ `./templates/${props.type}/index.vue`)) as unknown as () => Promise<any>,
+            component: null as null|AsyncComponent,
         });
 
         const getComponent = async () => {
             try {
-                await state.loader();
-
                 if (!dynamicLayoutTypes.includes(props.type)) throw new Error(`[DynamicLayout] Unacceptable Type: layout type must be one of ${dynamicLayoutTypes}. ${props.type} is not acceptable.`);
-                state.component = async () => state.loader();
+
+                state.component = componentMap[props.type];
             } catch (e) {
-                state.component = () => import('./templates/item/index.vue');
+                console.error(e);
+                state.component = componentMap.item;
             }
         };
 
@@ -91,5 +123,5 @@ export default {
             ...toRefs(state),
         };
     },
-};
+});
 </script>

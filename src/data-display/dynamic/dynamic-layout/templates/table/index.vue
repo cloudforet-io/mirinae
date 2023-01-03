@@ -1,22 +1,22 @@
 <template>
     <div class="p-dynamic-layout-table">
-        <p-panel-top v-if="layoutName" class="panel-top"
+        <p-panel-top v-if="layoutName"
+                     class="panel-top"
                      :use-total-count="true"
                      :total-count="totalCount"
         >
             {{ layoutName }}
         </p-panel-top>
-        <p-toolbox-table class="p-search-table"
-                         search-type="plain"
+        <p-toolbox-table search-type="plain"
                          :fields="fields"
                          :items="rootData"
                          :loading="loading"
                          :total-count="totalCount"
-                         :sort-by.sync="sortBy"
-                         :sort-desc.sync="sortDesc"
+                         :sort-by="sortBy"
+                         :sort-desc="sortDesc"
                          :select-index="selectIndex"
-                         :page-size.sync="pageSize"
-                         :search-text.sync="searchText"
+                         :page-size="pageSize"
+                         :search-text="searchText"
                          :selectable="selectable"
                          :multi-select="multiSelect"
                          :invalid="invalid"
@@ -25,31 +25,45 @@
                          :exportable="excelVisible"
                          :settings-visible="settingsVisible"
                          :timezone="timezone"
-                         sortable
+                         :sortable="sortable"
                          use-cursor-loading
                          @change="onChange"
                          @refresh="onChange()"
                          @select="onSelect"
                          @export="onExport"
                          @click-settings="$emit('click-settings')"
+                         @rowLeftClick="onClickRow"
         >
-            <template v-for="({text, description}, headerSlot) of dynamicFieldHeaderSlots" v-slot:[headerSlot]>
+            <template v-for="({text, description}, headerSlot) of dynamicFieldHeaderSlots"
+                      #[headerSlot]
+            >
                 {{ text }}
-                <span :key="`${headerSlot}-description`" class="field-description">{{ $t(description) || description }}</span>
+                <span :key="`${headerSlot}-description`"
+                      class="field-description"
+                >{{ description }}</span>
             </template>
 
-            <template v-for="(item, slotName) of dynamicFieldSlots" v-slot:[slotName]="data">
-                <slot :name="slotName" v-bind="data">
+            <template v-for="(dynamicField, slotName) of dynamicFieldSlots"
+                      #[slotName]="slotProps"
+            >
+                <slot :name="slotName"
+                      v-bind="slotProps"
+                >
                     <p-dynamic-field :key="slotName"
-                                     v-bind="item"
-                                     :data="getValueByPath(rootData[data.index], data.field.name)"
+                                     v-bind="dynamicField"
+                                     :data="getFieldData(slotProps.item, slotProps.field.name, dynamicField)"
                                      :handler="fieldHandler"
                     />
                 </slot>
             </template>
 
-            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
-                <slot v-if="!slot.startsWith('col-')" :name="slot" v-bind="scope" />
+            <template v-for="(_, slot) of $scopedSlots"
+                      #[slot]="scope"
+            >
+                <slot v-if="!slot.startsWith('col-')"
+                      :name="slot"
+                      v-bind="scope"
+                />
             </template>
         </p-toolbox-table>
     </div>
@@ -57,23 +71,25 @@
 
 <script lang="ts">
 /* eslint-disable camelcase */
+import type { PropType } from 'vue';
 import {
-    ComponentRenderProxy,
-    computed, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
-import { DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';
-import {
+    computed, defineComponent, getCurrentInstance, reactive, toRefs,
+} from 'vue';
+
+import PDynamicField from '@/data-display/dynamic/dynamic-field/PDynamicField.vue';
+import type { DynamicFieldHandler, DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';
+import type { DynamicField } from '@/data-display/dynamic/dynamic-field/type/field-schema';
+import type {
     TableDynamicLayoutProps,
 } from '@/data-display/dynamic/dynamic-layout/templates/table/type';
-import { get } from 'lodash';
-import PDynamicField from '@/data-display/dynamic/dynamic-field/PDynamicField.vue';
-import { DynamicField } from '@/data-display/dynamic/dynamic-field/type/field-schema';
-import { Options } from '@/data-display/tables/query-search-table/type';
-import { getValueByPath } from '@/data-display/dynamic/dynamic-layout/helper';
+import type { DynamicLayoutFetchOptions, DynamicLayoutTypeOptions } from '@/data-display/dynamic/dynamic-layout/type';
+import type { TableOptions } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
+import { getValueByPath } from '@/data-display/dynamic/helper';
+import type { Options } from '@/data-display/tables/query-search-table/type';
 import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';
+import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
 
-export default {
+export default defineComponent<TableDynamicLayoutProps>({
     name: 'PDynamicLayoutTable',
     components: {
         PDynamicField,
@@ -86,7 +102,7 @@ export default {
             required: true,
         },
         options: {
-            type: Object,
+            type: Object as PropType<TableOptions>,
             default: () => ({}),
         },
         data: {
@@ -94,20 +110,20 @@ export default {
             default: undefined,
         },
         fetchOptions: {
-            type: Object,
+            type: Object as PropType<DynamicLayoutFetchOptions|undefined>,
             default: undefined,
         },
         typeOptions: {
-            type: Object,
+            type: Object as PropType<DynamicLayoutTypeOptions|undefined>,
             default: undefined,
         },
         fieldHandler: {
-            type: Function,
+            type: Function as PropType<DynamicFieldHandler|undefined>,
             default: undefined,
         },
     },
-    setup(props: TableDynamicLayoutProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props, { emit }) {
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
@@ -115,7 +131,7 @@ export default {
             fields: computed(() => {
                 if (!props.options.fields) return [];
 
-                return props.options.fields.map(ds => ({
+                return props.options.fields.map((ds) => ({
                     name: ds.key,
                     label: ds.name,
                     sortable: typeof ds.options?.sortable === 'boolean' ? ds.options.sortable : true,
@@ -124,6 +140,7 @@ export default {
                     width: ds.options?.width,
                 }));
             }),
+            searchable: computed(() => !props.options.disable_search),
 
             /** get data from typeOptions prop */
             timezone: computed(() => props.typeOptions?.timezone || 'UTC'),
@@ -135,23 +152,24 @@ export default {
             multiSelect: computed(() => (props.typeOptions?.multiSelect === undefined ? true : props.typeOptions.multiSelect)),
             invalid: computed(() => (props.typeOptions?.invalid || false)),
             colCopy: computed(() => (props.typeOptions?.colCopy || false)),
-            searchable: computed(() => (props.typeOptions?.searchable === undefined ? true : props.typeOptions.searchable)),
             excelVisible: computed(() => (props.typeOptions?.excelVisible === undefined ? true : props.typeOptions.excelVisible)),
             settingsVisible: computed(() => props.typeOptions?.settingsVisible || false),
+            sortable: computed(() => (props.typeOptions?.sortable ?? true)),
 
             /** get data from fetch options */
-            sortBy: props.fetchOptions?.sortBy || '',
-            sortDesc: props.fetchOptions?.sortDesc || true,
-            pageSize: props.fetchOptions?.pageLimit || 15,
-            searchText: props.fetchOptions?.searchText || '',
+            sortBy: computed(() => props.fetchOptions?.sortBy || ''),
+            sortDesc: computed(() => props.fetchOptions?.sortDesc || true),
+            pageSize: computed(() => props.fetchOptions?.pageLimit || 15),
+            searchText: computed(() => props.fetchOptions?.searchText || ''),
 
             /** others */
             pageStart: 1,
             rootData: computed<any[]>(() => {
-                if (Array.isArray(props.data)) return props.data;
-                if (typeof props.data === 'object' && props.options.root_path) {
-                    return get(props.data, props.options.root_path, []);
+                if (props.options.root_path) {
+                    const rootData = getValueByPath(props.data, props.options.root_path) ?? [];
+                    return Array.isArray(rootData) ? rootData : [rootData];
                 }
+                if (Array.isArray(props.data)) return props.data;
                 return [];
             }),
             dynamicFieldHeaderSlots: computed(() => {
@@ -183,6 +201,8 @@ export default {
 
                     if (field.type === 'datetime') {
                         item.typeOptions = { timezone: state.timezone };
+                    } else if (field.type === 'more') {
+                        item.typeOptions = { displayKey: field.key };
                     }
 
                     res[`col-${i}-format`] = item;
@@ -191,6 +211,13 @@ export default {
                 return res;
             }),
         });
+
+        const getFieldData = (rowData, dataPath: string, { type }: DynamicFieldProps): any => {
+            if (type === 'more') {
+                return rowData;
+            }
+            return getValueByPath(rowData, dataPath);
+        };
 
         const onSelect = (selectIndex: number[]) => {
             if (!props.typeOptions?.selectIndex) state.selectIndex = selectIndex;
@@ -205,28 +232,29 @@ export default {
             emit('fetch', options);
         };
 
+        const onClickRow = (_, index) => {
+            emit('click-row', index);
+        };
+
         return {
             ...toRefs(state),
             onChange,
             onSelect,
             onExport,
-            getValueByPath,
+            getFieldData,
+            onClickRow,
         };
     },
-};
+});
 </script>
 <style lang="postcss">
 .p-dynamic-layout-table {
-    .panel-top {
-        margin: 0.5rem 0 0;
-    }
-    .p-search-table {
+    .p-toolbox-table {
         height: 100%;
         border-width: 0;
     }
     .field-description {
         @apply text-gray-400;
-        margin-left: 0.25rem;
     }
 }
 </style>

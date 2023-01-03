@@ -61,6 +61,7 @@ export default {
 .vue-notification-group {
     overflow: unset;
     margin: 0 2rem;
+    z-index: 10000;
 }
 .vue-notification-wrapper {
     margin: 1rem 0;
@@ -74,10 +75,9 @@ export default {
 }
 
 .p-notice-alert {
-    @apply bg-white shadow-2xl box-border border border-gray-200;
+    @apply bg-white shadow-2xl box-border border border-gray-200 rounded-lg;
     min-height: 10rem;
     box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.08);
-    border-radius: 0.1875rem;
     padding: 1.5rem;
     .title {
         @apply text-gray-900;

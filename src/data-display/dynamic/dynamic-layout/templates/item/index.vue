@@ -3,11 +3,16 @@
         <p-panel-top v-if="layoutName">
             {{ layoutName }}
         </p-panel-top>
-        <p-definition-table :fields="fields" :data="rootData" :loading="loading"
+        <p-definition-table :fields="fields"
+                            :data="rootData"
+                            :loading="loading"
                             v-on="$listeners"
         >
-            <template v-for="(item, slotName) of dynamicFieldSlots" v-slot:[slotName]="slotProps">
-                <p-dynamic-field :key="slotName" v-bind="item"
+            <template v-for="(item, slotName) of dynamicFieldSlots"
+                      #[slotName]
+            >
+                <p-dynamic-field :key="slotName"
+                                 v-bind="item"
                                  :handler="fieldHandler"
                 />
             </template>
@@ -17,20 +22,17 @@
 
 <script lang="ts">
 import {
-    ComponentRenderProxy,
     computed, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import { get } from 'lodash';
-import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
-import PDefinitionTable from '@/data-display/tables/definition-table/PDefinitionTable.vue';
-import { DefinitionData, DefinitionField } from '@/data-display/tables/definition-table/type';
-import {
-    ItemDynamicLayoutProps, ItemFetchOptions,
-} from '@/data-display/dynamic/dynamic-layout/templates/item/type';
-import { DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';
+} from 'vue';
+
 import PDynamicField from '@/data-display/dynamic/dynamic-field/PDynamicField.vue';
-import { DynamicField, ListOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
-import { getValueByPath } from '@/data-display/dynamic/dynamic-layout/helper';
+import type { DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';
+import type { DynamicField } from '@/data-display/dynamic/dynamic-field/type/field-schema';
+import type { ItemDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/item/type';
+import { getValueByPath } from '@/data-display/dynamic/helper';
+import PDefinitionTable from '@/data-display/tables/definition-table/PDefinitionTable.vue';
+import type { DefinitionData, DefinitionField } from '@/data-display/tables/definition-table/type';
+import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
 
 export default {
     name: 'PDynamicLayoutItem',
@@ -65,46 +67,37 @@ export default {
             default: undefined,
         },
     },
-    setup(props: ItemDynamicLayoutProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props: ItemDynamicLayoutProps) {
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
             fields: computed<DefinitionField[]>(() => {
                 if (!props.options.fields) return [];
                 const locale = vm.$i18n.locale;
-                return props.options.fields.map((d, i) => {
-                    const res = {
-                        label: d.options?.translation_id ? vm.$t(d.options.translation_id as string, locale) : d.name,
-                        name: d.key,
-                    } as DefinitionField;
-
-                    // in case of type 'list', it generate html elements recursively.
-                    // it can cause definition's 'showCopy'(flag for showing or not copy button) works wrong.
-                    // so should check there is copiable value, and give the result to each field's 'disableCopy' property.
-                    if (d.type === 'list') {
-                        // eslint-disable-next-line camelcase
-                        const subKey = (d.options as ListOptions)?.sub_key as string;
-                        const matchedData = get(state.rootData, d.key);
-                        if (Array.isArray(matchedData)) {
-                            res.disableCopy = matchedData.some(data => !get(data, subKey));
-                        } else {
-                            res.disableCopy = !get(matchedData, subKey);
-                        }
-                    }
-                    return res;
-                });
+                return props.options.fields.map((d) => ({
+                    label: d.options?.translation_id ? vm.$t(d.options.translation_id as string, locale) : d.name,
+                    name: d.key,
+                    disableCopy: !!d.options?.disable_copy,
+                } as DefinitionField));
             }),
             rootData: computed<DefinitionData>(() => {
                 if (props.options.root_path) {
-                    return get(props.data, props.options.root_path, {});
+                    return getValueByPath(props.data, props.options.root_path) ?? {};
                 }
                 if (Array.isArray(props.data) || typeof props.data === 'string') return {};
                 return props.data;
             }),
-            loading: computed(() => (props.typeOptions === undefined ? undefined : props.typeOptions.loading)),
-            timezone: computed(() => props.typeOptions?.timezone || 'UTC'),
+            loading: computed<boolean|undefined>(() => (props.typeOptions === undefined ? undefined : props.typeOptions.loading)),
+            timezone: computed<string>(() => props.typeOptions?.timezone || 'UTC'),
         });
+
+        const getFieldData = (rootData, dataPath: string, type?: string): any => {
+            if (type === 'more') {
+                return rootData;
+            }
+            return getValueByPath(rootData, dataPath);
+        };
 
         const dynamicFieldSlots = computed(() => {
             const res = {};
@@ -115,13 +108,15 @@ export default {
                     type: ds.type || 'text',
                     options: { ...ds.options },
                     extraData: { ...ds, index: i },
-                    data: getValueByPath(state.rootData, ds.key),
+                    data: getFieldData(state.rootData, ds.key, ds.type),
                 };
 
                 if (item.options.translation_id) delete item.options.translation_id;
 
                 if (ds.type === 'datetime') {
                     item.typeOptions = { timezone: state.timezone };
+                } else if (ds.type === 'more') {
+                    item.typeOptions = { displayKey: ds.key };
                 }
 
                 res[`data-${i}`] = item;

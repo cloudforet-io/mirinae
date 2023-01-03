@@ -1,9 +1,11 @@
 import {
     toRefs, reactive, watch,
-} from '@vue/composition-api';
+} from 'vue';
+
 import {
     boolean,
 } from '@storybook/addon-knobs';
+
 import PChartLoader from './PChartLoader.vue';
 
 export default {
@@ -32,7 +34,7 @@ export const defaultCase = () => ({
             <canvas ref="chartRef" style="height: 100%; width: 100%;" />
         </p-chart-loader>
     </div>`,
-    setup(props, context) {
+    setup(props) {
         const state = reactive({
             chartRef: null,
         });

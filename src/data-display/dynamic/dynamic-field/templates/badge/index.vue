@@ -1,10 +1,11 @@
 <script lang="ts">
 import PBadge from '@/data-display/badges/PBadge.vue';
-import { BadgeOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
-import { BadgeDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/badge/type';
-import { Badge, BADGE_SHAPE } from '@/data-display/badges/type';
-import { getColor } from '@/util/helpers';
+import type { Badge } from '@/data-display/badges/type';
+import { BADGE_SHAPE } from '@/data-display/badges/type';
+import type { BadgeDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/badge/type';
+import type { BadgeOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
 import PAnchor from '@/inputs/anchors/PAnchor.vue';
+import { commaFormatter, getColor } from '@/util/helpers';
 
 export default {
     name: 'PDynamicFieldBadge',
@@ -48,9 +49,10 @@ export default {
             badgeProps.textColor = getColor(options.text_color);
         }
 
-        let badgeEl = props.data === undefined || props.data === null ? props.options.default : props.data;
-
+        let badgeEl = props.data ?? props.options.default;
         if (badgeEl === undefined || badgeEl === null) return undefined;
+        if (typeof badgeEl === 'number') badgeEl = commaFormatter(badgeEl);
+        badgeEl = `${options.prefix ?? ''}${badgeEl}${options.postfix ?? ''}`;
 
         if (options.link) {
             badgeEl = [h(PAnchor, {
@@ -58,7 +60,15 @@ export default {
             }, badgeEl)];
         }
 
-        return h(PBadge, { props: badgeProps }, badgeEl);
+        return h(PBadge, { props: badgeProps, class: { 'p-dynamic-field-badge': true } }, badgeEl);
     },
 };
 </script>
+
+<style lang="postcss">
+.p-dynamic-field-badge {
+    .p-anchor {
+        font-size: inherit;
+    }
+}
+</style>

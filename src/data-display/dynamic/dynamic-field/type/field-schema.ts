@@ -1,9 +1,8 @@
-/* eslint-disable camelcase */
-
-
 /** Metadata schema types for Dynamic field */
+// eslint-disable-next-line import/no-cycle
+import type { DynamicLayout } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
 
-export const dynamicFieldTypes = ['text', 'badge', 'datetime', 'state', 'enum', 'size', 'dict', 'list'];
+export const dynamicFieldTypes = ['text', 'badge', 'datetime', 'state', 'enum', 'size', 'dict', 'list', 'more'];
 
 export type DynamicFieldType = typeof dynamicFieldTypes[number];
 
@@ -15,9 +14,11 @@ export interface CommonOptions {
     translation_id?: string;
     default?: any;
     delimiter?: string;
+    is_optional?: boolean;
+    field_description?: string;
     postfix?: string;
     prefix?: string;
-    field_description?: string;
+    disable_copy?: boolean;
 }
 
 export interface BadgeOptions extends CommonOptions {
@@ -52,6 +53,11 @@ export interface StateOptions extends CommonOptions {
     text_color?: string;
 }
 
+export interface MoreOptions extends CommonOptions {
+    sub_key?: string;
+    layout: DynamicLayout;
+}
+
 export interface EnumItem {
     name?: string;
     type: DynamicFieldType;
@@ -65,7 +71,7 @@ export type EnumOptions = {
 } | {
     items?: Record<string, EnumValue>;
     default?: any;
-} & CommonOptions
+} & CommonOptions;
 
 export interface SizeOptions extends CommonOptions {
     display_unit?: 'BYTES | KB | MB | GB | TB | PB';
@@ -73,9 +79,9 @@ export interface SizeOptions extends CommonOptions {
 }
 
 
-export type DictOptions = CommonOptions
+export type DictOptions = CommonOptions;
 
-export type TextOptions = CommonOptions
+export type TextOptions = CommonOptions;
 
 
 export type DynamicFieldOptions =
@@ -87,11 +93,12 @@ export type DynamicFieldOptions =
     | StateOptions
     | TextOptions
     | SizeOptions
+    | MoreOptions;
 
 
 export interface DynamicField {
     key: string;
-    name: string;
+    name?: string;
     type: DynamicFieldType;
     options?: DynamicFieldOptions;
 }

@@ -1,13 +1,14 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const path = require('path');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpackBundleAnalyzer = require('webpack-bundle-analyzer');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const postcssConfig = require('./postcss.config');
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const postcssConfig = require('./postcss.config.cjs');
 
 
 /** ********************************************
  *     Set additional environment variables    *
  * ******************************************* */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 
@@ -48,7 +49,9 @@ module.exports = {
         loaderOptions: {
             postcss: postcssConfig,
             sass: {
-                includePaths: ['./node_modules'],
+                sassOptions: {
+                    includePaths: ['./node_modules'],
+                },
             },
         },
         extract: false,
@@ -58,6 +61,18 @@ module.exports = {
         plugins: [
             ...extraPlugins,
         ],
+        /*
+        Below is a code that removes unnecessary modules to bundling.
+        The modules that are removed are modules that are already installed in the application or too large.
+         Related issue: https://github.com/amcharts/amcharts4/issues/82#issuecomment-607546562
+         */
+        // eslint-disable-next-line consistent-return
+        externals(context, request, callback) {
+            if (/^vue$|@vue\/vue-router|vue-i18n|vue-fragment|@amcharts/.test(request)) {
+                return callback(null, `commonjs ${request}`);
+            }
+            callback();
+        },
         module: {
             rules: [
                 {
@@ -95,16 +110,6 @@ module.exports = {
                 opts.configFile = 'tsconfig.build.json';
                 return opts;
             });
-
-        config.externals([
-            '@vue/composition-api',
-            'vue-i18n',
-            'vue-svgicon',
-            'velocity-animate',
-            'vue-notification',
-            'vue-fragment',
-            'v-tooltip',
-        ]);
     },
     parallel: false,
 };

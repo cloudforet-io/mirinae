@@ -22,6 +22,7 @@
 
 <script lang="ts">
 import { merge } from 'lodash';
+
 import PTooltip from '@/data-display/tooltips/PTooltip.vue';
 import PButton from '@/inputs/buttons/button/PButton.vue';
 
@@ -56,8 +57,8 @@ export default {
         theme: {
             type: String,
             default: 'primary-dark',
-            validator(theme) {
-                return ['primary-dark', 'transparent'];
+            validator(theme: any) {
+                return ['primary-dark', 'transparent'].includes(theme);
             },
         },
     },
@@ -81,10 +82,9 @@ export default {
     }
 }
 .tooltip-btn {
-    @apply text-primary4;
+    @apply text-primary4 rounded-sm;
     display: inline-block;
     padding: 0;
-    border-radius: 2px;
     border: 0;
     min-width: 32px;
     line-height: 1;

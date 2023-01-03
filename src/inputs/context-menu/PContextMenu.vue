@@ -1,354 +1,433 @@
 <template>
-    <div ref="contextMenu" class="p-context-menu"
-         :class="theme"
-         :style="{...autoHeightStyle,...contextMenuStyle}"
-         @keyup.esc="onEsc"
+    <div class="p-context-menu"
+         @keyup.esc="onClickEsc"
     >
-        <slot v-if="menu.length === 0" name="no-data" v-bind="{...$props, uuid}">
-            <div key="no-data" class="context-content context-item no-drag empty" :class="theme">
-                <slot name="no-data-format" v-bind="{...$props, uuid}">
+        <div class="menu-container">
+            <slot v-show="menu.length > 0"
+                  name="menu"
+                  v-bind="{...$props}"
+            >
+                <div v-if="showSelectHeader && multiSelectable"
+                     class="selected-list-wrapper"
+                >
+                    <div>
+                        <b>{{ $t('COMPONENT.CONTEXT_MENU.SELECTED_LIST') }}</b>
+                        <span class="pl-2">({{ selectedCount }})</span>
+                    </div>
+                    <p-button size="sm"
+                              style-type="primary"
+                              :disabled="!proxySelected.length"
+                              @click="$emit('click-done', $event)"
+                    >
+                        {{ $t('COMPONENT.CONTEXT_MENU.DONE') }}
+                    </p-button>
+                </div>
+                <div v-if="searchable"
+                     class="search-wrapper"
+                >
+                    <p-search :value="searchText"
+                              :is-focused.sync="isFocusedOnSearch"
+                              @update:value="handleUpdateSearchText"
+                              @keydown.up.native="onKeyUp()"
+                              @keydown.down.native="onKeyDown()"
+                    />
+                </div>
+                <p-text-button v-if="showClearSelection && multiSelectable"
+                               class="clear-all-wrapper"
+                               style-type="highlight"
+                               size="sm"
+                               @click.stop="handleClickClearSelection"
+                >
+                    {{ $t('COMPONENT.CONTEXT_MENU.CLEAR_SELECTION') }} ({{ selectedCount }})
+                </p-text-button>
+                <slot name="items">
+                    <template v-for="(item, index) in menu">
+                        <p-context-menu-item v-if="item.type === undefined || item.type === 'item'"
+                                             :id="getItemId(index)"
+                                             :key="`item-${item.name}-${index}`"
+                                             :name="item.name"
+                                             :label="item.label"
+                                             :link="item.link"
+                                             :target="item.target"
+                                             :disabled="item.disabled"
+                                             :selected="!noSelectIndication && selectedNameMap[item.name] !== undefined"
+                                             :select-marker="multiSelectable ? 'checkbox' : (showRadioIcon ? 'radio' : undefined)"
+                                             :ellipsis="itemHeightFixed"
+                                             :highlight-term="highlightTerm"
+                                             :tabindex="index"
+                                             @click.stop="onClickMenu(item, index, $event)"
+                                             @keyup.enter="onClickMenu(item, index, $event)"
+                                             @keydown.up="onKeyUp(index)"
+                                             @keydown.down="onKeyDown(index)"
+                        >
+                            <template #default>
+                                <slot name="item--format"
+                                      v-bind="{...$props, item, index}"
+                                />
+                            </template>
+                            <template #text-list="{text, matched, textList, regex, index: textIndex}">
+                                <slot name="item-text-list"
+                                      v-bind="{...$props, item, index, text, matched, textList, regex, textIndex}"
+                                />
+                            </template>
+                        </p-context-menu-item>
+                        <div v-else-if="item.type==='divider'"
+                             :key="`divider-${index}`"
+                             class="context-divider"
+                        />
+                        <slot v-else-if="item.type==='header'"
+                              :name="`header-${item.name}`"
+                              v-bind="{...$props, item, key: index}"
+                        >
+                            <div :key="index"
+                                 class="context-header"
+                            >
+                                {{ item.label }}
+                            </div>
+                        </slot>
+                        <div v-else-if="item.type === 'button'"
+                             :key="`button-${index}`"
+                             class="context-button"
+                             :class="{disabled: item.disabled}"
+                        >
+                            <p-button :disabled="item.disabled"
+                                      size="md"
+                                      style-type="secondary"
+                                      :block="true"
+                                      :icon-left="item.icon"
+                                      @click="$emit('click-button', item, index, $event)"
+                            >
+                                {{ item.label }}
+                            </p-button>
+                        </div>
+                        <div v-else-if="item.type === 'showMore'"
+                             :key="`show-more-${index}`"
+                             class="context-show-more"
+                        >
+                            <p-text-button style-type="highlight"
+                                           size="sm"
+                                           icon-right="ic_arrow_bottom"
+                                           :disabled="loading"
+                                           @click="$emit('click-show-more', item, index, $event)"
+                            >
+                                {{ item.label ? item.label : $t('COMPONENT.CONTEXT_MENU.SHOW_MORE') }}
+                            </p-text-button>
+                        </div>
+                    </template>
+                </slot>
+                <div v-if="$slots.bottom"
+                     class="bottom-slot-area"
+                >
+                    <slot name="bottom" />
+                </div>
+            </slot>
+            <div v-show="menu.length === 0"
+                 class="no-data"
+            >
+                <slot name="no-data-format"
+                      v-bind="{...$props}"
+                >
                     {{ $t('COMPONENT.CONTEXT_MENU.NO_ITEM') }}
                 </slot>
             </div>
-        </slot>
-        <slot v-else name="menu" v-bind="{...$props, uuid}">
-            <template v-for="(item, index) in menu">
-                <slot v-if="item.type==='item'" name="item" v-bind="{...$props, uuid, item, index}">
-                    <slot :name="`item-${item.name}`" v-bind="{...$props, uuid, item, index}">
-                        <a :id="`context-item-${index}-${uuid}`"
-                           :key="`${item.name}-${index}`"
-                           :tabindex="index"
-                           class="context-content context-item no-drag"
-                           :class="{ disabled: item.disabled, [theme]: true }"
-                           :href="item.disabled ? undefined : item.link"
-                           :target="item.target"
-                           @click.stop="menuClick(item.name, index, $event)"
-                           @keydown.up="onUpKey(index)"
-                           @keydown.down="onDownKey(index)"
-                           @keyup.enter="menuClick(item.name, index, $event)"
-                        >
-                            <slot name="item--format" v-bind="{...$props, uuid, item, index}">
-                                <slot :name="`item-${item.name}-format`" v-bind="{...$props, uuid, item, index}">
-                                    <span>{{ item.label }}</span>
-                                    <p-i v-if="item.target === '_blank'" class="external-link-icon" name="ic_external-link"
-                                         width="0.875rem" height="0.875rem"
-                                    />
-                                </slot>
-                            </slot>
-                        </a>
-                    </slot>
-                </slot>
-                <slot v-else-if="item.type==='info'" name="info">
-                    <slot name="info--format" />
-                </slot>
-                <slot v-else-if="item.type==='divider'" name="divider" v-bind="{...$props, uuid, item, index}">
-                    <slot :name="`divider-${item.name}`" v-bind="{...$props, uuid, item, index}">
-                        <div :key="index" class="context-divider"
-                             @click.stop
-                        />
-                    </slot>
-                </slot>
-                <slot v-else-if="item.type==='header'" name="header" v-bind="{...$props, uuid, item, index}">
-                    <slot :name="`header-${item.name}`" v-bind="{...$props, uuid, item, key: index}">
-                        <div :key="index" class="context-content context-header no-drag"
-                             :class="theme"
-                             @click.stop
-                        >
-                            <slot name="header--format" v-bind="{...$props, uuid, item, index}">
-                                <slot :name="`header-${item.name}-format`" v-bind="{...$props, uuid, item, index}">
-                                    {{ item.label }}
-                                </slot>
-                            </slot>
-                        </div>
-                    </slot>
-                </slot>
-            </template>
-        </slot>
-
-        <slot v-if="loading" name="loading" v-bind="{...$props, uuid}">
-            <div key="loading" class="loader">
-                <slot name="loading-format" v-bind="{...$props, uuid}">
-                    <p-lottie name="thin-spinner" auto :size="1" />
-                </slot>
-            </div>
-        </slot>
+        </div>
+        <div v-show="loading"
+             class="loader-wrapper"
+        >
+            <div class="loader-backdrop" />
+            <p-spinner class="loader" />
+        </div>
     </div>
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import {
-    computed, ref, onMounted, defineComponent, reactive, toRefs,
-} from '@vue/composition-api';
+    computed, defineComponent, onUnmounted, reactive, toRefs, watch,
+} from 'vue';
 
-import PLottie from '@/foundation/lottie/PLottie.vue';
-import PI from '@/foundation/icons/PI.vue';
-
-import { ContextMenuProps, CONTEXT_MENU_THEME } from '@/inputs/context-menu/type';
+import PSpinner from '@/feedbacks/loading/spinner/PSpinner.vue';
+import { useListFocus } from '@/hooks/list-focus';
+import { useProxyValue } from '@/hooks/proxy-state';
+import PButton from '@/inputs/buttons/button/PButton.vue';
+import PTextButton from '@/inputs/buttons/text-button/PTextButton.vue';
+import PContextMenuItem from '@/inputs/context-menu/context-menu-item/PContextMenuItem.vue';
+import type { ContextMenuProps, MenuItem } from '@/inputs/context-menu/type';
+import PSearch from '@/inputs/search/search/PSearch.vue';
 import { i18n } from '@/translations';
 
-export default defineComponent({
+
+const getFilteredSelectedItems = (selected: MenuItem[], menu: MenuItem[]): MenuItem[] => {
+    const filtered = selected.filter((d) => menu.find((item) => item.name === d.name));
+    if (filtered.length === selected.length) return selected;
+    return filtered;
+};
+
+const FOCUS_GROUP_ID = 'context-item';
+
+export default defineComponent<ContextMenuProps>({
     name: 'PContextMenu',
-    components: { PLottie, PI },
+    components: {
+        PSearch,
+        PTextButton,
+        PSpinner,
+        PContextMenuItem,
+        PButton,
+    },
     i18n,
     props: {
         menu: {
-            type: [Array, Object],
+            type: Array as PropType<MenuItem[]>,
             default: () => [],
-        },
-        theme: {
-            type: String,
-            default: 'secondary',
-            validator(theme) {
-                return Object.keys(CONTEXT_MENU_THEME).includes(theme as any);
-            },
         },
         loading: {
             type: Boolean,
             default: false,
         },
-        autoHeight: {
+        selected: {
+            type: Array as PropType<MenuItem[]>,
+            default: () => [],
+        },
+        multiSelectable: {
             type: Boolean,
             default: false,
         },
-        useCustomStyle: {
+        showRadioIcon: {
             type: Boolean,
             default: false,
         },
-        position: {
+        strictSelectMode: {
+            type: Boolean,
+            default: false,
+        },
+        itemHeightFixed: {
+            type: Boolean,
+            default: false,
+        },
+        highlightTerm: {
             type: String,
-            default: null,
+            default: '',
         },
-        offsetTop: {
-            type: Number,
-            default: null,
+        noSelectIndication: {
+            type: Boolean,
+            default: false,
         },
-        width: {
-            type: Number,
-            default: null,
+        showSelectHeader: {
+            type: Boolean,
+            default: false,
         },
-        height: {
-            type: Number,
-            default: null,
+        showClearSelection: {
+            type: Boolean,
+            default: false,
+        },
+        searchable: {
+            type: Boolean,
+            default: false,
         },
     },
-    setup(props: ContextMenuProps, { emit }) {
+    setup(props, { emit }) {
         const state = reactive({
-            contextMenu: null as HTMLElement|null,
-            contextMenuStyle: computed(() => {
-                if (!state.contextMenu || !props.useCustomStyle) return {};
-                const contextMenuStyle: any = {
-                    position: 'fixed',
-                    minWidth: 'auto',
-                    width: `${props.width}px`,
-                };
-                if (props.position === 'top') contextMenuStyle.top = `calc(${props.offsetTop}px + ${props.height}px)`;
-                if (props.position === 'bottom') contextMenuStyle.bottom = `calc(100vh - ${props.offsetTop}px)`;
-                return contextMenuStyle;
+            searchText: '',
+            isFocusedOnSearch: false,
+            proxySelected: useProxyValue<MenuItem[]>('selected', props, emit),
+            selectedNameMap: computed<Record<string, number>>(() => {
+                const selectedMap = {};
+                state.proxySelected.forEach((item, idx) => {
+                    selectedMap[item.name] = idx;
+                });
+                return selectedMap;
             }),
-            contextMenuHeight: 0,
-            autoHeightStyle: computed(() => {
-                if (props.autoHeight && state.contextMenuHeight) {
-                    return {
-                        maxHeight: `${state.contextMenuHeight}px`,
-                        overflowY: 'auto',
-                    };
-                } return {};
+            selectableMenuItems: computed(() => props.menu.filter((d) => !d.disabled && (d.type === undefined || d.type === 'item'))),
+            selectedCount: computed(() => {
+                if (props.strictSelectMode) return state.selectableMenuItems.filter((d) => state.selectedNameMap[d.name] !== undefined).length;
+                return state.proxySelected.length;
             }),
-        });
-        onMounted(() => {
-            if (!props.autoHeight || !props.useCustomStyle) return;
-            const winHeight = window.innerHeight;
-            if (props.position === 'top') state.contextMenuHeight = winHeight - props.offsetTop - props.height - 12;
-            if (props.position === 'bottom') state.contextMenuHeight = props.offsetTop - 12;
+            menuItemLength: computed(() => props.menu.filter((d) => d.type === undefined || d.type === 'item').length),
         });
 
-        let focusedEl: HTMLElement|null = null;
-        const uuid = `${Math.random()}`.slice(2);
-        const menuClick = (itemName, index, event) => {
-            if (!props.menu[index].disabled) {
-                emit(`${itemName}:select`, index, event);
-                emit('select', itemName, index);
-            }
-        };
-        const itemsIndex = computed<number[]>(() => {
-            const idxs: number[] = [];
-            for (let i = 0; i < Object.keys(props.menu).length; i++) {
-                if (props.menu[i].type === 'item' && !props.menu[i].disabled) idxs.push(i);
-            }
-            return idxs;
-        });
+
+        const {
+            focus: _focus, blur: _blur, handleMoveUp, handleMoveDown, getItemId,
+        } = useListFocus<MenuItem>(computed(() => props.menu), FOCUS_GROUP_ID, (item) => (!item.type || item.type === 'item') && !item.disabled);
+
+        /* util */
         const focus = (position) => {
-            const idx = position === -1 ? itemsIndex.value[itemsIndex.value.length - 1] : itemsIndex.value[position || 0];
-            const el = document.getElementById(`context-item-${idx}-${uuid}`);
-            if (el) {
-                el.focus();
-                focusedEl = el;
-                emit('focus', idx);
-            }
+            const focusedIdx = _focus(position);
+            if (focusedIdx !== undefined) emit('focus', focusedIdx);
         };
         const blur = () => {
-            if (focusedEl) {
-                focusedEl.blur();
-                focusedEl = null;
-            }
+            _blur();
             emit('blur');
         };
-        const onUpKey = (idx: number) => {
-            const pos = itemsIndex.value.indexOf(idx);
-            if (pos !== 0) {
-                focus(pos - 1);
-            } else {
+
+        /* event */
+        const onKeyUp = (idx?: number) => {
+            // this case is from search element
+            if (idx === undefined) {
+                if (props.searchable) state.isFocusedOnSearch = false;
                 emit('keyup:up:end');
-                blur();
+                return;
+            }
+
+            // event from context menu item
+            const focusedIdx = handleMoveUp(idx);
+            if (focusedIdx === undefined) {
+                // if no items for focus left, focus on search element in searchable case.
+                if (props.searchable) state.isFocusedOnSearch = true;
+                else emit('keyup:up:end');
             }
         };
-        const onDownKey = (idx) => {
-            const pos = itemsIndex.value.indexOf(idx) + 1;
-            if (pos !== itemsIndex.value.length) {
-                focus(pos);
+        const onKeyDown = (idx?: number) => {
+            // this case is from search element
+            if (idx === undefined) {
+                if (props.searchable) focus(0);
+                return;
+            }
+
+            // event from context menu item
+            const focusedIdx = handleMoveDown(idx);
+            if (focusedIdx === undefined) emit('keyup:down:end');
+        };
+        const onClickMenu = (item: MenuItem, index, event) => {
+            if (item.disabled) return;
+
+            if (props.multiSelectable) {
+                if (state.selectedNameMap[item.name ?? ''] !== undefined) {
+                    const indexOfSelected = state.selectedNameMap[item.name ?? ''];
+                    state.proxySelected.splice(indexOfSelected, 1);
+                    state.proxySelected = [...state.proxySelected];
+                } else {
+                    state.proxySelected.splice(state.proxySelected.length - 1, 0, item);
+                    state.proxySelected = [...state.proxySelected];
+                }
             } else {
-                emit('keyup:down:end');
-                blur();
+                state.proxySelected = [item];
             }
+
+            emit(`${item.name}:select`, index, event);
+            emit('select', item, index);
         };
-        const onEsc = (e) => {
+        const onClickEsc = (e) => {
             emit('keyup:esc', e);
             blur();
         };
+        const handleClickClearSelection = () => {
+            state.proxySelected = [];
+        };
+        const handleUpdateSearchText = async (value: string) => {
+            state.searchText = value;
+            emit('update-search-input', value);
+        };
+
+        watch(() => state.proxySelected, (proxySelected) => {
+            if (!proxySelected.length) return;
+
+            if (props.strictSelectMode) {
+                state.proxySelected = getFilteredSelectedItems(proxySelected, state.selectableMenuItems);
+            }
+        }, { immediate: true });
+
+        onUnmounted(() => {
+            state.proxySelected = [];
+        });
 
         return {
             ...toRefs(state),
-            menuClick,
-            onDownKey,
-            onUpKey,
+            onClickMenu,
+            onKeyDown,
+            onKeyUp,
             focus,
-            uuid,
-            onEsc,
+            onClickEsc,
+            handleClickClearSelection,
+            getItemId,
+            handleUpdateSearchText,
         };
     },
 });
 </script>
 
 <style lang="postcss">
-@define-mixin context-menu-theme $bg-color, $border-color {
-    background-color: $bg-color;
-    border: 1px solid $border-color;
-    .context-divider {
-        border-top-color: $border-color;
-    }
-}
-
-@define-mixin context-item-theme $color, $hover-bg-color, $hover-color, $active-bg-color, $active-color, $disabled-color {
-    color: $color;
-    &:hover {
-        background-color: $hover-bg-color;
-        color: $hover-color !important;
-    }
-    &:focus {
-        background-color: $hover-bg-color;
-        color: $hover-color !important;
-    }
-    &:active {
-        background-color: $active-bg-color;
-        color: $active-color !important;
-    }
-    &.disabled {
-        color: $disabled-color !important;
-        cursor: not-allowed;
-        &:hover, &:focus {
-            background-color: transparent;
-            color: $disabled-color !important;
-        }
-    }
-    &.empty {
-        color: $disabled-color !important;
-        cursor: default;
-        &:hover {
-            background-color: transparent;
-            color: $disabled-color !important;
-        }
-    }
-}
-
 .p-context-menu {
-    padding: 0;
-    border-radius: 2px;
-    margin: -1px 0 0 0;
+    @apply rounded bg-white border border-gray-300;
+    position: relative;
     min-width: 100%;
-    cursor: default;
-    position: absolute;
-    z-index: 1000;
-    float: left;
     text-align: left;
-    list-style: none;
     background-clip: padding-box;
-    display: block;
     max-height: 32rem;
-    overflow-y: auto;
-
-    &.secondary {
-        @mixin context-menu-theme theme('colors.white'), theme('colors.secondary');
-    }
-    &.gray900 {
-        @mixin context-menu-theme theme('colors.white'), theme('colors.gray.900');
-    }
-
-    .context-content {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-    .context-header {
-        margin-top: 0.875rem;
-        margin-bottom: 0.25rem;
-        font-weight: bold;
-        font-size: 0.75rem;
-
-        &.secondary {
-            @apply text-gray-900;
+    border-width: 1px;
+    border-style: solid;
+    user-select: none;
+    overflow: hidden;
+    > .menu-container {
+        min-height: inherit;
+        max-height: inherit;
+        overflow-y: auto;
+        > .selected-list-wrapper {
+            @apply border-b border-gray-200;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            padding: 0.5rem;
         }
-        &.gray900 {
-            @apply text-gray-400;
+        > .search-wrapper {
+            padding: 0.5rem;
         }
-    }
-    .context-divider {
-        margin: 0;
-        border-top-width: 1px;
-        border-top-style: solid;
-    }
-    .context-item {
-        position: relative;
-        display: block;
-        padding-bottom: 0.5rem;
-        padding-top: 0.5rem;
-        line-height: 1rem;
-        font-size: 0.875rem;
-        cursor: pointer;
-        white-space: nowrap;
+        > .clear-all-wrapper {
+            padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+        }
+        > .context-header {
+            @apply text-gray-500;
+            margin-top: 0.875rem;
+            margin-bottom: 0.25rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            font-weight: bold;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+        > .context-divider {
+            @apply border-t border-gray-200;
+            border-top-width: 1px;
+            border-top-style: solid;
+        }
+        > .context-button {
+            padding: 0.5rem;
 
-        .external-link-icon {
-            position: absolute;
-            top: 0.5rem;
-            right: 1rem;
+            @media (hover: hover) {
+                &:hover:not(.disabled) {
+                    @apply bg-blue-100;
+                }
+            }
+        }
+        > .context-show-more {
+            padding: 0.5rem;
+        }
+        > .bottom-slot-area {
+            padding: 0.5rem;
         }
 
-        &.secondary {
-            @mixin context-item-theme theme('colors.gray.900'), theme('colors.secondary'), theme('colors.white'),
-                theme('colors.secondary2'), theme('colors.secondary'), theme('colors.gray.200');
-        }
-        &.gray900 {
-            @mixin context-item-theme theme('colors.gray.900'), theme('colors.gray.100'), theme('colors.gray.900'),
-                theme('colors.white'), theme('colors.gray.900'), theme('colors.gray.200');
+        > .no-data {
+            @apply text-gray-300;
+            padding: 0.5rem;
+            line-height: 1.25;
+            font-size: 0.875rem;
         }
     }
-    .no-drag {
-        user-select: none;
-    }
-
-    .loader {
-        @apply absolute w-full h-full flex items-center justify-center bg-white;
-        left: 0;
+    > .loader-wrapper {
+        @apply absolute w-full h-full overflow-hidden;
         top: 0;
-        opacity: 50%;
+        z-index: 1;
+        .loader-backdrop {
+            @apply w-full h-full bg-white;
+            opacity: 0.5;
+        }
+        .loader {
+            @apply absolute flex w-full h-full justify-center items-center;
+            top: 0;
+            z-index: 1;
+            max-height: 16.875rem;
+        }
     }
 }
 </style>

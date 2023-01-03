@@ -1,25 +1,27 @@
 <template>
-    <div class="p-markdown" v-html="md" />
+    <!-- eslint-disable -->
+    <div class="p-markdown" v-html="md" :class="{'remove-spacing': removeSpacing}" />
 </template>
 
 <script lang="ts">
-import {
-    computed,
-} from '@vue/composition-api';
+import { computed, defineComponent } from 'vue';
+
+import DOMPurify from 'dompurify';
 import { render } from 'ejs';
 import { get } from 'lodash';
-import DOMPurify from 'dompurify';
-import { MarkdownProps } from '@/data-display/markdown/type';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const marked = require('marked');
+import { marked } from 'marked';
+
+import type { MarkdownProps } from '@/data-display/markdown/type';
+
 
 marked.setOptions({
     gfm: true,
     breaks: true,
     pedantic: false,
-    highlight(code, language) {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require
-        const hljs = require('highlight.js');
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    highlight: async (code, language) => {
+        const hljs = await import('highlight.js');
         const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
         const result = hljs.highlight(validLanguage, code);
         return result.value;
@@ -27,7 +29,7 @@ marked.setOptions({
 });
 const DEFAULT_LANGUAGE = 'en';
 
-export default {
+export default defineComponent<MarkdownProps>({
     name: 'PMarkdown',
     props: {
         markdown: {
@@ -42,31 +44,43 @@ export default {
             type: String,
             default: 'en',
         },
+        removeSpacing: {
+            type: Boolean,
+            default: false,
+        },
     },
-    setup(props: MarkdownProps) {
+    setup(props) {
         const getI18nMd = (md: any) => get(md, props.language, md[DEFAULT_LANGUAGE] || Object.values(md)[0] || '');
         const md = computed(() => {
             let doc = typeof props.markdown === 'object' ? getI18nMd(props.markdown) : props.markdown || '';
             if (props.data) {
                 doc = render(doc, props.data);
             }
-            doc = marked(doc).replace(/<pre>/g, '<pre class="hljs"');
+            doc = marked.parse(doc).replace(/<pre>/g, '<pre class="hljs"');
             return DOMPurify.sanitize(doc);
         });
         return {
             md,
         };
     },
-};
+});
 </script>
 
 <style lang="postcss">
 @import 'highlight.js/scss/atom-one-dark.scss';
 .p-markdown {
-    @apply w-full border-black text-gray-900;
-    padding-top: 1.5rem;
-    padding-bottom: 1rem;
-    padding-left: 1rem;
+    @apply text-gray-900;
+    &:not(.remove-spacing) {
+        @apply w-full border-black;
+        padding-top: 1.5rem;
+        padding-bottom: 1rem;
+        padding-left: 1rem;
+    }
+    &.remove-spacing {
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
     table {
         td,th {
             @apply px-4 py-2;
@@ -87,14 +101,14 @@ export default {
         }
     }
     a {
-        @apply text-blue-600;
+        @apply text-blue-700;
         font-size: 0.75rem;
         line-height: 150%;
         margin-bottom: 1.5rem;
         &:hover { @apply underline; }
     }
     code {
-        @apply bg-gray-200 rounded-sm px-1;
+        @apply bg-gray-200 rounded-xs px-1;
         font-family: courier, monospace;
     }
     pre {

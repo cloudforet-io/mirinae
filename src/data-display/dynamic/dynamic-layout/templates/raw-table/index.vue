@@ -3,7 +3,8 @@
                             :name="name"
                             :options="{
                                 fields,
-                                translation_id: options.translation_id
+                                translation_id: options.translation_id,
+                                disable_search: options.disable_search,
                             }"
                             :data="rootData"
                             :fetch-options="fetchOptions"
@@ -11,25 +12,29 @@
                             :field-handler="fieldHandler"
                             v-on="$listeners"
     >
-        <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+        <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
             <slot :name="slot" v-bind="scope" />
         </template>
     </p-dynamic-layout-table>
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import {
-    ComponentRenderProxy,
-    computed, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import { get, map, forEach } from 'lodash';
-import {
-    RawTableDynamicLayoutProps,
-} from '@/data-display/dynamic/dynamic-layout/templates/raw-table/type';
+    computed, defineComponent, reactive, toRefs,
+} from 'vue';
+
+import { map } from 'lodash';
+
+import type { DynamicFieldHandler } from '@/data-display/dynamic/dynamic-field/type';
+import type { RawTableDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/raw-table/type';
 import PDynamicLayoutTable from '@/data-display/dynamic/dynamic-layout/templates/table/index.vue';
+import type { DynamicLayoutFetchOptions, DynamicLayoutTypeOptions } from '@/data-display/dynamic/dynamic-layout/type';
+import type { RawTableOptions } from '@/data-display/dynamic/dynamic-layout/type/layout-schema';
+import { getValueByPath } from '@/data-display/dynamic/helper';
 
 
-export default {
+export default defineComponent<RawTableDynamicLayoutProps>({
     name: 'PDynamicLayoutRawTable',
     components: {
         PDynamicLayoutTable,
@@ -40,7 +45,7 @@ export default {
             default: '',
         },
         options: {
-            type: Object,
+            type: Object as PropType<RawTableOptions>,
             default: () => ({}),
         },
         data: {
@@ -48,41 +53,40 @@ export default {
             default: undefined,
         },
         fetchOptions: {
-            type: Object,
+            type: Object as PropType<DynamicLayoutFetchOptions|undefined>,
             default: undefined,
         },
         typeOptions: {
-            type: Object,
+            type: Object as PropType<DynamicLayoutTypeOptions|undefined>,
             default: undefined,
         },
         fieldHandler: {
-            type: Function,
+            type: Function as PropType<DynamicFieldHandler|undefined>,
             default: undefined,
         },
     },
-    setup(props: RawTableDynamicLayoutProps) {
+    setup(props) {
         const state = reactive({
             fields: computed(() => {
                 if (state.rootData[0]) {
                     const firstItem = state.rootData[0];
-                    const res = map(firstItem, (d, k) => ({ key: k, name: k }));
-                    return res;
+                    return map(firstItem, (d, k) => ({ key: k, name: k }));
                 }
                 return [];
             }),
             rootData: computed<any[]>(() => {
-                if (Array.isArray(props.data)) return props.data;
-                if (typeof props.data === 'object' && props.options.root_path) {
-                    return get(props.data, props.options.root_path, []);
+                if (props.options.root_path) {
+                    const rootData = getValueByPath(props.data, props.options.root_path) ?? [];
+                    return Array.isArray(rootData) ? rootData : [rootData];
                 }
+                if (Array.isArray(props.data)) return props.data;
                 return [];
             }),
         });
-
 
         return {
             ...toRefs(state),
         };
     },
-};
+});
 </script>

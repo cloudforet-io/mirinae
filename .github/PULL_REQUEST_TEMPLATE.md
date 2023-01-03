@@ -1,13 +1,20 @@
-### 작업 개요
+### To Reviewers
+- [ ] Skipping review is not a problem (```style```, ```chore``` ONLY)
+- [ ] Not that difficult
 
-### Jira
+### Type of Change
+- [ ] New feature
+- [ ] Bug fixes
+- [ ] Feature improvement
+  - [ ] These changes require a usage change
+- [ ] Others (performance improvement, refactoring, CI/CD, etc.)
 
-### 작업 분류
-- [ ] 버그 수정
-- [ ] 신규 기능
-- [ ] 프로젝트 구조 변경
 
-### 작업 상세 내용
+### Checklist
+- [ ] Updated Storybook documents for component
+- [ ] Wrote test codes for composable, utils and etc.
+- [ ] Tested with console(if usages are changed) 
 
-### 생각해볼 문제
+### Description
 
+### Things to Talk About

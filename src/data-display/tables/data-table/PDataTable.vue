@@ -1,112 +1,165 @@
 <template>
-    <div class="p-data-table">
-        <div class="table-container">
-            <table ref="table"
-                   :class="{
-                       striped: striped,
-                       bordered: bordered,
-                       'no-hover': !hover,
-                       [tableStyleType]: true,
-                   }"
-                   :style="{ width }"
-            >
+    <div class="p-data-table"
+         :class="{
+             striped: striped,
+             bordered: bordered,
+             [tableStyleType]: true,
+         }"
+         :style="tableCustomStyle"
+    >
+        <div class="table-container"
+             :style="tableCustomStyle.maxHeight && { maxHeight: 'inherit', height: 'inherit' }"
+        >
+            <table>
                 <thead>
-                    <slot name="head" v-bind="getDefaultSlotProps()">
-                        <tr v-if="showHeader" class="fade-in">
-                            <th v-if="selectable" class="all-select">
-                                <p-check-box v-if="multiSelect"
-                                             v-model="allState"
-                                             @change="onSelectAllToggle"
-                                />
-                            </th>
-                            <th v-for="(field, index) in fieldsData"
-                                :key="`th-${contextKey}-${index}`"
-                                :style="{
-                                    minWidth: field.width || undefined,
-                                    width: field.width || undefined,
-                                }"
-                                :class="{'fix-width': colCopy}"
-                                @click="onTheadClick(field, index, $event)"
+                    <slot name="head"
+                          v-bind="getDefaultSlotProps()"
+                    >
+                        <template v-if="showHeader">
+                            <tr v-for="(fieldRow, fieldRowIdx) in tableFieldRows"
+                                :key="fieldRowIdx"
+                                class="fade-in"
                             >
-                                <slot :name="`th-${field.name}`"
-                                      v-bind="getHeadSlotProps(field, index)"
+                                <th v-if="selectable && fieldRowIdx === 0"
+                                    :rowspan="numOfFieldRows"
+                                    class="all-select"
                                 >
-                                    <span class="th-contents">
-                                        <span>
-                                            <slot :name="`th-${field.name}-format`"
-                                                  v-bind="getHeadSlotProps(field, index)"
-                                            >
-                                                {{ field.label ? field.label : field.name }}
-                                            </slot>
-                                            <p-copy-button v-if="colCopy" class="ml-2"
-                                                           width="0.875rem" height="0.875rem"
-                                                           @copy="onClickColCopy(index)"
-                                            />
-                                        </span>
+                                    <p-check-box v-if="multiSelect"
+                                                 v-model="allState"
+                                                 @change="onSelectAllToggle"
+                                    />
+                                </th>
+                                <th v-for="(field, fieldColIndex) in fieldRow"
+                                    :key="`th-${contextKey}-${fieldColIndex}-${fieldRowIdx}`"
+                                    :rowspan="getFieldRowspan(field, fieldRowIdx)"
+                                    :colspan="getFieldColspan(field)"
+                                    :style="{
+                                        minWidth: field.width || undefined,
+                                        width: field.width || undefined,
+                                    }"
+                                    :class="{'fix-width': colCopy}"
+                                    @click="onTheadClick(field, fieldColIndex, $event)"
+                                >
+                                    <slot :name="`th-${field.name}`"
+                                          v-bind="getHeadSlotProps(field, fieldColIndex, fieldRowIdx)"
+                                    >
+                                        <span class="th-contents"
+                                              :class="{
+                                                  [field.textAlign || DATA_TABLE_CELL_TEXT_ALIGN.left]: true,
+                                                  'has-icon': isFieldSortable(field.sortable) || colCopy,
+                                              }"
+                                        >
+                                            <span class="th-text">
+                                                <slot name="th-format"
+                                                      v-bind="getHeadSlotProps(field, fieldColIndex, fieldRowIdx)"
+                                                >
+                                                    <slot :name="`th-${field.name}-format`"
+                                                          v-bind="getHeadSlotProps(field, fieldColIndex, fieldRowIdx)"
+                                                    >
+                                                        {{ field.label ? field.label : field.name }}
+                                                    </slot>
+                                                </slot>
+                                                <p-copy-button v-if="colCopy && !field.disableCopy && isLeafField(field)"
+                                                               copy-manually
+                                                               @copy="onClickColCopy(field)"
+                                                />
+                                            </span>
 
-                                        <template v-if="sortable && field.sortable">
-                                            <p-i
-                                                v-if="sortable && (field.sortKey|| field.name) === sortBy"
-                                                :name="proxyState.sortDesc ? 'ic_table_sort_fromZ' : 'ic_table_sort_fromA'"
-                                                class="sort-icon"
-                                            />
-                                            <p-i v-else
-                                                 name="ic_table_sort"
-                                                 class="sort-icon"
-                                            />
-                                        </template>
-                                    </span>
-                                </slot>
-                            </th>
-                        </tr>
-                        <tr v-else>
-                            <th :colspan="selectable ? fieldsData.length +1 : fieldsData.length" />
-                        </tr>
+                                            <template v-if="isFieldSortable(field.sortable)">
+                                                <p-i
+                                                    v-if="sortable && (field.sortKey|| field.name) === sortBy"
+                                                    :name="proxyState.proxySortDesc ? 'ic_table_sort_fromZ' : 'ic_table_sort_fromA'"
+                                                    class="sort-icon"
+                                                />
+                                                <p-i v-else
+                                                     name="ic_table_sort"
+                                                     class="sort-icon"
+                                                />
+                                            </template>
+                                        </span>
+                                    </slot>
+                                </th>
+                            </tr>
+                        </template>
+                        <template v-else>
+                            <tr>
+                                <th :colspan="selectable ? leafFields.length +1 : leafFields.length" />
+                            </tr>
+                        </template>
                     </slot>
                 </thead>
-                <tbody>
-                    <slot v-if="showNoData" name="no-data" v-bind="getDefaultSlotProps()">
+                <tbody ref="tbodyRef">
+                    <slot v-if="showNoData"
+                          name="no-data"
+                          v-bind="getDefaultSlotProps()"
+                    >
                         <div class="no-data">
-                            <slot name="no-data-format" v-bind="getDefaultSlotProps()">
-                                No Items
+                            <slot name="no-data-format"
+                                  v-bind="getDefaultSlotProps()"
+                            >
+                                {{ $t('COMPONENT.DATA_TABLE.NO_DATA') }}
                             </slot>
                         </div>
-                        <tr :colspan="selectable ? fieldsData.length +1 : fieldsData.length" class="fake-row" />
+                        <tr :colspan="selectable ? leafFields.length +1 : leafFields.length"
+                            class="fake-row"
+                        />
                     </slot>
-                    <slot name="body" :items="items">
-                        <tr v-for="(item, index) in items"
-                            :key="`tr-${contextKey}-${index}`" :data-index="index"
+                    <slot name="body"
+                          :items="items"
+                          v-bind="getDefaultSlotProps()"
+                    >
+                        <tr v-for="(item, rowIndex) in items"
+                            :key="`tr-${contextKey}-${rowIndex}`"
+                            :data-index="rowIndex"
                             class="fade-in"
                             :class="{
                                 ...(getRowClassNames && getRowClassNames()),
-                                'tr-selected': getSelectedState(item, index),
+                                'tr-selected': getSelectedState(item, rowIndex),
                                 'row-height-fixed': rowHeightFixed,
                                 'row-cursor-pointer': rowCursorPointer,
+                                'no-hover': disableHover,
                             } "
-                            @click.left="onRowLeftClick( item, index, $event )"
+                            @click.left="onRowLeftClick( item, rowIndex, $event )"
                         >
                             <td v-if="selectable"
                                 class="select-checkbox"
                                 @click.stop.prevent="onSelectClick"
                             >
                                 <p-check-box v-if="multiSelect"
-                                             v-model="proxyState.selectIndex"
-                                             :disabled="getRowSelectable ? getRowSelectable(item, index): false"
-                                             :value="index"
+                                             v-model="proxyState.proxySelectIndex"
+                                             :disabled="getRowSelectable ? getRowSelectable(item, rowIndex): false"
+                                             :value="rowIndex"
                                 />
                                 <p-radio v-else
-                                         :selected="proxyState.selectIndex[0]"
-                                         :disabled="getRowSelectable ? getRowSelectable(item, index): false"
-                                         :value="index"
+                                         :selected="proxyState.proxySelectIndex[0]"
+                                         :disabled="getRowSelectable ? getRowSelectable(item, rowIndex): false"
+                                         :value="rowIndex"
                                          @change="onChangeRadioSelect"
                                 />
                             </td>
-                            <td v-for="(field, i) in fieldsData"
-                                :key="`td-${contextKey}-${index}-${i}`"
+                            <td v-for="(field, colIndex) in leafFields"
+                                :key="`td-${contextKey}-${rowIndex}-${colIndex}`"
+                                :class="{
+                                    'has-width': !!field.width,
+                                    [field.textAlign || DATA_TABLE_CELL_TEXT_ALIGN.left]: true,
+                                }"
                             >
-                                <slot :name="`col-${field.name}-format`" v-bind="getColSlotProps(item, index, field, )">
-                                    <slot :name="`col-${i}-format`" v-bind="getColSlotProps(item, index, field, )">
-                                        {{ getValue(item,field) }}
+                                <slot name="col-format"
+                                      v-bind="getColSlotProps(item, field, colIndex, rowIndex)"
+                                >
+                                    <slot :name="`col-${field.name}-format`"
+                                          v-bind="getColSlotProps(item, field, colIndex, rowIndex)"
+                                    >
+                                        <slot :name="`col-${colIndex}-format`"
+                                              v-bind="getColSlotProps(item, field, colIndex, rowIndex)"
+                                        >
+                                            <p-text-beautifier v-if="beautifyText"
+                                                               :value="getValue(item, field)"
+                                            />
+                                            <template v-else>
+                                                {{ getValue(item, field) }}
+                                            </template>
+                                        </slot>
                                     </slot>
                                 </slot>
                             </td>
@@ -118,40 +171,55 @@
                 </tfoot>
             </table>
         </div>
-        <slot v-if="showLoading" name="loading">
-            <div class="loading-backdrop fade-in" />
-            <p-lottie name="thin-spinner" :size="2.5"
-                      :auto="true" class="loading"
-            />
-        </slot>
-        <div v-if="invalid" class="invalid-cover" />
+
+        <div v-if="showLoading"
+             class="loading-backdrop fade-in"
+        />
+        <div v-if="showLoading"
+             class="loading"
+        >
+            <slot name="loading">
+                <p-spinner size="xl" />
+            </slot>
+        </div>
+        <div v-if="invalid"
+             class="invalid-cover"
+        />
     </div>
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import {
-    toRefs, computed, reactive, watch, getCurrentInstance, ComponentRenderProxy, defineComponent,
-} from '@vue/composition-api';
-import { get } from 'lodash';
+    toRefs, computed, reactive, watch, defineComponent,
+} from 'vue';
+
+import { get, range } from 'lodash';
+
+import { DATA_TABLE_STYLE_TYPE, DATA_TABLE_CELL_TEXT_ALIGN } from '@/data-display/tables/data-table/config';
+import type { DataTableField, DataTableFieldType, DataTableProps } from '@/data-display/tables/data-table/type';
+import PSpinner from '@/feedbacks/loading/spinner/PSpinner.vue';
+import { useProxyValue } from '@/hooks';
 import { copyAnyData } from '@/util/helpers';
-import { makeOptionalProxy } from '@/util/composition-helpers';
-import { PDataTableProps, DataTableField, DataTableFieldType } from '@/data-display/tables/data-table/type';
 
-import PCheckBox from '@/inputs/checkbox/PCheckBox.vue';
-import PRadio from '@/inputs/radio/PRadio.vue';
-import PCopyButton from '@/inputs/buttons/copy-button/PCopyButton.vue';
-import PLottie from '@/foundation/lottie/PLottie.vue';
-import PI from '@/foundation/icons/PI.vue';
+const PCheckBox = () => import('@/inputs/checkbox/PCheckBox.vue');
+const PTextBeautifier = () => import('@/data-display/text-beautifier/PTextBeautifier.vue');
+const PRadio = () => import('@/inputs/radio/PRadio.vue');
+const PI = () => import('@/foundation/icons/PI.vue');
+const PCopyButton = () => import('@/inputs/buttons/copy-button/PCopyButton.vue');
 
-const color = ['default', 'light', 'primary4'];
+interface TableField extends DataTableFieldType {
+    depth?: number;
+}
 
-export default defineComponent<PDataTableProps>({
+export default defineComponent<DataTableProps>({
     name: 'PDataTable',
     components: {
+        PSpinner,
+        PTextBeautifier,
         PI,
         PCheckBox,
         PCopyButton,
-        PLottie,
         PRadio,
     },
     props: {
@@ -162,6 +230,7 @@ export default defineComponent<PDataTableProps>({
         fields: {
             type: Array,
             required: true,
+            default: () => [],
         },
         items: {
             type: Array,
@@ -188,8 +257,8 @@ export default defineComponent<PDataTableProps>({
             default: false,
         },
         selectIndex: {
-            type: [Array, Number],
-            default: undefined,
+            type: Array,
+            default: () => [],
         },
         multiSelect: {
             type: Boolean,
@@ -206,9 +275,13 @@ export default defineComponent<PDataTableProps>({
         tableStyleType: {
             type: String,
             default: 'default',
-            validator(value: string) {
-                return [null, ...color].indexOf(value) !== -1;
+            validator(value: any) {
+                return Object.values(DATA_TABLE_STYLE_TYPE).includes(value);
             },
+        },
+        tableCustomStyle: {
+            type: Object as PropType<{ [key: string]: string }>,
+            default: () => ({}),
         },
         striped: {
             type: Boolean,
@@ -218,13 +291,9 @@ export default defineComponent<PDataTableProps>({
             type: Boolean,
             default: true,
         },
-        hover: {
+        disableHover: {
             type: Boolean,
             default: false,
-        },
-        width: {
-            type: String,
-            default: undefined,
         },
         rowHeightFixed: {
             type: Boolean,
@@ -246,36 +315,85 @@ export default defineComponent<PDataTableProps>({
             type: Function,
             default: undefined,
         },
+        beautifyText: {
+            type: Boolean,
+            default: false,
+        },
     },
-    setup(props: PDataTableProps, context) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props, { emit }) {
+        const getChildFields = (field: DataTableFieldType): DataTableFieldType[]|undefined => field.children?.map((child) => ({ sortable: true, ...child }));
+
+        const isFieldSortable = (sortable: boolean | undefined): boolean => (props.sortable ? sortable !== false : false);
+
+        const getTableField = (field: string|DataTableFieldType): TableField => {
+            if (typeof field === 'string') return { name: field, label: field, sortable: true };
+
+            const children = getChildFields(field);
+            return { ...field, children, sortable: children?.length ? false : isFieldSortable(field.sortable) };
+        };
+
+        const getTableFieldRows = (fields: TableField[], tableFieldRows: TableField[][] = []): TableField[][] => {
+            fields.forEach((tableField: TableField) => {
+                const row = tableFieldRows[tableField.depth ?? 0] ?? [];
+                if (!tableField.invisible) row.push(tableField);
+                if (row.length) tableFieldRows[tableField.depth ?? 0] = row;
+            });
+            return tableFieldRows;
+        };
+
+        const isLeafField = (field: DataTableFieldType): boolean => !field.children || field.children.length === 0;
+
+        const getLeafFields = (fields: TableField[]): TableField[] => fields.filter((field) => !field.children?.length);
+
+        const getTableFields = (fields: DataTableField[], allFields: DataTableFieldType[] = [], depth = 0): TableField[] => {
+            fields.forEach((f) => {
+                const field = getTableField(f);
+                field.depth = depth;
+                allFields.push(field);
+                if (field.children?.length) getTableFields(field.children, allFields, depth + 1);
+            });
+            return allFields;
+        };
 
         const proxyState = reactive({
-            selectIndex: makeOptionalProxy<number[]>('selectIndex', vm, []),
-            sortBy: makeOptionalProxy<string>('sortBy', vm, true),
-            sortDesc: makeOptionalProxy<boolean|undefined>('sortDesc', vm, ''),
+            proxySelectIndex: useProxyValue<number[]>('selectIndex', props, emit),
+            proxySortBy: useProxyValue<string>('sortBy', props, emit),
+            proxySortDesc: useProxyValue<boolean|undefined>('sortDesc', props, emit),
         });
 
         const state = reactive({
-            table: null as any,
+            tbodyRef: null as HTMLElement|null,
             allState: false,
-            fieldsData: computed<DataTableFieldType[]>(() => props.fields.map((value: string | DataTableField) => {
-                if (typeof value === 'string') return { name: value, label: value, sortable: true };
-                return { sortable: true, ...value };
-            })),
-            copyTargetElement: computed<HTMLCollection>(() => state.table?.children[1]?.children || []),
+            allFields: computed<TableField[]>(() => getTableFields(props.fields)),
+            tableFieldRows: computed<TableField[][]>(() => getTableFieldRows(state.allFields)),
+            leafFields: computed<TableField[]>(() => getLeafFields(state.allFields)),
+            numOfFieldRows: computed<number>(() => state.tableFieldRows.length),
+            copyTargetElement: computed<HTMLCollection>(() => state.tbodyRef?.children || []),
             showLoading: true,
             showHeader: props.items && props.items.length > 0 && props.fields.length > 0,
-            showNoData: computed(() => {
-                if (state.showHeader && (
-                    !props.items || !Array.isArray(props.items) || props.items.length === 0
-                )) {
-                    return true;
-                }
-                return false;
-            }),
+            showNoData: computed(() => state.showHeader && (
+                !props.items || !Array.isArray(props.items) || props.items.length === 0
+            )),
             contextKey: Math.floor(Math.random() * Date.now()),
         });
+
+
+        const getFieldRowspan = (field: DataTableFieldType, rowIndex): number => {
+            if (isLeafField(field)) return state.numOfFieldRows - rowIndex;
+            return 1;
+        };
+
+
+        const getFieldColspan = (field: DataTableFieldType, count = 0): number => {
+            if (isLeafField(field)) return count + 1;
+            let totalCount = 0;
+            if (field.children) {
+                field.children.forEach((child) => {
+                    totalCount += getFieldColspan(child, count);
+                });
+            }
+            return totalCount;
+        };
 
 
         const getValue = (item, field: DataTableFieldType) => {
@@ -286,24 +404,25 @@ export default defineComponent<PDataTableProps>({
         };
 
         const getDefaultSlotProps = () => ({
-            fields: state.fieldsData,
+            fields: state.tableFieldRows[0] ?? [],
+            fieldRows: state.tableFieldRows,
         });
 
-        const getHeadSlotProps = (field, index) => ({
-            field, index, sortable: props.sortable,
+        const getHeadSlotProps = (field, colIndex, rowIndex) => ({
+            field, index: colIndex, sortable: props.sortable, colIndex, rowIndex,
         });
 
-        const getColSlotProps = (item, index, field) => ({
-            item, index, field, value: getValue(item, field),
+        const getColSlotProps = (item, field, colIndex, rowIndex) => ({
+            item, index: rowIndex, field, value: getValue(item, field), colIndex, rowIndex,
         });
 
         const getSelectedState = (item, index) => {
             if (props.getRowSelectable) return props.getRowSelectable(item, index);
-            return props.multiSelect ? proxyState.selectIndex.some(d => index === d) : proxyState.selectIndex[0] === index;
+            return props.multiSelect ? proxyState.proxySelectIndex.some((d) => index === d) : proxyState.proxySelectIndex[0] === index;
         };
 
         const checkboxToggle = (item, index) => {
-            const newSelected = [...proxyState.selectIndex];
+            const newSelected = [...proxyState.proxySelectIndex];
             if (getSelectedState(item, index)) {
                 const idx = newSelected.indexOf(index);
                 newSelected.splice(idx, 1);
@@ -311,12 +430,12 @@ export default defineComponent<PDataTableProps>({
             } else {
                 newSelected.push(index);
             }
-            proxyState.selectIndex = newSelected;
+            proxyState.proxySelectIndex = newSelected;
         };
 
         /* Event Handlers */
         const onRowLeftClick = (item, index, event) => {
-            context.emit('rowLeftClick', item, index, event);
+            emit('rowLeftClick', item, index, event);
             if (!props.selectable) return;
             if (props.multiSelect) {
                 if (props.rowClickMultiSelectMode) {
@@ -328,14 +447,14 @@ export default defineComponent<PDataTableProps>({
                     return;
                 }
             }
-            proxyState.selectIndex = [index];
+            proxyState.proxySelectIndex = [index];
         };
 
-        const onTheadClick = (field, index, event) => {
-            if (props.sortable && field.sortable) {
+        const onTheadClick = (field) => {
+            if (isFieldSortable(field.sortable)) {
                 const clickedKey = field.sortKey || field.name;
-                let sortBy = proxyState.sortBy;
-                let sortDesc: undefined|boolean = proxyState.sortDesc;
+                let sortBy = proxyState.proxySortBy;
+                let sortDesc: undefined|boolean = proxyState.proxySortDesc;
 
                 if (sortBy === clickedKey) {
                     // set reverse mode
@@ -348,9 +467,9 @@ export default defineComponent<PDataTableProps>({
                 }
 
                 // set changed values
-                proxyState.sortBy = sortBy;
-                proxyState.sortDesc = sortDesc;
-                context.emit('changeSort', sortBy, sortDesc);
+                proxyState.proxySortBy = sortBy;
+                proxyState.proxySortDesc = sortDesc;
+                emit('changeSort', sortBy, sortDesc);
             }
         };
 
@@ -359,14 +478,18 @@ export default defineComponent<PDataTableProps>({
         };
         const onSelectAllToggle = () => {
             if (state.allState) {
-                proxyState.selectIndex = Array.from(new Array(props.items.length).keys());
+                proxyState.proxySelectIndex = range(props.items.length);
             } else {
-                proxyState.selectIndex = [];
+                proxyState.proxySelectIndex = [];
             }
         };
-        const onClickColCopy = (idx) => {
+        const onClickColCopy = (field: DataTableFieldType) => {
             let result = '';
             const arr: Element[] = Array.from(state.copyTargetElement);
+            let idx = state.leafFields.findIndex((d) => d === field);
+            if (idx === -1) return;
+
+            if (props.selectable) idx += 1;
             arr.forEach((el) => {
                 const children = Array.from(el.children) as HTMLElement[];
                 children.forEach((td, colIdx) => {
@@ -380,31 +503,27 @@ export default defineComponent<PDataTableProps>({
         };
 
         const onChangeRadioSelect = (e) => {
-            proxyState.selectIndex = [e];
+            proxyState.proxySelectIndex = [e];
         };
 
 
-        watch(() => proxyState.selectIndex, () => {
-            if (props.items && props.items.length && props.items.length === (proxyState.selectIndex as any[]).length) {
-                state.allState = true;
-            } else {
-                state.allState = false;
-            }
+        watch(() => proxyState.proxySelectIndex, (selectIndex) => {
+            state.allState = !!(props.items
+                && props.items.length
+                && props.items.length === selectIndex.length);
         }, { immediate: true });
 
         watch(() => props.loading, (value) => {
-            if (typeof value !== 'boolean') {
-                state.showHeader = true;
-                state.showLoading = false;
-                return;
-            }
+            // if (typeof value !== 'boolean') {
+            //     state.showHeader = true;
+            //     state.showLoading = false;
+            //     return;
+            // }
 
-            if (props.useCursorLoading) {
-                if (value) {
-                    document.body.style.cursor = 'progress';
-                } else {
-                    document.body.style.cursor = 'default';
-                }
+            if (props.useCursorLoading && value) {
+                document.body.style.cursor = 'progress';
+            } else {
+                document.body.style.cursor = 'default';
             }
 
             if (value) {
@@ -425,6 +544,10 @@ export default defineComponent<PDataTableProps>({
         return {
             proxyState,
             ...toRefs(state),
+            isFieldSortable,
+            isLeafField,
+            getFieldRowspan,
+            getFieldColspan,
             getValue,
             getDefaultSlotProps,
             getHeadSlotProps,
@@ -436,6 +559,7 @@ export default defineComponent<PDataTableProps>({
             onSelectAllToggle,
             onClickColCopy,
             onChangeRadioSelect,
+            DATA_TABLE_CELL_TEXT_ALIGN,
         };
     },
 });
@@ -487,10 +611,14 @@ export default defineComponent<PDataTableProps>({
         border-spacing: 0;
         table-layout: fixed;
     }
+    thead {
+        tr {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+    }
     th {
-        position: sticky;
-        top: 0;
-        z-index: 1;
         vertical-align: bottom;
         line-height: 1.25rem;
         font-size: 0.875rem;
@@ -502,6 +630,25 @@ export default defineComponent<PDataTableProps>({
         .th-contents {
             @apply flex justify-between pl-4;
             line-height: 2;
+            .th-text {
+                display: inline-flex;
+                align-content: center;
+                .p-copy-button {
+                    @apply inline-block text-center;
+                    width: 1.5rem;
+                }
+            }
+            &.right {
+                justify-content: flex-end;
+                padding-right: 1rem;
+            }
+            &.center {
+                justify-content: center;
+                padding-right: 1rem;
+            }
+            &.has-icon {
+                padding-right: 0;
+            }
         }
         .sort-icon {
             @apply text-gray-500 float-right my-px;
@@ -511,8 +658,8 @@ export default defineComponent<PDataTableProps>({
             @apply min-w-19;
         }
         &:last-child {
-            .th-contents {
-                @apply pr-2;
+            .th-contents:not(.has-icon) {
+                padding-right: 1rem;
             }
         }
         &.all-select {
@@ -524,12 +671,26 @@ export default defineComponent<PDataTableProps>({
     }
     td {
         @apply h-10 px-4 z-0 align-middle min-w-28 text-sm;
-        vertical-align: middle;
+        &.has-width {
+            word-break: break-word;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        &.right {
+            @apply text-right;
+        }
+        &.center {
+            @apply text-center;
+        }
+        i, span, div, input, textarea, article, main, ul, li {
+            vertical-align: baseline;
+        }
     }
     tr {
         &.row-height-fixed {
-            td {
-                @apply truncate;
+            td:not(.has-width) {
+                overflow-x: hidden;
+                white-space: nowrap;
             }
         }
         &.row-cursor-pointer {
@@ -566,8 +727,7 @@ export default defineComponent<PDataTableProps>({
     }
 
     .invalid-cover {
-        @apply absolute w-full h-full overflow-hidden border border-alert;
-        //background-color: rgba(theme('colors.red.100'), 0.3);
+        @apply absolute w-full h-full overflow-hidden border border-alert rounded-lg;
         pointer-events: none;
         top: 0;
         z-index: 1;
@@ -592,11 +752,11 @@ export default defineComponent<PDataTableProps>({
     }
 
     /* themes */
-    .default {
+    &.default {
         @mixin table-theme theme('colors.white'), theme('colors.primary4'), theme('colors.gray.300'), theme('colors.blue.100');
     }
 
-    .light {
+    &.light {
         @mixin table-theme theme('colors.white'), theme('colors.primary4'), theme('colors.gray.300'), theme('colors.blue.100');
         th {
             @apply border-gray-200;
@@ -604,7 +764,7 @@ export default defineComponent<PDataTableProps>({
         }
     }
 
-    .primary4 {
+    &.primary4 {
         @mixin table-theme theme('colors.white'), transparent, theme('colors.white'), transparent;
         tr {
             @apply bg-primary4;
@@ -612,6 +772,27 @@ export default defineComponent<PDataTableProps>({
         &.bordered {
             td {
                 border-bottom-width: 4px;
+            }
+        }
+    }
+
+    &.simple {
+        min-height: 10.75rem;
+
+        @mixin table-theme theme('colors.white'), transparent, theme('colors.gray.200'), transparent;
+        th {
+            @apply border-transparent text-gray-600 font-normal;
+            height: 1.75rem;
+            font-size: 0.75rem;
+        }
+        &.bordered {
+            td {
+                height: 2.25rem;
+            }
+            tr:last-of-type {
+                td {
+                    @apply border-white;
+                }
             }
         }
     }

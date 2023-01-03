@@ -1,7 +1,9 @@
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
+
 import { action } from '@storybook/addon-actions';
 import { object, boolean, withKnobs } from '@storybook/addon-knobs';
 import { VTooltip } from 'v-tooltip';
+
 import PProgressWizard from '@/navigation/wizards/progress-wizard/PProgressWizard.vue';
 
 
@@ -91,7 +93,7 @@ export const progressWizard = () => ({
                         </div>
                     </template>
                 </p-progress-wizard>`,
-    setup(...args) {
+    setup() {
         return {
             activeIdx: ref(0),
             ...actions(),
@@ -112,7 +114,7 @@ export const topSlot = () => ({
                         <h1 style="background-color: hotpink;">This is 'top' slot</h1>
                     </template>
                 </p-progress-wizard>`,
-    setup(...args) {
+    setup() {
         return {
             activeIdx: ref(0),
             ...actions(),
@@ -137,7 +139,7 @@ export const progressSlot = () => ({
                         </div>
                     </template>
                 </p-progress-wizard>`,
-    setup(...args) {
+    setup() {
         return {
             activeIdx: ref(0),
             ...actions(),
@@ -165,7 +167,7 @@ export const helpSlot = () => ({
                           }" class="p-tooltip">HOVER ME!</button>
                     </template>
                 </p-progress-wizard>`,
-    setup(...args) {
+    setup() {
         return {
             activeIdx: ref(0),
             ...actions(),
@@ -187,7 +189,7 @@ export const stepAppendSlot = () => ({
                         <button style="display: inline-block;">This is step append slot</button>
                     </template>
                 </p-progress-wizard>`,
-    setup(...args) {
+    setup() {
         return {
             activeIdx: ref(0),
             ...actions(),
@@ -209,7 +211,7 @@ export const bottomSlot = () => ({
                         <h1 style="background-color: hotpink;">This is 'bottom' slot</h1>
                     </template>
                 </p-progress-wizard>`,
-    setup(...args) {
+    setup() {
         return {
             activeIdx: ref(0),
             ...actions(),

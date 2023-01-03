@@ -7,6 +7,7 @@ npm-debug.log*
 
 # NPM
 node_modules/
+node_modules.nosync/
 
 # Transpiled code
 dist
@@ -22,5 +23,3 @@ types
 
 # CSS
 css
-
-node_modules.nosync/

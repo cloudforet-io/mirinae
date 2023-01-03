@@ -26,10 +26,7 @@
                          width="1.5rem"
                          height="1.5rem"
                     />
-                    <p-lottie v-if="item.type === 'loading'" name="thin-spinner"
-                              class="item-type-icon"
-                              :size="1.5"
-                    />
+                    <p-spinner v-if="item.type === 'loading'" class="item-type-icon" />
                 </div>
                 <div class="content-wrapper" :class="[item.type === 'info' ? 'ml-2' : '']">
                     <a class="title">{{ item.title }}</a>
@@ -50,8 +47,9 @@
 </template>
 
 <script lang="ts">
+
+import PSpinner from '@/feedbacks/loading/spinner/PSpinner.vue';
 import PI from '@/foundation/icons/PI.vue';
-import PLottie from '@/foundation/lottie/PLottie.vue';
 
 /**
  * Used library: vue-notification
@@ -61,8 +59,8 @@ import PLottie from '@/foundation/lottie/PLottie.vue';
 export default {
     name: 'PToastAlert',
     components: {
+        PSpinner,
         PI,
-        PLottie,
     },
     props: {
         group: {
@@ -84,6 +82,7 @@ export default {
 <style lang="postcss">
 .vue-notification-group {
     overflow: unset;
+    z-index: 10000;
 }
 .vue-notification-wrapper {
     margin: 1rem 0;
@@ -99,10 +98,9 @@ export default {
     overflow-y: hidden;
 
     .alert-contents {
-        @apply bg-gray-900;
+        @apply bg-gray-900 rounded-lg;
         position: relative;
         display: flex;
-        border-radius: 0.375rem;
         min-width: 17rem;
         max-width: 30rem;
         opacity: 0.9;
@@ -115,6 +113,7 @@ export default {
     .item-type-icon {
         float: left;
         padding-right: 0.5rem;
+        padding-top: 0.125rem;
     }
 
     .content-wrapper {

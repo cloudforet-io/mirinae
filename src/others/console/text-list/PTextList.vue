@@ -1,7 +1,8 @@
 <template>
-    <div class="p-text-list">
+    <span class="p-text-list">
         <component :is="component" v-for="(item, i) in displayItems"
                    :key="i" class="list-item"
+                   :class="{'line-break': isLineBreak && i < displayItems.length - 1}"
                    :href="getHref(item, i)"
                    :target="target || undefined"
         >
@@ -9,25 +10,31 @@
                 {{ item || '' }}
             </slot>
             <slot v-if="i < displayItems.length - 1" name="delimiter" v-bind="{...$props, index: i, item, value: item || ''}">
-                <span class="delimiter" v-html="delimiter" />
+                <span v-if="!isLineBreak" class="delimiter">{{ delimiter }}</span>
             </slot>
         </component>
-    </div>
+    </span>
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
+import {
+    computed, defineComponent, reactive, toRefs,
+} from 'vue';
+
 import { get } from 'lodash';
-import { computed, reactive, toRefs } from '@vue/composition-api';
+
 import PAnchor from '@/inputs/anchors/PAnchor.vue';
-import { TextListItem, TextListProps } from '@/others/console/text-list/type';
+import type { TextListItem } from '@/others/console/text-list/type';
 import { isNotEmpty } from '@/util/helpers';
 
-export default {
+export default defineComponent({
     name: 'PTextList',
     components: { PAnchor },
     props: {
         items: {
-            type: [Array],
+            // FIXME:: below any type
+            type: Array as PropType<any>,
             default: () => [],
         },
         delimiter: {
@@ -55,10 +62,10 @@ export default {
             default: undefined,
         },
     },
-    setup(props: TextListProps) {
+    setup(props) {
         const state = reactive({
             component: computed(() => (props.link ? PAnchor : (props.tag || 'span'))),
-            displayItems: computed(() => props.items.reduce((res, item, i) => {
+            displayItems: computed(() => props.items.reduce((res, item) => {
                 let data;
                 if (typeof item === 'object' && props.subKey) {
                     data = get(item, props.subKey, '');
@@ -67,6 +74,7 @@ export default {
                 if (isNotEmpty(data)) res.push(data);
                 return res;
             }, [] as string[])),
+            isLineBreak: computed(() => ['<br>', '<br/>'].includes(props.delimiter)),
         });
 
         const getHref = (item: TextListItem, idx: number) => {
@@ -81,17 +89,19 @@ export default {
             getHref,
         };
     },
-};
+});
 </script>
 
 <style lang="postcss">
 .p-text-list {
-    line-height: 1.8;
-    .list-item.p-anchor:hover {
-        @apply underline text-secondary cursor-pointer;
-    }
-    .delimiter {
-        white-space: pre;
+    > .list-item {
+        > .delimiter {
+            white-space: pre;
+        }
+        &.line-break {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
     }
 }
 </style>

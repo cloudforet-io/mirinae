@@ -41,12 +41,13 @@
     </p-button-modal>
 </template>
 <script lang="ts">
-import { reactive, computed, toRefs } from '@vue/composition-api';
+import { reactive, toRefs } from 'vue';
+
 import PButtonModal from '@/feedbacks/modals/button-modal/PButtonModal.vue';
-import { makeProxy } from '@/util/composition-helpers';
-import PTextInput from '@/inputs/input/PTextInput.vue';
+import { SizeMapping } from '@/feedbacks/modals/type';
 import PFieldGroup from '@/inputs/forms/field-group/PFieldGroup.vue';
-import { sizeMapping } from '@/feedbacks/modals/type';
+import PTextInput from '@/inputs/input/PTextInput.vue';
+import { makeProxy } from '@/util/composition-helpers';
 
 
 export default {
@@ -64,7 +65,7 @@ export default {
         size: {
             type: String,
             default: 'md',
-            validator: value => Object.keys(sizeMapping).includes(value),
+            validator: (value) => Object.keys(SizeMapping).includes(value),
         },
         backdrop: {
             type: Boolean,
@@ -78,8 +79,14 @@ export default {
             type: String,
             default: 'alert',
         },
-        headerTitle: String,
-        subTitle: String,
+        headerTitle: {
+            type: String,
+            default: undefined,
+        },
+        subTitle: {
+            type: String,
+            default: undefined,
+        },
         verificationText: {
             type: String,
             required: true,

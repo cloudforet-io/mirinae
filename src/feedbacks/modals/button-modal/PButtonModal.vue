@@ -1,39 +1,48 @@
 <template>
     <section class="p-button-modal">
         <transition v-if="visible" name="modal">
-            <div class="modal-mask" :class="{'no-backdrop':!backdrop}">
+            <div class="modal-mask"
+                 :class="[{'no-backdrop':!backdrop}, {'absolute': !!absolute}]"
+                 :style="absolute ? [{'top': `${absolute}rem`}, {'left': `${absolute}rem`}] : {}"
+            >
                 <div class="modal-wrapper" :class="dialogClassObject"
                      role="dialog"
                      aria-modal="true"
                      aria-labelledby="headerTitle"
                      tabindex="1"
                 >
-                    <article class="modal-content" :class="[`modal-${themeColor}`, {'no-footer': !footerVisible}]">
+                    <article class="modal-content"
+                             :class="[`modal-${themeColor}`, {'no-footer': hideFooter}]"
+                             :style="absolute ? {'max-height': `calc(100vh - 4rem - ${absolute}rem`} : {}"
+                    >
                         <h3 class="header">
-                            <div v-if="headerVisible" class="modal-header">
-                                <p-lottie name="lottie_error" auto :size="1.5"
-                                          :class="[`modal-${themeColor}`]" class="header-lottie"
-                                />{{ headerTitle }}
-                            </div>
-                            <p-icon-button v-if="headerCloseButtonVisible"
+                            <slot v-if="!hideHeader" name="header">
+                                <div class="modal-header">
+                                    <span class="alert-icon">
+                                        <p-lottie name="lottie_error" auto :size="1.5"
+                                                  :class="[`modal-${themeColor}`]" class="header-lottie"
+                                        />
+                                    </span>
+                                    <span>{{ headerTitle }}</span>
+                                </div>
+                            </slot>
+                            <p-icon-button v-if="!hideHeaderCloseButton"
                                            name="ic_delete" color="inherit"
-                                           class="close-btn"
+                                           class="close-button"
                                            :class="[{disabled: loading},
-                                                    {'no-footer': !footerVisible}]"
+                                                    {'no-footer': hideFooter}]"
                                            @click.stop="onCloseClick"
                             />
                         </h3>
-                        <div v-if="bodyVisible" class="modal-body" :class="allBodyClass"
-                             @scroll="onScroll"
-                        >
+                        <div v-if="!hideBody" class="modal-body" :class="allBodyClass">
                             <slot name="body" />
                         </div>
-                        <div v-if="footerVisible" class="modal-footer">
+                        <div v-if="!hideFooter" class="modal-footer">
                             <slot :slot-scope="$props" name="footer-extra" />
                             <p-button
                                 v-if="footerResetButtonVisible"
-                                class="modal-btn reset-btn"
-                                style-type="gray-border"
+                                class="modal-button reset-button"
+                                style-type="tertiary"
                                 :disabled="loading"
                                 @click="onResetClick"
                             >
@@ -41,19 +50,21 @@
                                     Reset
                                 </slot>
                             </p-button>
-                            <p-button
-                                class="modal-btn cancel-btn"
-                                style-type="transparent"
-                                :disabled="loading"
-                                @click="onCancelClick"
+                            <p-button v-if="!hideFooterCloseButton"
+                                      class="modal-button cancel-button"
+                                      style-type="transparent"
+                                      :disabled="loading"
+                                      @click="onCancelClick"
                             >
                                 <slot name="close-button" v-bind="$props">
                                     {{ $t('COMPONENT.BUTTON_MODAL.CANCEL') }}
                                 </slot>
                             </p-button>
                             <p-button
-                                class="modal-btn"
-                                :style-type="themeColor"
+                                v-if="!hideFooterConfirmButton"
+                                class="modal-button confirm-button"
+                                :class="{'no-cancel-button': hideFooterCloseButton}"
+                                :style-type="buttonThemeColor"
                                 :loading="loading"
                                 :disabled="disabled"
                                 @click="onConfirmClick"
@@ -71,74 +82,84 @@
 </template>
 
 <script lang="ts">
-import PButton from '@/inputs/buttons/button/PButton.vue';
-import { sizeMapping } from '@/feedbacks/modals/type';
 import {
-    computed, onMounted, onUnmounted, reactive, toRefs,
-} from '@vue/composition-api';
-import { makeProxy } from '@/util/composition-helpers';
-import { ButtonModalProps } from '@/feedbacks/modals/button-modal/type';
-import '../modal.pcss';
-import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+    computed, defineComponent, reactive, toRefs,
+} from 'vue';
+
+import type { ButtonModalProps } from '@/feedbacks/modals/button-modal/type';
+import { THEME_COLORS } from '@/feedbacks/modals/button-modal/type';
+import { SizeMapping } from '@/feedbacks/modals/type';
+import '@/feedbacks/modals/modal.pcss';
 import PLottie from '@/foundation/lottie/PLottie.vue';
+import PButton from '@/inputs/buttons/button/PButton.vue';
+import { BUTTON_STYLE } from '@/inputs/buttons/button/type';
+import PIconButton from '@/inputs/buttons/icon-button/PIconButton.vue';
+import { makeProxy } from '@/util/composition-helpers';
 
-const documentEventMount = (eventName: string, func: any) => {
-    onMounted(() => document.addEventListener(eventName, func));
-    onUnmounted(() => document.removeEventListener(eventName, func));
-};
 
-export default {
+export default defineComponent<ButtonModalProps>({
     name: 'PButtonModal',
     components: {
         PIconButton,
         PLottie,
         PButton,
     },
+    model: {
+        prop: 'visible',
+        event: 'update:visible',
+    },
     props: {
         visible: { // sync
-            type: Boolean,
-            default: false,
-        },
-        fade: {
-            type: Boolean,
-            default: false,
-        },
-        scrollable: {
             type: Boolean,
             default: false,
         },
         size: {
             type: String,
             default: 'md',
-            validator: value => Object.keys(sizeMapping).includes(value),
+            validator: (value: string) => Object.keys(SizeMapping).includes(value),
         },
         backdrop: {
             type: Boolean,
             default: true,
         },
+        absolute: {
+            type: Number,
+            default: undefined,
+        },
         themeColor: {
             type: String,
             default: 'primary',
-        },
-        headerVisible: {
-            type: Boolean,
-            default: true,
-        },
-        bodyVisible: {
-            type: Boolean,
-            default: true,
-        },
-        footerVisible: {
-            type: Boolean,
-            default: true,
+            validator(themeColor: any) {
+                return THEME_COLORS.includes(themeColor);
+            },
         },
         headerTitle: {
             type: String,
             default: '',
         },
-        headerCloseButtonVisible: {
+        hideHeader: {
             type: Boolean,
-            default: true,
+            default: false,
+        },
+        hideBody: {
+            type: Boolean,
+            default: false,
+        },
+        hideFooter: {
+            type: Boolean,
+            default: false,
+        },
+        hideHeaderCloseButton: {
+            type: Boolean,
+            default: false,
+        },
+        hideFooterCloseButton: {
+            type: Boolean,
+            default: false,
+        },
+        hideFooterConfirmButton: {
+            type: Boolean,
+            default: false,
         },
         footerResetButtonVisible: {
             type: Boolean,
@@ -152,23 +173,26 @@ export default {
             type: Boolean,
             default: false,
         },
-        showPopup: {
-            type: Boolean,
-            default: false,
-        },
     },
-    setup(props: ButtonModalProps, { emit }) {
+    setup(props, { emit }) {
         const state = reactive({
             proxyVisible: makeProxy('visible', props, emit),
             allBodyClass: computed(() => {
                 const res: string[] = [];
                 if (props.size) res.push(props.size);
-                if (props.scrollable) res.push('scrollable');
                 return res;
+            }),
+            buttonThemeColor: computed(() => {
+                if (props.themeColor === 'primary1') return BUTTON_STYLE.substitutive;
+                if (props.themeColor === 'gray900') return BUTTON_STYLE.tertiary;
+                if (props.themeColor === 'secondary') return BUTTON_STYLE.highlight;
+                if (props.themeColor === 'safe') return BUTTON_STYLE.positive;
+                if (props.themeColor === 'alert') return BUTTON_STYLE['negative-primary'];
+                if (['primary2', 'secondary1'].includes(props.themeColor)) return BUTTON_STYLE.secondary;
+                return BUTTON_STYLE.primary;
             }),
         });
         const dialogClassObject = computed(() => [
-            { scrollable: props.scrollable },
             props.size,
         ]);
         const hide = () => {
@@ -188,7 +212,6 @@ export default {
         const onResetClick = () => {
             if (props.loading) return;
             emit('return');
-            state.proxyVisible = false;
         };
         const onCancelClick = () => {
             if (props.loading) return;
@@ -198,10 +221,6 @@ export default {
         const onConfirmClick = () => {
             emit('confirm');
         };
-        const onScroll = (event) => {
-            emit('update:showPopup', true);
-        };
-        documentEventMount('scroll', onScroll);
 
         return {
             ...toRefs(state),
@@ -213,22 +232,21 @@ export default {
             onCloseClick,
             onCancelClick,
             onConfirmClick,
-            onScroll,
         };
     },
-};
+});
 
 </script>
 <style lang="postcss">
 .p-button-modal {
+    display: inline-block;
     .modal-content {
-        @apply bg-white border border-gray-200;
+        @apply bg-white border border-gray-200 rounded-lg;
         display: flex;
         flex-direction: column;
         width: 100%;
         max-height: calc(100vh - 4rem);
         pointer-events: auto;
-        border-radius: 0.375rem;
         box-shadow: 0 0 0.5rem rgba(theme('colors.gray.900'), 0.32);
         transition: all 0.3s ease;
         justify-content: space-between;
@@ -248,9 +266,14 @@ export default {
             justify-content: space-between;
 
             .modal-header {
-                height: $header-height;
+                display: flex;
+                align-items: flex-start;
+                min-height: $header-height;
                 font-size: 1.375rem;
                 line-height: 145%;
+                .alert-icon {
+                    padding-top: 0.25rem;
+                }
             }
 
             .header-lottie {
@@ -262,7 +285,7 @@ export default {
                 }
             }
 
-            .close-btn {
+            .close-button {
                 @apply text-gray-400;
                 cursor: pointer;
 
@@ -281,10 +304,11 @@ export default {
         }
 
         .modal-body {
-            @apply text-gray-600;
             flex-grow: 1;
             max-height: $body-max-height;
+            min-height: 1.25rem;
             overflow: auto;
+            line-height: normal;
         }
 
         .modal-footer {
@@ -294,22 +318,27 @@ export default {
             padding-top: 1.5rem;
             border: none;
 
-            .modal-btn {
+            .modal-button {
+                @apply rounded;
                 height: 2.5rem;
                 font-size: 1rem;
             }
 
-            .cancel-btn {
+            .cancel-button {
                 margin-left: auto;
                 margin-right: 1rem;
             }
 
-            .reset-btn {
+            .reset-button {
                 display: none;
 
                 @screen xs {
                     display: flex;
                 }
+            }
+
+            .confirm-button.no-cancel-button {
+                margin-left: auto;
             }
         }
     }
@@ -324,12 +353,19 @@ export default {
 .modal-primary { @mixin modal-color theme('colors.primary'); }
 .modal-primary-dark { @mixin modal-color theme('colors.primary-dark'); }
 .modal-primary1 { @mixin modal-color theme('colors.primary1'); }
-.modal-primary2 { @mixin modal-color theme('colors.primary2'); }
+.modal-primary2 { @mixin modal-color theme('colors.primary'); }
 .modal-secondary { @mixin modal-color theme('colors.secondary'); }
-.modal-secondary1 { @mixin modal-color theme('colors.secondary1'); }
+.modal-secondary1 { @mixin modal-color theme('colors.primary'); }
 .modal-safe { @mixin modal-color theme('colors.gray.900'); }
 .modal-alert { @mixin modal-color theme('colors.alert'); }
 .modal-gray900 { @mixin modal-color theme('colors.gray.900'); }
-.modal-gray { @mixin modal-color theme('colors.gray.default'); }
+
+@screen mobile {
+    .modal-mask {
+        &.absolute {
+            left: 0.75rem !important;
+        }
+    }
+}
 
 </style>

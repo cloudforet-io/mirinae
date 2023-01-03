@@ -1,10 +1,13 @@
 <script lang="ts">
-import { DatetimeOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
-import { DatetimeDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/datetime/type';
-import PAnchor from '@/inputs/anchors/PAnchor.vue';
-import dayjs, { Dayjs } from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+import type { DatetimeDynamicFieldProps } from '@/data-display/dynamic/dynamic-field/templates/datetime/type';
+import type { DatetimeOptions } from '@/data-display/dynamic/dynamic-field/type/field-schema';
+import PAnchor from '@/inputs/anchors/PAnchor.vue';
+
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -64,7 +67,7 @@ export default {
             }
         }
 
-        let datetimeEl = h('span', data, result);
+        let datetimeEl = h('span', data, `${options.prefix ?? ''}${result}${options.postfix ?? ''}`);
 
 
         if (options.link) {

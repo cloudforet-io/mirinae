@@ -1,10 +1,13 @@
 import {
     toRefs, reactive,
-} from '@vue/composition-api';
+} from 'vue';
+
+import { faker } from '@faker-js/faker';
 import {
     text, object, array, withKnobs,
 } from '@storybook/addon-knobs';
-import casual, { arrayOf } from '@/util/casual';
+
+
 import PTextList from './PTextList.vue';
 
 export default {
@@ -40,7 +43,7 @@ export const defaultCase = () => ({
     <div style="width: 80vw;">
         <PTextList v-bind="$props"></PTextList>
     </div>`,
-    setup(props, context) {
+    setup() {
         const state = reactive({});
 
         return {
@@ -76,12 +79,12 @@ export const linkFormatter = () => ({
     <div style="width: 80vw;">
         <PTextList v-bind="$props" :linkFormatter="linkFormatter"></PTextList>
     </div>`,
-    setup(props, context) {
+    setup() {
         const state = reactive({});
 
         return {
             ...toRefs(state),
-            linkFormatter(d, i) {
+            linkFormatter(d) {
                 return d;
             },
         };
@@ -93,10 +96,10 @@ export const objectArray = () => ({
     components: { PTextList },
     props: {
         items: {
-            default: object('items', arrayOf(10, () => ({
-                name: casual.name,
-                phone: casual.phone,
-                group: casual.random_element([undefined, casual.word]),
+            default: object('items', faker.datatype.array(10).map(() => ({
+                name: faker.name.firstName(),
+                phone: faker.phone.number(),
+                group: faker.helpers.arrayElement([undefined, faker.random.word()]),
             }))),
         },
         delimiter: {
@@ -119,7 +122,7 @@ export const objectArray = () => ({
     <div style="width: 80vw;">
         <PTextList v-bind="$props"></PTextList>
     </div>`,
-    setup(props, context) {
+    setup() {
         const state = reactive({});
 
         return {
@@ -133,10 +136,10 @@ export const defaultSlot = () => ({
     components: { PTextList },
     props: {
         items: {
-            default: object('items', arrayOf(10, () => ({
-                name: casual.name,
-                phone: casual.phone,
-                group: casual.random_element([undefined, casual.word]),
+            default: object('items', faker.datatype.array(10).map(() => ({
+                name: faker.name.firstName(),
+                phone: faker.phone.number(),
+                group: faker.helpers.arrayElement([undefined, faker.random.word()]),
             }))),
         },
         delimiter: {
@@ -173,7 +176,7 @@ export const defaultSlot = () => ({
             </template>
         </PTextList>
     </div>`,
-    setup(props, context) {
+    setup() {
         const state = reactive({});
 
         return {

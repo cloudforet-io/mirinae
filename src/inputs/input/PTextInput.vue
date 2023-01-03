@@ -1,10 +1,157 @@
-<script lang="ts">
-import { getBindClass } from '@/util/functional-helpers';
-import { inputTypes } from '@/inputs/input/config';
+<template>
+    <div
+        class="p-text-input"
+        :class="{block, focused: isFocused, [size]: true}"
+    >
+        <div ref="targetRef"
+             class="input-container"
+             :class="{invalid: isInvalid || invalid, disabled}"
+        >
+            <div v-if="proxySelectedValue.length && multiInput"
+                 class="tag-container"
+            >
+                <p-tag v-for="(tag, index) in proxySelectedValue"
+                       :key="index"
+                       :deletable="!disabled"
+                       :selected="index === deleteTargetIdx"
+                       :invalid="tag.invalid"
+                       class="tag"
+                       @delete="handleDeleteTag(tag, index)"
+                >
+                    {{ tag.label || tag.value }}
+                </p-tag>
+                <slot name="default"
+                      v-bind="{ value }"
+                >
+                    <input v-bind="$attrs"
+                           :type="inputType"
+                           :value="proxyValue"
+                           :disabled="disabled"
+                           :placeholder="placeholder"
+                           size="1"
+                           v-on="inputListeners"
+                    >
+                </slot>
+            </div>
+            <slot v-else
+                  name="default"
+                  v-bind="{ value }"
+            >
+                <input v-bind="$attrs"
+                       :type="inputType"
+                       :value="proxyValue"
+                       :disabled="disabled"
+                       :placeholder="placeholder"
+                       size="1"
+                       v-on="inputListeners"
+                >
+            </slot>
+            <!-- right-extra slot will be deprecated. use input-right slot. -->
+            <span v-if="$slots['right-extra']"
+                  class="right-extra"
+            >
+                <slot name="right-extra"
+                      v-bind="{ value }"
+                />
+            </span>
+            <span v-if="$slots['input-right']"
+                  class="input-right"
+            >
+                <slot name="input-right"
+                      v-bind="{ value }"
+                />
+            </span>
+            <p-button v-if="($attrs.type === 'password') && maskingMode"
+                      size="sm"
+                      style-type="transparent"
+                      :disabled="disabled"
+                      @click.stop.prevent="handleTogglePassword"
+            >
+                {{ !proxyShowPassword ? $t('COMPONENT.TEXT_INPUT.HIDE') : $t('COMPONENT.TEXT_INPUT.SHOW') }}
+            </p-button>
+            <p-i v-else
+                 v-show="(isFocused || isInvalid)"
+                 class="delete-all-icon"
+                 name="ic_delete"
+                 height="1rem"
+                 width="1rem"
+                 color="inherit transparent"
+                 @mousedown.native.prevent
+                 @click="handleDeleteAllTags"
+            />
+            <span v-if="$slots['right-edge']"
+                  class="right-edge"
+            >
+                <slot name="right-edge"
+                      v-bind="{ value }"
+                />
+            </span>
+        </div>
+        <p-context-menu v-if="proxyVisibleMenu && useAutoComplete"
+                        ref="menuRef"
+                        :menu="bindingMenu"
+                        :highlight-term="proxyValue"
+                        :loading="loading"
+                        :style="{...contextMenuStyle, maxWidth: contextMenuStyle.minWidth, width: contextMenuStyle.minWidth}"
+                        @select="handleSelectMenuItem"
+                        @focus="handleFocusMenuItem"
+        />
+    </div>
+</template>
 
-export default {
+<script lang="ts">
+import type { PropType } from 'vue';
+import {
+    computed, defineComponent, reactive, toRef, toRefs, watch,
+} from 'vue';
+
+import vClickOutside from 'v-click-outside';
+import { focus } from 'vue-focus';
+
+import PTag from '@/data-display/tags/PTag.vue';
+import PI from '@/foundation/icons/PI.vue';
+import { useContextMenuFixedStyle } from '@/hooks/context-menu-fixed-style';
+import { useProxyValue } from '@/hooks/proxy-state';
+import PButton from '@/inputs/buttons/button/PButton.vue';
+import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
+import type { MenuItem } from '@/inputs/context-menu/type';
+import type { SearchDropdownMenuItem } from '@/inputs/dropdown/search-dropdown/type';
+import { INPUT_SIZE } from '@/inputs/input/type';
+import type { SelectedItem, TextInputHandler, InputSize } from '@/inputs/input/type';
+
+
+interface TextInputProps {
+    value?: string|number;
+    disabled: boolean;
+    block: boolean;
+    invalid: boolean;
+    placeholder: string;
+    multiInput: boolean;
+    selected: SelectedItem[];
+    visibleMenu?: boolean;
+    useFixedMenuStyle: boolean;
+    menu: MenuItem[];
+    loading: boolean;
+    handler?: TextInputHandler;
+    disableHandler: boolean;
+    exactMode: boolean;
+    useAutoComplete: boolean;
+    maskingMode: boolean;
+    size?: InputSize;
+}
+
+export default defineComponent<TextInputProps>({
     name: 'PTextInput',
-    functional: true,
+    components: {
+        PTag,
+        PI,
+        PContextMenu,
+        PButton,
+    },
+    directives: {
+        focus,
+        clickOutside: vClickOutside.directive,
+    },
     model: {
         prop: 'value',
         event: 'input',
@@ -14,14 +161,16 @@ export default {
             type: [String, Number],
             default: undefined,
         },
+        size: {
+            type: String as PropType<InputSize>,
+            default: INPUT_SIZE.md,
+            validator(size: InputSize) {
+                return Object.values(INPUT_SIZE).includes(size);
+            },
+        },
         disabled: {
             type: Boolean,
             default: false,
-        },
-        type: {
-            type: String,
-            default: 'text',
-            validator: value => inputTypes.includes(value),
         },
         block: {
             type: Boolean,
@@ -31,127 +180,372 @@ export default {
             type: Boolean,
             default: false,
         },
+        placeholder: {
+            type: String,
+            default: '',
+        },
+        multiInput: {
+            type: Boolean,
+            default: false,
+        },
+        selected: {
+            type: Array as PropType<SelectedItem[]>,
+            default: () => [],
+        },
+        /* context menu fixed style props */
+        visibleMenu: {
+            type: Boolean,
+            default: undefined,
+        },
+        useFixedMenuStyle: {
+            type: Boolean,
+            default: false,
+        },
+        /* context menu props */
+        menu: {
+            type: Array as PropType<MenuItem[]>,
+            default: () => [],
+        },
+        loading: {
+            type: Boolean,
+            default: false,
+        },
+        /* extra props */
+        handler: {
+            type: Function,
+            default: undefined,
+        },
+        disableHandler: {
+            type: Boolean,
+            default: false,
+        },
+        exactMode: {
+            type: Boolean,
+            default: true,
+        },
+        useAutoComplete: {
+            type: Boolean,
+            default: false,
+        },
+        maskingMode: {
+            type: Boolean,
+            default: false,
+        },
+        showPassword: {
+            type: Boolean,
+            default: true,
+        },
     },
-    render(h, {
-        data, props, listeners, slots,
-    }) {
-        const childrenEl: any[] = [];
 
-        /* Input */
-        childrenEl.push(
-            h('input', {
-                attrs: {
-                    ...data.attrs,
-                    disabled: props.disabled,
-                    type: props.type,
-                },
-                domProps: {
-                    value: props.value,
-                },
-                ...(data.directives?.length && {
-                    directives: [data.directives[0]],
-                }),
-                on: {
-                    ...listeners,
-                    input: (event) => {
-                        if (listeners.input) {
-                            if (Array.isArray(listeners.input)) {
-                                listeners.input.forEach((d) => { d(event.target.value); });
-                            } else listeners.input(event.target.value);
-                        }
-                    },
-                },
+    setup(props, { emit, listeners, attrs }) {
+        const state = reactive({
+            proxyVisibleMenu: useProxyValue<boolean | undefined>('visibleMenu', props, emit),
+            menuRef: null,
+            targetRef: null,
+            isFocused: false,
+            proxyShowPassword: useProxyValue('showPassword', props, emit),
+            inputType: computed(() => {
+                if (props.maskingMode) {
+                    if (attrs.type === 'password') return state.proxyShowPassword ? 'password' : 'text';
+                    return attrs.type;
+                }
+                return attrs.type;
             }),
-        );
+            proxyValue: useProxyValue('value', props, emit),
+            proxySelectedValue: useProxyValue('selected', props, emit),
+            deleteTarget: undefined as string | undefined,
+            deleteTargetIdx: -1,
+            isTagDeletable: false,
+            isInvalid: props.selected.some((item) => item.invalid),
+            searchableItems: computed<MenuItem[]>(() => props.menu.filter((d) => d.type === undefined || d.type === 'item')),
+            filteredMenu: [] as MenuItem[],
+            bindingMenu: computed<SearchDropdownMenuItem[]>(() => (props.disableHandler ? props.menu : state.filteredMenu)),
+        });
+        const {
+            targetRef, targetElement, contextMenuStyle,
+        } = useContextMenuFixedStyle({
+            useFixedMenuStyle: computed(() => props.useFixedMenuStyle),
+            visibleMenu: toRef(state, 'proxyVisibleMenu'),
+        });
+        const contextMenuFixedStyleState = reactive({
+            targetRef, targetElement, contextMenuStyle,
+        });
 
-        /* Slots */
-        const allSlots = slots ? slots() : {};
-        if (allSlots['right-extra']) {
-            childrenEl.push(
-                h('span', {
-                    class: 'right-extra',
-                }, allSlots['right-extra']),
-            );
-        }
-        return h('span', {
-            class: {
-                ...getBindClass(data.class),
-                'p-text-input': true,
-                block: props.block,
+        const handleDeleteTag = (val, idx) => {
+            const _selectedItems: SelectedItem[] = [...state.proxySelectedValue];
+            _selectedItems.splice(idx, 1);
+
+            const _selectedValues = _selectedItems.map((d) => d.value);
+            _selectedItems.forEach((selected, sIdx) => {
+                selected.duplicated = _selectedValues.slice(0, sIdx).includes(selected.value);
+            });
+            state.proxySelectedValue = _selectedItems;
+            state.deleteTargetIdx = -1;
+            state.deleteTarget = undefined;
+            emit('delete-tag', val, idx);
+        };
+
+        const hideMenu = () => {
+            state.proxyVisibleMenu = false;
+            emit('hide-menu');
+        };
+
+        const showMenu = () => {
+            state.proxyVisibleMenu = true;
+            emit('show-menu');
+        };
+
+        const handleDeleteAllTags = () => {
+            state.proxySelectedValue = [];
+            state.proxyValue = '';
+            hideMenu();
+            emit('delete-all-tags');
+        };
+
+        const defaultHandler = (inputText: string, list: MenuItem[]) => {
+            let results: MenuItem[] = [...list];
+            const trimmed = inputText.trim();
+            if (trimmed) {
+                const regex = new RegExp(inputText, 'i');
+                results = results.filter((d) => regex.test(d.label as string));
+            }
+            return { results };
+        };
+
+        const filterMenu = async (val: string) => {
+            if (props.disableHandler) return;
+
+            if (props.handler) {
+                let res = props.handler(val, state.searchableItems);
+                if (res instanceof Promise) res = await res;
+                state.filteredMenu = res.results;
+            } else {
+                const results = defaultHandler(val, state.searchableItems).results;
+
+                const filtered = props.menu.filter((item) => {
+                    if (item.type && item.type !== 'item') return true;
+                    return !!results.find((d) => d.label === item.label);
+                });
+                if (filtered[filtered.length - 1]?.type === 'divider') filtered.pop();
+                state.filteredMenu = filtered;
+            }
+        };
+
+        const handleFocusMenuItem = (idx: string) => {
+            emit('focus-menu', idx);
+        };
+
+        const handleSelectMenuItem = ({ label, name }: SearchDropdownMenuItem) => {
+            const _selectedItems = [...state.proxySelectedValue, { label, value: name }];
+            const _selectedValues = _selectedItems.map((d) => d.value);
+            _selectedItems.forEach((selected, idx) => {
+                selected.duplicated = _selectedValues.slice(0, idx).includes(selected.value);
+            });
+            state.proxySelectedValue = _selectedItems;
+            state.proxyValue = '';
+            hideMenu();
+        };
+
+        const handleTogglePassword = () => {
+            state.proxyShowPassword = !state.proxyShowPassword;
+        };
+
+        const deleteSelectedTags = () => {
+            if (state.proxyValue?.length > 0) return;
+            const lastIdx = state.proxySelectedValue.length - 1;
+            if (state.deleteTargetIdx === -1) { // Select the item if there is no selection
+                state.deleteTargetIdx = lastIdx;
+                state.deleteTarget = state.proxySelectedValue[lastIdx];
+                return;
+            }
+
+            const deleteTargetIdx = state.deleteTargetIdx;
+            const deleteTargetTag = state.proxySelectedValue[deleteTargetIdx];
+
+            if (!deleteTargetTag) state.proxySelectedValue = [];
+            handleDeleteTag(deleteTargetTag, deleteTargetIdx);
+        };
+
+        const inputListeners = {
+            ...listeners,
+            input(event) {
+                state.proxyValue = event.target.value;
+                if (state.proxyValue?.length && props.useAutoComplete) {
+                    showMenu();
+                    filterMenu(state.proxyValue);
+                }
+                emit('input', event.target.value);
             },
-            staticClass: data.staticClass,
-            staticStyle: data.staticStyle,
-            style: data.style,
-        }, [
-            h('span', {
-                class: {
-                    'input-container': true,
-                    invalid: props.invalid,
-                    disabled: props.disabled,
-                },
-            }, childrenEl),
-        ]);
+            focus() {
+                state.isFocused = true;
+                emit('focus');
+            },
+            blur() {
+                state.isFocused = false;
+                emit('blur');
+            },
+            keyup(event) {
+                if ((event.key === 'ArrowDown' || event.key === 'Down') && props.useAutoComplete) {
+                    if (state.bindingMenu.length === 0) return;
+                    if (state.menuRef) state.menuRef.focus();
+                }
+                if (event.code === 'Enter') {
+                    if (event.target.value?.length > 0 && props.multiInput) {
+                        handleSelectMenuItem({ label: event.target.value, name: event.target.value });
+                    }
+                }
+                emit('keyup', event);
+            },
+            keydown(event) {
+                if (event.code === 'Backspace') {
+                    const isInputEmpty = state.proxySelectedValue.length <= 1 && state.proxyValue?.length <= 1;
+                    if (isInputEmpty && props.useAutoComplete) hideMenu();
+                    if (props.multiInput) deleteSelectedTags();
+                }
+                emit('keydown', event);
+            },
+        };
+
+        watch(() => props.menu, (menu) => {
+            state.filteredMenu = menu;
+            filterMenu(state.proxyValue);
+        });
+        watch(() => props.maskingMode, (maskingMode) => {
+            if (maskingMode) state.proxyShowPassword = true;
+        });
+
+        const init = () => {
+            state.filteredMenu = props.menu;
+            if (props.selected && props.multiInput) {
+                if (!Array.isArray(props.selected)) {
+                    state.proxySelectedValue = [props.selected];
+                }
+            }
+        };
+        init();
+
+        return {
+            ...toRefs(state),
+            ...toRefs(contextMenuFixedStyleState),
+            inputListeners,
+            handleDeleteTag,
+            handleDeleteAllTags,
+            handleFocusMenuItem,
+            handleSelectMenuItem,
+            handleTogglePassword,
+        };
     },
-};
+});
 </script>
 
 <style lang="postcss">
 .p-text-input {
-    display: inline-block;
+    @apply relative;
     width: 15rem;
+    display: inline-block;
     &.block {
         @apply w-full;
     }
-    .input-container {
-        @apply w-full inline-flex border bg-white text-gray-900;
+    > .input-container {
+        @apply inline-flex border bg-white text-gray-900 rounded items-center;
+        width: inherit;
         min-height: 2rem;
-        height: 2rem;
-        border-radius: 2px;
+        height: auto;
         font-size: 0.875rem;
         line-height: 2rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+
         &.invalid {
             @apply border-alert;
         }
         &.disabled {
-            @apply border-gray-200 bg-gray-100
+            @apply border-gray-300 bg-gray-100;
         }
-        &:focus-within:not(.disabled):not(.invalid) {
-            @apply border-secondary;
+        &.focused, &:focus-within:not(.disabled):not(.invalid) {
+            @apply border-secondary bg-blue-100;
         }
         &:hover:not(.disabled):not(.invalid) {
             @apply border-secondary;
         }
-    }
-    input {
-        @apply truncate;
-        display: inline-block;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-        flex-grow: 1;
-        border-width: 0;
-        height: 100%;
-        appearance: none;
-        line-height: inherit;
-        font-size: inherit;
-        color: inherit;
-        background-color: transparent;
-        &:disabled {
-            @apply bg-transparent border-0;
+        > .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            padding: 0.375rem 0;
+            gap: 0.5rem;
+            > .tag {
+                height: 1.25rem;
+                min-width: 2.5rem;
+                margin: 0;
+            }
         }
-        &::placeholder {
-            @apply text-gray-300;
+
+        input {
+            @apply truncate;
+            display: inline-block;
+            flex-grow: 1;
+            border-width: 0;
+            height: 100%;
+            appearance: none;
+            line-height: inherit;
+            font-size: inherit;
+            color: inherit;
+            background-color: transparent;
+
+            &:disabled {
+                @apply bg-transparent border-0;
+            }
+
+            &::placeholder {
+                @apply text-gray-300;
+            }
+        }
+
+        > .right-extra, > .input-right {
+            @apply text-gray-400;
+            display: inline-flex;
+            flex-shrink: 0;
+            height: 100%;
+            overflow: hidden;
+            line-height: inherit;
+            font-size: inherit;
+        }
+
+        > .right-edge {
+            display: inline-flex;
+            flex-shrink: 0;
+            height: 100%;
+            overflow: hidden;
+            line-height: inherit;
+            font-size: inherit;
+        }
+
+        .delete-all-icon {
+            @apply text-gray-400 cursor-pointer;
+            flex-shrink: 0;
         }
     }
-    .right-extra {
-        @apply text-gray-400;
-        display: inline-flex;
-        margin-right: 0.5rem;
-        flex-shrink: 0;
-        height: 100%;
-        overflow: hidden;
-        line-height: inherit;
-        font-size: inherit;
+    .p-context-menu {
+        position: absolute;
+        margin-top: -1px;
+        z-index: 1000;
+        min-width: 100%;
+        width: 100%;
+    }
+
+    @define-mixin size $input-height, $font-size, $line-height {
+        .input-container {
+            min-height: $input-height;
+            font-size: $font-size;
+            line-height: $line-height;
+        }
+    }
+    &.sm {
+        @mixin size 1.5rem, 0.75rem, 1.5rem;
+    }
+    &.md {
+        @mixin size 2rem, 0.875rem, 2rem;
     }
 }
-
 </style>

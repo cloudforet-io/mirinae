@@ -1,39 +1,13 @@
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
 import PDynamicLayout from '@/data-display/dynamic/dynamic-layout/PDynamicLayout.vue';
-import { argTypes } from '@/data-display/dynamic/dynamic-layout/story-helper';
 import {i18n} from '@/translations'
-import mock from '@/data-display/dynamic/dynamic-layout/mock.ts'
-import { reactive, toRefs } from '@vue/composition-api';
-import faker from 'faker'
+import { reactive, toRefs } from 'vue';
+import { faker }  from '@faker-js/faker'
 import {range} from 'lodash'
+import { getDynamicLayoutQuerySearchTableArgTypes } from '@/data-display/dynamic/dynamic-layout/templates/query-search-table/story-helper';
 
-<Meta title='Data Display/Dynamic/Dynamic Layout/Query Search Table'
-      component={PDynamicLayout} argTypes={{
-    name: argTypes.name,
-    options: argTypes.options,
-    data: argTypes.data,
-    loading: argTypes.loading,
-    totalCount: argTypes.totalCount,
-    timezone: argTypes.timezone,
-    selectIndex: argTypes.selectIndex,
-    selectable: argTypes.selectable,
-    multiSelect: argTypes.multiSelect,
-    invalid: argTypes.invalid,
-    colCopy: argTypes.colCopy,
-    searchable: argTypes.searchable,
-    excelVisible: argTypes.excelVisible,
-    keyItemSets: argTypes.keyItemSets,
-    valueHandlerMap: argTypes.valueHandlerMap,
-    sortBy: argTypes.sortBy,
-    sortDesc: argTypes.sortDesc,
-    pageStart: argTypes.pageStart,
-    pageLimit: argTypes.pageLimit,
-    queryTags: argTypes.queryTags,
-    onInit: argTypes.onInit,
-    onFetch: argTypes.onFetch,
-    onSelect: argTypes.onSelect,
-    onExport: argTypes.onExport,
-}}/>
+<Meta title='Data Display/Dynamic/Dynamic Layout/- [Table] Query Search Table'
+      argTypes={getDynamicLayoutQuerySearchTableArgTypes()}/>
 
 
 export const Template = (args, { argTypes }) => ({
@@ -53,8 +27,8 @@ export const Template = (args, { argTypes }) => ({
                               multiSelect,
                               invalid,
                               colCopy,
-                              searchable,
                               excelVisible,
+                              settingsVisible,
                               keyItemSets,
                               valueHandlerMap
                           }"
@@ -65,11 +39,12 @@ export const Template = (args, { argTypes }) => ({
                               pageLimit,
                               queryTags
                           }"
-                           class="w-full"
-                            @init="onInit"
+                           style="max-height: inherit; width: 90%;"
                             @fetch="onFetch"
                             @select="onSelect"
                             @export="onExport"
+                            @click-settings="onClickSettings"
+                            @click-row="onClickRow"
             >
         </p-dynamic-layout>
     `,
@@ -81,25 +56,86 @@ export const Template = (args, { argTypes }) => ({
 
 
 # Query Search Table Type
+<br/>
+<br/>
+
+## Supported Options
+
+| Name | Supported |
+| ---- | ----------- |
+| root_path | O |
+| translation_id | O |
+| fields | O |
+| markdown | X |
+| layouts | X |
+| search | O |
+| disable_search | O |
+| layout | X |
+
+
+## Supported Fetch Options
+
+| Name | Supported |
+| ---- | ---- |
+| sortBy | O |
+| sortDesc | O |
+| pageStart | O |
+| pageLimit | O |
+| searchText | X |
+| queryTags | O |
+
+
+## Supported Type Options
+
+| Type Option Name | Supported |
+| ---- | ---- |
+| loading | O |
+| totalCount | O |
+| timezone | O |
+| selectIndex | O |
+| selectable | O |
+| multiSelect | O |
+| invalid | O |
+| colCopy | O |
+| excelVisible | O |
+| settingsVisible | O |
+| keyItemSets | O |
+| valueHandlerMap | O |
+| language | O |
+| popupVisible | X |
+
+
+## Supported Events
+| Event Name | Supported |
+| ---------- | ----------- |
+| fetch | O |
+| select | O |
+| export | O |
+| click-settings | O |
+| click-row | O |
+| update-popup-visible | X |
+
+<br/>
+<br/>
 
 ## Basic
 
 <Canvas>
     <Story name="Basic">
-        {{
+{{
     components: { PDynamicLayout },
     i18n,
     template: `
-      <p-dynamic-layout type="query-search-table"
-                      :options="options"
-                      :data="data"
-                      :type-options="typeOptions"
-                      :fetch-options="{}"
-                       class="w-full"
-                        @init="fetchData"
-                        @fetch="fetchData"
-            >
-        </p-dynamic-layout>
+    <p-dynamic-layout
+        type="query-search-table"
+        :options="options"
+        :data="data"
+        :type-options="typeOptions"
+        :fetch-options="{}"
+        style="max-height: inherit; width: 90%;"
+        @fetch="fetchData"
+        >
+    </p-dynamic-layout>
     `,
     setup() {
         const state = reactive({
@@ -107,26 +143,59 @@ export const Template = (args, { argTypes }) => ({
                 loading: true,
                 totalCount: 0
             },
-            options: mock.querySearchTable.options,
+            options: {
+                fields: [{
+                    name: 'Instance ID',
+                    key: 'server_id',
+                }, {
+                    name: 'Region',
+                    key: 'data.compute.region',
+                }, {
+                    name: 'Changed Jobs',
+                    key: 'data.collection_info.change_history.job_id',
+                }, {
+                    name: 'Instance State',
+                    key: 'data.compute.instance_state',
+                    type: 'enum',
+                    options: {
+                        ACTIVE: {
+                            type: 'state',
+                            options: {
+                                icon: {
+                                    image: 'ic_state_active',
+                                },
+                            },
+                        },
+                        DISCONNECTED: {
+                            type: 'state',
+                            options: {
+                                icon: {
+                                    image: 'ic_state_disconnected',
+                                },
+                            },
+                        },
+                    },
+                }],
+            },
             data: null
         })
-        const fetchData = async (options, changed) => {
+        const fetchData = async (options = {}) => {
             state.typeOptions.loading = true;
             state.data = await new Promise((resolve) => {
                 setTimeout(() => {
-                    state.typeOptions.totalCount = faker.random.number({ min: 0 });
-                    resolve(range(options.pageLimit)
+                    state.typeOptions.totalCount = faker.datatype.number({ min: 0 });
+                    resolve(range(options.pageLimit || 15)
                         .map(d => ({
                             // eslint-disable-next-line camelcase
-                            server_id: faker.random.uuid(),
+                            server_id: faker.datatype.uuid(),
                             data: {
                                 compute: {
                                     region: faker.random.word(),
                                     // eslint-disable-next-line camelcase
-                                    instance_state: faker.random.arrayElements(['ACTIVE', 'DISCONNECTED']),
+                                    instance_state: faker.helpers.arrayElements(['ACTIVE', 'DISCONNECTED']),
                                 },
                                 collection_info: {
-                                    change_history: range(faker.random.number({ min: 0, max: 10 })).map(d => ({job_id: faker.random.uuid()}))
+                                    change_history: range(faker.datatype.number({ min: 0, max: 10 })).map(d => ({job_id: faker.datatype.uuid()}))
                                 }
                             },
                         })))
@@ -134,6 +203,7 @@ export const Template = (args, { argTypes }) => ({
             });
             state.typeOptions.loading = false;
         };
+        fetchData();
         return {
             ...toRefs(state),
             fetchData,
@@ -149,11 +219,7 @@ export const Template = (args, { argTypes }) => ({
 ## Playground
 
 <Canvas>
-    <Story name="Playground" args={{
-        type: 'query-search-table',
-        data: mock.table.data,
-        options: mock.table.options,
-    }}>
+    <Story name="Playground" >
         {Template.bind({})}
     </Story>
 </Canvas>

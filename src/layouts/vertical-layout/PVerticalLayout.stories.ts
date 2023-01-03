@@ -1,4 +1,5 @@
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { withKnobs } from '@storybook/addon-knobs';
+
 import PVerticalLayout from '@/layouts/vertical-layout/PVerticalLayout.vue';
 
 export default {
@@ -16,7 +17,7 @@ export default {
 export const verticalLayout = () => ({
     components: { PVerticalLayout },
     template: `
-        <div style="width: 100vw; border: 1px solid gray;">
+        <div style="width: 100vw; height: 10rem; border: 1px solid gray;">
             <p-vertical-layout>
                 <template #sidebar>
                     Left Layout

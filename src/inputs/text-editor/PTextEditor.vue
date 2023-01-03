@@ -1,22 +1,16 @@
 <template>
     <div class="p-text-editor">
-        <transition name="fade-in">
-            <div v-if="loading" class="loader w-full h-full">
-                <slot name="loader" :loading="loading">
-                    <p-lottie name="thin-spinner"
-                              auto
-                              :size="2.5"
-                              class="flex items-center justify-center"
-                    />
-                </slot>
-            </div>
-        </transition>
-        <div v-if="!loading">
-            <textarea ref="textarea"
+        <p-data-loader :data="true"
+                       :loading="loading"
+                       disable-empty-case
+                       show-data-from-scratch
+                       loader-backdrop-color="gray.900"
+        >
+            <textarea ref="textareaRef"
                       name="codemirror"
                       placeholder=""
             />
-        </div>
+        </p-data-loader>
     </div>
 </template>
 
@@ -24,44 +18,59 @@
 <script lang="ts">
 /**
   * Used library: codemirror
-  * https://github.com/surmon-china/vue-codemirror#readme
+  * https://github.com/codemirror/codemirror5
 * */
 
+/**
+ * PTextEditor can get any types,
+ * CodeMirror can get String ONLY
+ */
+
+import type { PropType } from 'vue';
 import {
-    ComponentRenderProxy, computed,
+    computed, defineComponent,
     getCurrentInstance, onBeforeUnmount,
     reactive, toRefs, watch,
-} from '@vue/composition-api';
+} from 'vue';
+
+import type { EditorConfiguration } from 'codemirror';
+import CodeMirror from 'codemirror';
 import { forEach } from 'lodash';
-import PLottie from '@/foundation/lottie/PLottie.vue';
-import { modes } from '@/inputs/text-editor/config';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const CodeMirror = require('codemirror');
-require('codemirror/mode/javascript/javascript');
-require('codemirror/addon/fold/brace-fold');
-require('codemirror/addon/fold/comment-fold');
-require('codemirror/addon/fold/foldcode');
-require('codemirror/addon/fold/foldgutter');
-require('codemirror/addon/fold/indent-fold');
-require('codemirror/addon/fold/markdown-fold');
-require('codemirror/addon/fold/xml-fold');
-require('codemirror/addon/lint/json-lint');
-require('codemirror/addon/edit/closebrackets');
-require('codemirror/addon/edit/closetag');
+import PDataLoader from '@/feedbacks/loading/data-loader/PDataLoader.vue';
 
+import('codemirror/mode/javascript/javascript');
+import('codemirror/addon/fold/brace-fold');
+import('codemirror/addon/fold/comment-fold');
+import('codemirror/addon/fold/foldcode');
+import('codemirror/addon/fold/foldgutter');
+import('codemirror/addon/fold/indent-fold');
+import('codemirror/addon/fold/markdown-fold');
+import('codemirror/addon/fold/xml-fold');
+import('codemirror/addon/lint/json-lint');
+import('codemirror/addon/edit/closebrackets');
+import('codemirror/addon/edit/closetag');
 
-export default {
+interface Props {
+    code: string|Record<string, any>|Array<any>;
+    options: EditorConfiguration;
+    readOnly: boolean;
+    loading: boolean;
+    folded: boolean;
+    highlightLines?: Array<number>;
+    disableAutoReformat?: boolean;
+}
+
+export default defineComponent<Props>({
     name: 'PTextEditor',
-    components: { PLottie },
+    components: { PDataLoader },
     props: {
         code: {
-            type: String,
+            type: [Array, Object, String, Number] as PropType<any>,
             default: '',
-            required: true,
         },
         options: {
-            type: Object,
+            type: Object as PropType<EditorConfiguration>,
             default: () => ({
                 tabSize: 4,
                 styleActiveLine: true,
@@ -69,20 +78,17 @@ export default {
                 line: true,
                 mode: 'application/json',
                 lineWrapping: true,
-                theme: 'ayu-mirage',
+                theme: 'dracula',
                 matchBrackets: true,
                 autoCloseBrackets: true,
                 autoCloseTags: true,
                 foldGutter: true,
-                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-addedline', 'CodeMirror-foldgutter'],
             }),
         },
-        mode: {
-            type: String,
-            default: 'edit',
-            validator(mode) {
-                return modes.includes(mode);
-            },
+        readOnly: {
+            type: Boolean,
+            default: false,
         },
         loading: {
             type: Boolean,
@@ -92,91 +98,124 @@ export default {
             type: Boolean,
             default: false,
         },
+        highlightLines: {
+            type: Array as PropType<Array<number>>,
+            default: () => [],
+        },
+        disableAutoReformat: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
         const state = reactive({
             content: '',
-            cminstance: null as any,
-            textarea: null as any,
-            mergedOptions: computed(() => ({ ...props.options, readOnly: props.mode === 'readOnly' })),
+            cmInstance: null as CodeMirror.Editor|null,
+            textareaRef: null as HTMLTextAreaElement|null,
+            mergedOptions: computed<EditorConfiguration>(() => ({ ...props.options, readOnly: props.readOnly })),
         });
 
-        const forceFold = () => {
-            if (props.folded && state.cminstance && props.code) {
-                state.cminstance.operation(() => {
-                    for (let l = state.cminstance.firstLine() + 1;
-                        l <= state.cminstance.lastLine(); ++l) {
-                        state.cminstance.foldCode({ line: l, ch: 0 }, null, 'fold');
+        const refineCode = (code: any): string => {
+            if (typeof code === 'string') {
+                const trimmedCode = code.trim();
+                if (trimmedCode.startsWith('{') || trimmedCode.startsWith('[')) {
+                    try {
+                        // Object encased in String
+                        // "{height: 182}"
+                        const obj = JSON.parse(trimmedCode);
+                        if (props.disableAutoReformat) return code;
+
+                        return JSON.stringify(obj, undefined, 4);
+                    } catch {
+                        // Looks like Object encased in String, BUT Pure String
+                        // "{haha}"
+                        return code;
+                    }
+                }
+                // Pure String
+                // "haha"
+                return code;
+            }
+            // Object, null, undefined, Number
+            return JSON.stringify(code, undefined, 4);
+        };
+
+        const forceFold = (cmInstance) => {
+            if (props.folded && cmInstance && props.code && cmInstance.foldCode) {
+                cmInstance.operation(() => {
+                    for (let l = cmInstance.firstLine() + 1;
+                        l <= cmInstance.lastLine(); ++l) {
+                        cmInstance.foldCode({ line: l, ch: 0 }, null, 'fold');
                     }
                 });
             }
         };
 
-        const onCmCodeChange = (newCode) => {
-            emit('update:code', newCode);
-        };
-
-        const handleCodeChange = (newVal) => {
-            const cmValue = state.cminstance.getValue();
-            if (newVal !== cmValue) {
-                const scrollInfo = state.cminstance.getScrollInfo();
-                state.cminstance.setValue(newVal);
-                state.content = newVal;
-                state.cminstance.scrollTo(scrollInfo.left, scrollInfo.top);
+        const setCode = (cmInstance, code) => {
+            if (code !== cmInstance.getValue()) {
+                const scrollInfo = cmInstance.getScrollInfo();
+                cmInstance.setValue(code);
+                cmInstance.scrollTo(scrollInfo.left, scrollInfo.top);
             }
         };
 
-        const refresh = () => {
-            vm.$nextTick(() => {
-                state.cminstance.refresh();
+        const setHighlightLines = (cmInstance, lines: Array<number>|undefined) => {
+            forEach(lines, (line) => {
+                cmInstance.setGutterMarker(line, 'CodeMirror-addedline', (() => {
+                    const marker = document.createElement('span');
+                    marker.innerHTML = '৹';
+                    return marker;
+                })());
+                cmInstance.addLineClass(line, 'wrap', 'CodeMirror-activeline');
+                cmInstance.addLineClass(line, 'background', 'CodeMirror-activeline-background');
+                cmInstance.addLineClass(line, 'gutter', 'CodeMirror-activeline-gutter');
             });
         };
 
-        const destroy = (cminstance) => {
-            // garbage cleanup
-            const element = cminstance?.doc?.cm?.getWrapperElement();
-            if (element?.remove) element.remove();
+        const refresh = (cmInstance) => {
+            vm.$nextTick(() => {
+                cmInstance.refresh();
+            });
         };
 
-        const init = async () => {
-            state.cminstance = CodeMirror.fromTextArea(state.textarea, state.mergedOptions);
+        const destroy = (cmInstance) => {
+            // garbage cleanup
+            const element = cmInstance?.doc?.cm?.getWrapperElement();
+            if (element?.remove) element.remove();
+            state.cmInstance = null;
+        };
+
+        const init = (textareaRef: HTMLTextAreaElement) => {
+            const editor = CodeMirror.fromTextArea(textareaRef, state.mergedOptions);
 
             watch(() => state.mergedOptions, (options) => {
-                if (options && state.cminstance) {
+                if (options && editor) {
                     forEach(options, (d, k) => {
-                        state.cminstance.setOption(k, d);
+                        editor.setOption(k as keyof EditorConfiguration, d);
                     });
                 }
             }, { deep: true });
 
-            state.cminstance.on('change', (cm) => {
-                state.content = cm.getValue();
-                onCmCodeChange(state.content);
+            editor.on('change', (cm) => {
+                emit('update:code', cm.getValue());
             });
 
-            watch(() => props.code, (newVal) => {
-                handleCodeChange(newVal);
-            }, { immediate: true });
-
-            forceFold();
-
-            // prevents funky dynamic rendering
-            refresh();
+            state.cmInstance = editor;
         };
 
+        watch([() => state.textareaRef, () => props.code, () => props.disableAutoReformat], ([textareaRef, code]) => {
+            if (!textareaRef) return;
+            if (!state.cmInstance) init(textareaRef);
 
-        watch(() => state.textarea, async (after, before) => {
-            if (after) {
-                await init();
-            } else {
-                destroy(before);
-            }
-        });
-
+            setCode(state.cmInstance, refineCode(code));
+            if (props.highlightLines) setHighlightLines(state.cmInstance, props.highlightLines);
+            forceFold(state.cmInstance);
+            refresh(state.cmInstance);
+        }, { immediate: true });
 
         onBeforeUnmount(() => {
-            destroy(state.cminstance);
+            destroy(state.cmInstance);
         });
 
 
@@ -184,36 +223,52 @@ export default {
             ...toRefs(state),
         };
     },
-};
+});
 </script>
 
 <style lang="postcss">
 @import 'codemirror/lib/codemirror.css';
-@import 'codemirror/theme/ayu-mirage.css';
+@import 'codemirror/theme/dracula.css';
 @import 'codemirror/addon/lint/lint.css';
 @import 'codemirror/addon/fold/foldgutter.css';
 .p-text-editor {
     height: 100%;
     min-height: 5rem;
-    .CodeMirror {
-        font-family: Inconsolata, monospace;
-        line-height: 1.5;
-        height: fit-content;
-        padding: 1rem;
-    }
-    position: relative;
-    .loader {
-        position: absolute;
-        padding-top: 2rem;
-    }
-    .fade-in-leave-active, .fade-in-enter-active {
-        transition: opacity 0.5s;
-    }
-    .fade-in-leave-to, .fade-in-enter {
-        opacity: 0;
-    }
-    .fade-in-enter-to, .fade-in-leave {
-        opacity: 1;
+    > .p-data-loader {
+        min-height: inherit;
+        > .data-loader-container {
+            min-height: inherit;
+            > .data-wrapper {
+                min-height: inherit;
+                > textarea {
+                    display: none;
+                }
+
+                > .CodeMirror {
+                    .CodeMirror-addedline {
+                        width: 1rem;
+                    }
+
+                    .CodeMirror-gutters {
+                        border-right: 0.03rem solid rgba(109, 138, 136, 0.5);
+                    }
+
+                    .CodeMirror-activeline-gutter, .CodeMirror-activeline-background {
+                        background-color: rgba(255, 255, 222, 0.3);
+                    }
+
+                    font-family: Inconsolata, monospace;
+                    line-height: 1.5;
+                    height: fit-content;
+                    padding: 1rem;
+                    min-height: inherit;
+
+                    > .CodeMirror-scroll {
+                        min-height: inherit;
+                    }
+                }
+            }
+        }
     }
 }
 </style>

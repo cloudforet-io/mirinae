@@ -30,13 +30,14 @@
 </template>
 
 <script lang="ts">
-import { SelectableItemPropsType } from '@/others/deprecated/selectable-item/type';
-import PLazyImg from '@/feedbacks/loading/lazy-img/PLazyImg.vue';
 import {
     computed, reactive, toRefs,
-} from '@vue/composition-api';
-import { makeByPassListeners } from '@/util/composition-helpers';
+} from 'vue';
+
+import PLazyImg from '@/feedbacks/loading/lazy-img/PLazyImg.vue';
 import { themes } from '@/others/deprecated/selectable-item/config';
+import type { SelectableItemPropsType } from '@/others/deprecated/selectable-item/type';
+import { makeByPassListeners } from '@/util/composition-helpers';
 
 export default {
     name: 'PSelectableItem',
@@ -109,10 +110,10 @@ export default {
     min-height: 3rem;
     height: 100%;
     .bar {
+        @apply rounded-tl-sm rounded-bl-sm;
         position: absolute;
         left: 0;
         top: 0;
-        border-radius: 2px 0 0 2px;
         width: 4px;
         height: 100%;
         background-color: currentColor;
@@ -138,17 +139,17 @@ export default {
     }
 }
 .item-container {
+    @apply rounded;
     &.default {
         @mixin item-theme transparent, theme('colors.gray.100'), theme('colors.secondary'), theme('colors.blue.200');
     }
     &.card {
         @mixin item-theme theme('colors.gray.200'), theme('colors.blue.200'), theme('colors.secondary'), theme('colors.blue.200');
-        border-radius: 2px;
+        border-radius: theme('borderRadius.xs');
         .contents {
             padding: 0.5rem 1rem;
         }
     }
-
     &.disabled {
         cursor: unset;
         opacity: 0.5;

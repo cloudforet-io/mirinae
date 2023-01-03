@@ -1,163 +1,16 @@
 import icon from 'vue-svgicon';
 import PStatus from '@/data-display/status/PStatus.vue';
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
-import { themes } from '@/data-display/status/config';
-import { names } from '@/foundation/lottie/p-lotties/names';
+import {
+    getStatusArgTypes
+} from "@/data-display/status/story-helper";
 
 <Meta title='Data Display/Status' parameters={{
     design: {
         type: 'figma',
         url: 'https://www.figma.com/file/wq4wSowBcADBuUrMEZLz6i/SpaceONE-Console-Design?node-id=6132%3A124044',
     }
-}} component={ PStatus } argTypes={{
-    theme: {
-        name: 'theme',
-        type: {name: 'string'},
-        description: 'Status theme',
-        defaultValue: 'green',
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'null'
-            }
-        },
-        control: {
-            type: 'select',
-            options: [null, ...themes],
-        },
-    },
-    icon: {
-        name: 'icon',
-        type: {name: 'string'},
-        description: 'Icon name',
-        defaultValue: null,
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'null',
-            }
-        },
-        control: {
-            type: 'select',
-            options: [null, ...Object.keys(icon.icons)],
-        },
-    },
-    lottie: {
-        name: 'lottie',
-        type: {name: 'string'},
-        description: 'Lottie name',
-        defaultValue: null,
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'null',
-            }
-        },
-        control: {
-            type: 'select',
-            options: [null, ...names],
-        },
-    },
-    text: {
-        name: 'text',
-        type: {name:' string'},
-        description: 'Text',
-        defaultValue: 'Enabled',
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'Enabled',
-            }
-        },
-        control: {
-            type: 'text'
-        }
-    },
-    textColor: {
-        name: 'textColor',
-        type: {name:' string'},
-        description: 'Text color',
-        defaultValue: null,
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'null',
-            }
-        },
-        control: {
-            type: 'color',
-        }
-    },
-    iconColor: {
-        name: 'iconColor',
-        type: {name:' string'},
-        description: 'Icon color',
-        defaultValue: null,
-        table: {
-            type: {
-                summary: 'string'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 'null',
-            }
-        },
-        control: {
-            type: 'color',
-        }
-    },
-    disableIcon: {
-        name: 'disableIcon',
-        type: {name: 'boolean'},
-        description: 'Disable icon when true',
-        defaultValue: false,
-        table: {
-            type: {
-                summary: 'boolean'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: false,
-            }
-        },
-        control: {
-            type: 'boolean',
-        }
-    },
-    iconSize: {
-        name: 'iconSize',
-        type: {name: 'number'},
-        description: 'Icon size',
-        defaultValue: 1,
-        table: {
-            type: {
-                summary: 'number'
-            },
-            category: 'props',
-            defaultValue: {
-                summary: 1,
-            }
-        },
-        control: {
-            type: 'number'
-        }
-    }
-}}
+}} argTypes={getStatusArgTypes()}
 />
 
 export const Template = (args, { argTypes }) => ({
@@ -174,7 +27,10 @@ export const Template = (args, { argTypes }) => ({
         :disable-icon="disableIcon"
         :lottie="lottie"
         :icon-size="iconSize"
-    />
+        :icon-animation="iconAnimation"
+    >
+        <div v-if="defaultSlot" v-html="defaultSlot"/>
+    </p-status>
 </div>`,
     setup() {
         return {
@@ -230,7 +86,7 @@ export const Template = (args, { argTypes }) => ({
                     <p-status icon="ic_state_active" text="Enabled" style="margin: 1rem" />
                     <p-status icon="ic_state_disconnected" text="Disconnected" style="margin: 1rem" />
                     <p-status icon="ic_state_duplicated" text="Duplicated" style="margin: 1rem" />
-                    <p-status icon="ic_state_manual" text="Manual" style="margin: 1rem" />
+                    <p-status icon="ic_state_manual" text="Manual" style="margin: 1rem" icon-animation="spin" />
                 </div>`,
         }}
     </Story>

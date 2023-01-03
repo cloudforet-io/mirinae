@@ -1,17 +1,14 @@
 <template>
     <div class="p-selectable-list" :class="[theme]">
-        <slot v-if="loading" name="loading">
+        <slot v-if="true" name="loading">
             <div class="spinner-container">
-                <p-lottie name="thin-spinner" auto
-                          :size="1.5"
-                          class="flex items-center justify-center"
-                />
+                <p-spinner class="flex items-center justify-center" />
             </div>
         </slot>
         <slot v-else-if="items.length === 0" name="no-data">
             <p-empty>
                 <slot name="no-data-format">
-                    No Items
+                    {{ $t('COMPONENT.EMPTY.NO_DATA') }}
                 </slot>
             </p-empty>
         </slot>
@@ -27,7 +24,7 @@
                                :icon-size="iconSize"
                                @click="onItemClick(item, idx)"
             >
-                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                     <slot :name="slot" v-bind="scope"
                           :items="items" :item="item" :index="idx"
                     />
@@ -38,23 +35,27 @@
 </template>
 
 <script lang="ts">
-import { get, indexOf, findIndex } from 'lodash';
 import {
-    ComponentRenderProxy,
     getCurrentInstance,
-    reactive, toRefs,
-} from '@vue/composition-api';
-import { SelectableListProps, MapperKeyType } from '@/others/deprecated/selectable-list/type';
-import PSelectableItem from '@/others/deprecated/selectable-item/PSelectableItem.vue';
-import PLottie from '@/foundation/lottie/PLottie.vue';
-import { makeOptionalProxy, makeProxy } from '@/util/composition-helpers';
+    reactive,
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
+import { get, findIndex } from 'lodash';
+
 import PEmpty from '@/data-display/empty/PEmpty.vue';
+import PSpinner from '@/feedbacks/loading/spinner/PSpinner.vue';
 import { themes } from '@/others/deprecated/selectable-item/config';
+import PSelectableItem from '@/others/deprecated/selectable-item/PSelectableItem.vue';
+import type { SelectableListProps, MapperKeyType } from '@/others/deprecated/selectable-list/type';
+import { makeOptionalProxy } from '@/util/composition-helpers';
 
 
 export default {
     name: 'PSelectableList',
-    components: { PEmpty, PSelectableItem, PLottie },
+    components: {
+        PSpinner, PEmpty, PSelectableItem,
+    },
     props: {
         items: {
             type: Array,
@@ -107,7 +108,7 @@ export default {
         },
     },
     setup(props: SelectableListProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+        const vm = getCurrentInstance()?.proxy as Vue;
         const proxyState = reactive({
             selectedIndexes: makeOptionalProxy('selectedIndexes', vm, [], ['select']),
             disabledIndexes: makeOptionalProxy('disabledIndexes', vm, []),

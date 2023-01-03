@@ -9,16 +9,24 @@
                       :col-copy="colCopy"
                       v-on="$listeners"
         >
-            <template v-for="({text, description}, headerSlot) of dynamicFieldHeaderSlots" v-slot:[headerSlot]>
+            <template v-for="({text, description}, headerSlot) of dynamicFieldHeaderSlots"
+                      #[headerSlot]
+            >
                 {{ text }}
-                <span :key="`${headerSlot}-description`" class="field-description">{{ $t(description) || description }}</span>
+                <span :key="`${headerSlot}-description`"
+                      class="field-description"
+                >{{ description }}</span>
             </template>
 
-            <template v-for="(item, slotName) of dynamicFieldSlots" v-slot:[slotName]="data">
-                <slot :name="slotName" v-bind="data">
+            <template v-for="(dynamicField, slotName) of dynamicFieldSlots"
+                      #[slotName]="slotProps"
+            >
+                <slot :name="slotName"
+                      v-bind="slotProps"
+                >
                     <p-dynamic-field :key="slotName"
-                                     v-bind="item"
-                                     :data="getValueByPath(rootData[data.index], data.field.name)"
+                                     v-bind="dynamicField"
+                                     :data="getFieldData(slotProps.item, slotProps.field.name, dynamicField)"
                                      :handler="fieldHandler"
                     />
                 </slot>
@@ -29,19 +37,19 @@
 
 <script lang="ts">
 import {
-    ComponentRenderProxy,
     computed, getCurrentInstance, reactive, toRefs,
-} from '@vue/composition-api';
-import { get } from 'lodash';
-import PDataTable from '@/data-display/tables/data-table/PDataTable.vue';
+} from 'vue';
+import type { Vue } from 'vue/types/vue';
+
 import PDynamicField from '@/data-display/dynamic/dynamic-field/PDynamicField.vue';
-import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
-import { DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';
-import {
+import type { DynamicFieldProps } from '@/data-display/dynamic/dynamic-field/type';
+import type { DynamicField } from '@/data-display/dynamic/dynamic-field/type/field-schema';
+import type {
     SimpleTableDynamicLayoutProps,
 } from '@/data-display/dynamic/dynamic-layout/templates/simple-table/type';
-import { DynamicField } from '@/data-display/dynamic/dynamic-field/type/field-schema';
-import { getValueByPath } from '@/data-display/dynamic/dynamic-layout/helper';
+import { getValueByPath } from '@/data-display/dynamic/helper';
+import PDataTable from '@/data-display/tables/data-table/PDataTable.vue';
+import PPanelTop from '@/data-display/titles/panel-top/PPanelTop.vue';
 
 
 export default {
@@ -78,8 +86,8 @@ export default {
             default: undefined,
         },
     },
-    setup(props: SimpleTableDynamicLayoutProps, { emit }) {
-        const vm = getCurrentInstance() as ComponentRenderProxy;
+    setup(props: SimpleTableDynamicLayoutProps) {
+        const vm = getCurrentInstance()?.proxy as Vue;
 
         const state = reactive({
             layoutName: computed(() => (props.options.translation_id ? vm.$t(props.options.translation_id) : props.name)),
@@ -88,22 +96,24 @@ export default {
             fields: computed(() => {
                 if (!props.options.fields) return [];
 
-                return props.options.fields.map(ds => ({
+                return props.options.fields.map((ds) => ({
                     name: ds.key,
                     label: ds.name,
                     sortable: typeof ds.options?.sortable === 'boolean' ? ds.options.sortable : true,
-                    // eslint-disable-next-line camelcase
                     sortKey: ds.options?.sort_key,
                     width: ds.options?.width,
                 }));
             }),
             rootData: computed<any[]>(() => {
-                if (Array.isArray(props.data)) return props.data;
-                if (typeof props.data === 'object' && props.options.root_path) {
-                    return get(props.data, props.options.root_path, []);
+                if (props.options.root_path) {
+                    const rootData = getValueByPath(props.data, props.options.root_path) ?? [];
+                    return Array.isArray(rootData) ? rootData : [rootData];
                 }
+                if (Array.isArray(props.data)) return props.data;
                 return [];
             }),
+            /** get data from typeOptions prop */
+            timezone: computed(() => props.typeOptions?.timezone || 'UTC'),
             loading: computed(() => (props.typeOptions?.loading || false)),
             colCopy: computed(() => (props.typeOptions?.colCopy || false)),
             /** others */
@@ -125,20 +135,19 @@ export default {
                 const res = {};
                 if (!props.options.fields) return res;
 
-                // Do NOT move this code to inside the forEach callback. This code let 'computed' track 'props.typeOptions'.
-                const timezone = props.typeOptions?.timezone || 'UTC';
-
-                props.options.fields.forEach((ds: DynamicField, i) => {
+                props.options.fields.forEach((field: DynamicField, i) => {
                     const item: Omit<DynamicFieldProps, 'data'> = {
-                        type: ds.type || 'text',
-                        options: { ...ds.options },
-                        extraData: { ...ds, index: i },
+                        type: field.type || 'text',
+                        options: { ...field.options },
+                        extraData: { ...field, index: i },
                     };
 
                     if (item.options.translation_id) delete item.options.translation_id;
 
-                    if (ds.type === 'datetime') {
-                        item.typeOptions = { timezone };
+                    if (field.type === 'datetime') {
+                        item.typeOptions = { timezone: state.timezone };
+                    } else if (field.type === 'more') {
+                        item.typeOptions = { displayKey: field.key };
                     }
 
                     res[`col-${i}-format`] = item;
@@ -148,9 +157,17 @@ export default {
             }),
         });
 
+        const getFieldData = (rowData, dataPath: string, { type }: DynamicFieldProps): any => {
+            if (type === 'more') {
+                return rowData;
+            }
+            return getValueByPath(rowData, dataPath);
+        };
+
+
         return {
             ...toRefs(state),
-            getValueByPath,
+            getFieldData,
         };
     },
 };

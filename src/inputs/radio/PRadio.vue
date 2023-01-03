@@ -1,11 +1,14 @@
 <template>
     <span class="p-radio"
+          :tabindex="0"
           @click.stop.prevent="onClick"
+          @keypress.stop.prevent="onClick"
           v-on="$listeners"
     >
-        <slot name="radio-left" />
-        <input type="radio">
-        <slot :slot-scope="$props" name="icon" :icon-name="iconName">
+        <slot name="radio-left" v-bind="{isSelected}" />
+        <slot :slot-scope="$props" name="icon"
+              v-bind="{isSelected, iconName}"
+        >
             <p-i class="radio-icon"
                  :class="{disabled,invalid}"
                  width="1.25rem" height="1.25rem"
@@ -18,23 +21,22 @@
               :class="{disabled,invalid}"
               @click.stop="onClick"
         >
-            <slot name="default" />
+            <slot name="default" v-bind="{isSelected}" />
         </span>
     </span>
 </template>
 
 <script lang="ts">
 import {
-    reactive, computed, toRefs, defineComponent,
-} from '@vue/composition-api';
-import PI from '@/foundation/icons/PI.vue';
-import * as events from 'events';
+    computed, defineComponent,
+} from 'vue';
 
-interface Props {
-    selected: any;
-    value: any;
-    disabled: boolean;
-    invalid: boolean;
+import PI from '@/foundation/icons/PI.vue';
+import type { SelectProps } from '@/hooks/select';
+import { useSingleSelect } from '@/hooks/select';
+
+interface Props extends SelectProps {
+    invalid?: boolean;
 }
 export default defineComponent<Props>({
     name: 'PRadio',
@@ -44,37 +46,52 @@ export default defineComponent<Props>({
         event: 'change',
     },
     props: {
-        selected: [Boolean, String, Number, Object, Array],
+        /* select props */
         value: {
             type: [Boolean, String, Number, Object, Array],
             default: true,
+        },
+        selected: {
+            type: [Boolean, String, Number, Object, Array],
+            default: undefined,
         },
         disabled: {
             type: Boolean,
             default: false,
         },
+        predicate: {
+            type: Function,
+            default: undefined,
+        },
+        /* radio props */
         invalid: {
             type: Boolean,
             default: false,
         },
     },
     setup(props: Props, { emit }) {
-        const isSelected = computed(() => props.selected === props.value);
-        const onClick = () => {
-            if (!props.disabled) {
-                if (!isSelected.value) {
-                    if (typeof props.selected === 'object') {
-                        if (props.selected instanceof Array) emit('change', [...props.value], isSelected.value);
-                        else emit('change', { ...props.value }, isSelected.value);
-                    } else emit('change', props.value, isSelected.value);
-                }
-            }
-        };
+        const {
+            isSelected,
+            getSelected,
+        } = useSingleSelect({
+            value: computed(() => props.value),
+            selected: computed(() => props.selected),
+            predicate: computed(() => props.predicate),
+            disabled: computed(() => props.disabled),
+        });
+
         const iconName = computed(() => {
             if (props.disabled) return 'ic_radio--disabled';
             if (isSelected.value) return 'ic_radio--checked';
             return 'ic_radio';
         });
+
+        /* event */
+        const onClick = () => {
+            const newSelected = getSelected();
+            emit('change', newSelected, true);
+        };
+
         return {
             isSelected,
             iconName,
@@ -86,18 +103,11 @@ export default defineComponent<Props>({
 
 <style lang="postcss">
 .p-radio {
-
-    input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-        height: 0;
-        width: 0;
-    }
-
+    vertical-align: middle;
+    line-height: 1.07rem;
     &:hover {
         .text {
-            @apply text-blue-500;
+            @apply text-blue-600;
         }
         .radio-icon {
             @apply text-gray-900;
@@ -126,5 +136,10 @@ export default defineComponent<Props>({
         @apply text-red-500 cursor-pointer;
     }
 
+    &:focus, &:active, &:focus-within {
+        .radio-icon {
+            outline: 1px auto theme('colors.gray.400');
+        }
+    }
 }
 </style>

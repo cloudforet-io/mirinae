@@ -1,12 +1,12 @@
 /** Props type for Dynamic field component */
-import {
-    DynamicField,
+import type {
     DynamicFieldOptions,
     DynamicFieldType,
 } from '@/data-display/dynamic/dynamic-field/type/field-schema';
 
 export interface DynamicFieldTypeOptions {
     timezone?: string;
+    displayKey?: string;
 }
 
 export interface DynamicFieldProps<Options = DynamicFieldOptions, TypeOptions = DynamicFieldTypeOptions, ExtraData = any> {
@@ -26,6 +26,8 @@ export interface DynamicFieldHandler<
 }
 
 // TODO
+/*
 export interface DynamicFieldEventListeners {
     copy(): void;
 }
+ */

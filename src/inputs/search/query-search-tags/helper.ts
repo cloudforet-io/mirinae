@@ -1,8 +1,9 @@
-import { KeyDataType, QueryItem } from '@/inputs/search/query-search/type';
-import { QueryTagConverter, QueryTag, QueryTagValidator } from '@/inputs/search/query-search-tags/type';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+import type { QueryTagConverter, QueryTag, QueryTagValidator } from '@/inputs/search/query-search-tags/type';
+import type { KeyDataType, QueryItem } from '@/inputs/search/query-search/type';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -87,7 +88,7 @@ const converterMap: Record<KeyDataType, QueryTagConverter> = {
     object: objectConverter,
 };
 
-const defaultConverter = (query: QueryItem, timezone: string): QueryTag => {
+const defaultConverter = (query: QueryItem, timezone = 'UTC'): QueryTag => {
     if (query.key?.dataType) {
         const converter = converterMap[query.key.dataType];
         if (converter) return converter(query, timezone);

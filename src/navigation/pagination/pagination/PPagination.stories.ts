@@ -1,7 +1,10 @@
-import { number, withKnobs } from '@storybook/addon-knobs';
+import { reactive, toRefs } from 'vue';
+
 import { action } from '@storybook/addon-actions';
+import { number, withKnobs } from '@storybook/addon-knobs';
+
 import PPagination from '@/navigation/pagination/pagination/PPagination.vue';
-import { reactive, toRefs } from '@vue/composition-api';
+
 
 export default {
     title: 'Navigation/Pagination',
@@ -32,7 +35,7 @@ export const pagination = () => ({
             default: number('totalCount', 100, { min: 1 }),
         },
     },
-    setup(props, context) {
+    setup() {
         const state = reactive({
             thisPage: 1,
             pageSize: 15,

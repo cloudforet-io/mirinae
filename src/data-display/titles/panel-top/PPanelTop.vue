@@ -6,15 +6,20 @@
             </slot>
         </span>
         <span v-if="useTotalCount" class="total-count">
-            &nbsp;({{ totalCount }})
+            &nbsp;({{ commaFormatter(totalCount) }})
         </span>
-        <div class="extra">
+        <span class="extra">
             <slot name="extra" />
-        </div>
+        </span>
     </div>
 </template>
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+import type { PanelTopProps } from '@/data-display/titles/panel-top/type';
+import { commaFormatter } from '@/util/helpers';
+
+export default defineComponent<PanelTopProps>({
     name: 'PPanelTop',
     props: {
         useTotalCount: {
@@ -30,7 +35,12 @@ export default {
             default: '',
         },
     },
-};
+    setup() {
+        return {
+            commaFormatter,
+        };
+    },
+});
 </script>
 
 <style lang="postcss">
@@ -41,6 +51,7 @@ export default {
     align-items: center;
     .title {
         @apply text-2xl;
+        line-height: 1.2;
     }
     .total-count {
         @apply text-gray-500 text-lg;
