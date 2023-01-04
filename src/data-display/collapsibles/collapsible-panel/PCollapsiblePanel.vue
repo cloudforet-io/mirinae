@@ -61,7 +61,6 @@ export default defineComponent<CollapsiblePanelProps>({
         /* util */
         const checkTextOverflow = debounce(() => {
             if (!state.fakeTextRef) return;
-            console.log('here', state.fakeTextRef.scrollHeight, state.fakeTextRef.clientHeight, state.proxyIsCollapsed);
             state.isOverflow = state.fakeTextRef.scrollHeight > state.fakeTextRef.clientHeight;
         }, 150);
 
