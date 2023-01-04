@@ -202,17 +202,8 @@ interface ContextMenuEmits {
 }
 const props = withDefaults(defineProps<ContextMenuProps>(), {
     menu: () => [],
-    loading: false,
     selected: () => [],
-    multiSelectable: false,
-    showRadioIcon: false,
-    strictSelectMode: false,
-    itemHeightFixed: false,
     highlightTerm: '',
-    noSelectIndication: false,
-    showSelectHeader: false,
-    showClearSelection: false,
-    searchable: false,
     searchText: '',
 });
 const emit = defineEmits<ContextMenuEmits>();
