@@ -181,7 +181,7 @@ export default defineComponent<ContextMenuItemProps>({
         cursor: not-allowed;
     }
     &.readonly {
-        cursor: text;
+        cursor: not-allowed;
     }
     &.selected:not(.disabled) {
         @apply bg-blue-200;

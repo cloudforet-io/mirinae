@@ -161,7 +161,7 @@ export default defineComponent<TextButtonProps>({
         text-decoration: none;
     }
     &.readonly {
-        cursor: unset;
+        cursor: not-allowed;
         text-decoration: none;
     }
 
