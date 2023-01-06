@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
-import Vue, { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 import { expect } from 'vitest';
 
@@ -10,6 +10,7 @@ import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import type { MenuItem } from '@/inputs/context-menu/type';
 
 const localVue = createLocalVue();
+
 type ContextMenuComponent = ComponentPublicInstance<typeof PContextMenu>;
 const $t = () => {};
 
@@ -36,7 +37,7 @@ const mockLoadComposableInApp = (getOptions: () => Partial<UseContextMenuControl
             const contextMenuRef = options.contextMenuRef;
             const visibleMenu = result?.visibleMenu;
             const fixedMenuStyle = result?.fixedMenuStyle;
-            const menu = additional.menu ?? result?.reorderedMenu ?? [];
+            const menu = additional.menu ?? result?.refinedMenu ?? [];
 
             return {
                 targetRef,
@@ -85,12 +86,31 @@ describe('Context Menu Controller', () => {
             expect(error).toBeTruthy();
             expect(result).toBeFalsy();
         });
-        it('should emit error if useReorderBySelection is given but selected is not given.', () => {
+        it('should emit error if useReorderBySelection is true but selected is not given.', () => {
             const { result, error } = mockLoadComposableInApp(() => ({
                 targetRef: ref<HTMLElement|null>(null),
                 contextMenuRef: ref<ContextMenuComponent|null>(null),
                 useReorderBySelection: true,
                 originMenu: [],
+            }));
+            expect(error).toBeTruthy();
+            expect(result).toBeFalsy();
+        });
+        it('should emit error if filterable is true but searchText is not given.', () => {
+            const { result, error } = mockLoadComposableInApp(() => ({
+                targetRef: ref<HTMLElement|null>(null),
+                contextMenuRef: ref<ContextMenuComponent|null>(null),
+                filterable: true,
+            }));
+            expect(error).toBeTruthy();
+            expect(result).toBeFalsy();
+        });
+        it('should emit error if filterable is true, handler and disableHandler are not given, but originMenu is not given.', () => {
+            const { result, error } = mockLoadComposableInApp(() => ({
+                targetRef: ref<HTMLElement|null>(null),
+                contextMenuRef: ref<ContextMenuComponent|null>(null),
+                filterable: true,
+                searchText: ref(''),
             }));
             expect(error).toBeTruthy();
             expect(result).toBeFalsy();
@@ -109,12 +129,12 @@ describe('Context Menu Controller', () => {
             it('showContextMenu() should make menu visible.', async () => {
                 expect(contextMenuElement?.isVisible()).toBeFalsy();
                 showContextMenu();
-                await Vue.nextTick();
+                await localVue.nextTick();
                 expect(contextMenuElement?.isVisible()).toBeTruthy();
             });
             it('hideContextMenu() should hide menu.', async () => {
                 hideContextMenu();
-                await Vue.nextTick();
+                await localVue.nextTick();
                 expect(contextMenuElement?.isVisible()).toBeFalsy();
             });
         });
@@ -143,92 +163,68 @@ describe('Context Menu Controller', () => {
             it('focusOnContextMenu() should focus on context menu element.', async () => {
                 expect(document.activeElement?.id).toBeFalsy();
                 focusOnContextMenu();
-                await Vue.nextTick();
+                await localVue.nextTick();
                 expect(document.activeElement?.id).toBeTruthy();
             });
         });
 
         describe('Reorder menu items based on selection: ', () => {
-            describe('reorderMenuBySelection()', () => {
-                const mockLoadForReorderTest = (options: Partial<UseContextMenuControllerOptions> = {}) => {
-                    const { result, error } = mockLoadComposableInApp(() => ({
-                        targetRef: ref<HTMLElement|null>(null),
-                        contextMenuRef: ref<ContextMenuComponent|null>(null),
-                        visibleMenu: ref(true),
-                        ...options,
-                    }));
-                    if (error) throw error;
-                    return result as UseContextMenuControllerReturns;
-                };
-                describe('with useReorderBySelection option false: ', () => {
-                    const { reorderMenuBySelection } = mockLoadForReorderTest();
-                    const menuItems: MenuItem[] = [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }];
-                    it('should return array which is the same with origin if there is no selected item.', () => {
-                        const newMenuItems = reorderMenuBySelection([], menuItems);
-                        expect(newMenuItems).toEqual(menuItems);
-                    });
-                    it('should return array rearranged so that the selected items are at the front.', () => {
-                        const newMenuItems = reorderMenuBySelection([{ name: 'b' }, { name: 'a' }], menuItems);
-                        expect(newMenuItems).toEqual([{ name: 'b' }, { name: 'a' }, { type: 'divider', name: 'selection-divider' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
-                    });
-                    // this is the test for strict mode. it's not supported yet.
-                    // it('should return array that doesn\'t include an item which is not in origin(second argument).', () => {
-                    //     const newMenuItems = reorderMenuBySelection([{ name: 'zzzzz' }, { name: 'b' }, { name: 'a' }], menuItems);
-                    //     expect(newMenuItems).toEqual([{ name: 'b' }, { name: 'a' }, { type: 'divider', name: 'selection-divider' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
-                    // });
+            const mockLoadForReorderTest = (options: Partial<UseContextMenuControllerOptions> = {}) => {
+                const { result, error } = mockLoadComposableInApp(() => ({
+                    targetRef: ref<HTMLElement|null>(null),
+                    contextMenuRef: ref<ContextMenuComponent|null>(null),
+                    visibleMenu: ref(true),
+                    ...options,
+                }));
+                if (error) throw error;
+                return result as UseContextMenuControllerReturns;
+            };
+            describe('with useReorderBySelection option true: ', () => {
+                const selected = ref([{ name: 'a' }]);
+                const originMenu = ref([{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
+                const visibleMenu = ref(false);
+                const {
+                    refinedMenu, showContextMenu,
+                } = mockLoadForReorderTest({
+                    visibleMenu,
+                    useReorderBySelection: true,
+                    originMenu,
+                    selected,
                 });
-                describe('with useReorderBySelection option true: ', () => {
-                    const selected = ref([{ name: 'a' }]);
-                    const originMenu = ref([{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
-                    const {
-                        reorderMenuBySelection, reorderedMenu, hideContextMenu, showContextMenu,
-                    } = mockLoadForReorderTest({
-                        useReorderBySelection: true,
-                        originMenu,
-                        selected,
-                    });
-
-                    it('reorderedMenu should be updated when reorderedMenuBySelection() is executed.', () => {
-                        const newMenuItems = reorderMenuBySelection();
-                        expect(newMenuItems).toEqual(reorderedMenu.value);
-                    });
-                    it('reorderedMenu should be updated by executing reorderedMenuBySelection() after making changes to the selected ref.', () => {
+                it('refinedMenu should NOT be rearranged by executing showContextMenu() when the visibleMenu is already true.', async () => {
+                    visibleMenu.value = true;
+                    await showContextMenu();
+                    expect(refinedMenu.value.map((d) => d.name)).not.toEqual(['a', 'selection-divider', 'b', 'c', 'd', 'e']);
+                });
+                it('refinedMenu should be rearranged by executing showContextMenu() when the visibleMenu is false.', async () => {
+                    visibleMenu.value = false;
+                    await showContextMenu();
+                    expect(refinedMenu.value.map((d) => d.name)).toEqual(['a', 'selection-divider', 'b', 'c', 'd', 'e']);
+                });
+                describe('if visibleMenu is false: ', () => {
+                    it('refinedMenu should be updated by executing showContextMenu() after making changes to the selected ref.', async () => {
+                        visibleMenu.value = false;
                         selected.value = [];
-                        reorderMenuBySelection();
-                        expect(originMenu.value).toEqual(reorderedMenu.value);
+                        await showContextMenu();
+                        expect(originMenu.value.map((d) => d.name)).toEqual(refinedMenu.value.map((d) => d.name));
+                        visibleMenu.value = false;
                         selected.value = [{ name: 'b' }, { name: 'a' }];
-                        reorderMenuBySelection();
-                        expect(reorderedMenu.value).toEqual([{ name: 'b' }, { name: 'a' }, { type: 'divider', name: 'selection-divider' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
+                        await showContextMenu();
+                        expect(refinedMenu.value.map((d) => d.name)).toEqual(['b', 'a', 'selection-divider', 'c', 'd', 'e']);
                     });
-                    it('reorderedMenu should be updated by executing showContextMenu(true) after making changes to the selected ref.', () => {
+                    it('refinedMenu should be the same with origin if there is no selected item even if after executing showContextMenu().', async () => {
+                        visibleMenu.value = false;
                         selected.value = [];
-                        showContextMenu(true);
-                        expect(originMenu.value).toEqual(reorderedMenu.value);
-                        selected.value = [{ name: 'b' }, { name: 'a' }];
-                        showContextMenu(true);
-                        expect(reorderedMenu.value).toEqual([{ name: 'b' }, { name: 'a' }, { type: 'divider', name: 'selection-divider' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
+                        originMenu.value = [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }];
+                        await showContextMenu();
+                        expect(originMenu.value.map((d) => d.name)).toEqual(refinedMenu.value.map((d) => d.name));
                     });
-                    it('reorderedMenu should be updated by executing hideContextMenu(true) after making changes to the selected ref.', () => {
-                        selected.value = [];
-                        hideContextMenu(true);
-                        expect(originMenu.value).toEqual(reorderedMenu.value);
+                    it('refinedMenu should be rearranged so that the selected items are at the front by running showContextMenu().', async () => {
+                        visibleMenu.value = false;
                         selected.value = [{ name: 'b' }, { name: 'a' }];
-                        hideContextMenu(true);
-                        expect(reorderedMenu.value).toEqual([{ name: 'b' }, { name: 'a' }, { type: 'divider', name: 'selection-divider' }, { name: 'c' }, { name: 'd' }, { name: 'e' }]);
-                    });
-                    it('If the value of originMenu ref is changed, the changed value should be reflected in reorderedMenu after reordering menu.', () => {
-                        selected.value = [{ name: 'a' }];
-                        const newItems = reorderMenuBySelection();
-                        expect(newItems).toEqual(reorderedMenu.value);
-
-                        originMenu.value = [{ name: 'c' }, { name: 'b' }, { name: 'd' }, { name: 'a' }];
-                        reorderMenuBySelection();
-                        expect(reorderedMenu.value).toEqual([{ name: 'a' }, { type: 'divider', name: 'selection-divider' }, { name: 'c' }, { name: 'b' }, { name: 'd' }]);
-
-                        // this is the test for strict mode. it's not supported yet.
-                        // originMenu.value = [{ name: 'c' }, { name: 'b' }, { name: 'd' }];
-                        // reorderMenuBySelection();
-                        // expect(reorderedMenu.value).toEqual([{ name: 'c' }, { name: 'b' }, { name: 'd' }]);
+                        originMenu.value = [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }];
+                        await showContextMenu();
+                        expect(refinedMenu.value.map((d) => d.name)).toEqual(['b', 'a', 'selection-divider', 'c', 'd', 'e']);
                     });
                 });
             });

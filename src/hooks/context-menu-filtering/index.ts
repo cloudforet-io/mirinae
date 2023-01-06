@@ -1,58 +1,76 @@
 import type { Ref } from 'vue';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
-import type { AutocompleteHandler, FilterableDropdownMenuItem } from '@/inputs/dropdown/filterable-dropdown/type';
+import type { MenuItem } from '@/inputs/context-menu/type';
+
+
+export interface HandlerRes {
+    results: MenuItem[];
+    totalCount?: number;
+    more?: boolean;
+}
+export interface ContextMenuHandler {
+    (inputText: string, pageStart?: number, pageLimit?: number): Promise<HandlerRes>|HandlerRes;
+}
 
 interface UseFilterableDropdownMenuFilteringOptions {
+    menu: Ref<MenuItem[]>|[];
     searchText: Ref<string>;
-    disableHandler: Ref<boolean|undefined>;
-    handler: Ref<AutocompleteHandler|undefined>;
-    menu: Ref<FilterableDropdownMenuItem[]>;
-    pageSize: Ref<number|undefined>
+    disableHandler?: Ref<boolean|undefined>|boolean|undefined;
+    handler?: Ref<ContextMenuHandler|undefined>|ContextMenuHandler|undefined;
+    pageSize?: Ref<number|undefined>|number|undefined;
 }
-export const useFilterableDropdownMenuFiltering = ({
+
+export const useContextMenuFiltering = ({
     searchText, disableHandler, handler, menu, pageSize,
 }: UseFilterableDropdownMenuFilteringOptions) => {
+    const state = reactive({
+        menu,
+        disableHandler,
+        handler,
+        pageSize,
+    });
+
     const handlerLoading = ref<boolean>(false);
 
     // default handler case only
-    const filteredItems = ref<FilterableDropdownMenuItem[]>([]);
-    const menuItemsByDefaultHandler = computed<FilterableDropdownMenuItem[]>(() => {
-        if (!pageSize.value) return filteredItems.value;
+    const filteredItemsByDefaultHandler = ref<MenuItem[]>([]);
+    const menuItemsByDefaultHandler = computed<MenuItem[]>(() => {
+        if (!state.pageSize) return filteredItemsByDefaultHandler.value;
 
-        if (filteredItems.value.length > pageLimit.value) {
-            const sliced = filteredItems.value.slice(0, pageLimit.value);
+        if (filteredItemsByDefaultHandler.value.length > pageLimit.value) {
+            const sliced = filteredItemsByDefaultHandler.value.slice(0, pageLimit.value);
             return [
                 ...sliced,
                 { type: 'showMore', name: 'filterableDropdownShowMore' },
-            ] as FilterableDropdownMenuItem[];
+            ] as MenuItem[];
         }
-        return filteredItems.value;
+        return filteredItemsByDefaultHandler.value;
     });
 
     // custom handler case only
-    const accumulatedItemsByCustomHandler = ref<FilterableDropdownMenuItem[]>([]);
+    const accumulatedItemsByCustomHandler = ref<MenuItem[]>([]);
     const hasNextItemsByCustomHandler = ref<boolean>(false);
-    const menuItemsByCustomHandler = computed<FilterableDropdownMenuItem[]>(() => {
+    const menuItemsByCustomHandler = computed<MenuItem[]>(() => {
         if (hasNextItemsByCustomHandler.value) {
             return [
                 ...accumulatedItemsByCustomHandler.value,
                 { type: 'showMore', name: 'filterableDropdownShowMore' },
-            ] as FilterableDropdownMenuItem[];
+            ] as MenuItem[];
         }
         return accumulatedItemsByCustomHandler.value;
     });
 
     // pagination
     const pageNumber = ref<number>(0);
-    const pageStart = computed(() => (pageNumber.value) * (pageSize.value ?? 0) + 1);
-    const pageLimit = computed(() => (pageNumber.value + 1) * (pageSize.value ?? 0));
+    const pageStart = computed(() => (pageNumber.value) * (state.pageSize ?? 0) + 1);
+    const pageLimit = computed(() => (pageNumber.value + 1) * (state.pageSize ?? 0));
 
     // actual display menu items
-    const displayMenuItems = computed<FilterableDropdownMenuItem[]>(() => {
-        if (disableHandler.value) return menu.value;
+    const filteredMenu = computed<MenuItem[]>(() => {
+        if (state.disableHandler) return state.menu;
         // custom handler case
-        if (handler.value) {
+        if (state.handler) {
             return menuItemsByCustomHandler.value;
         }
         // default handler case
@@ -60,42 +78,42 @@ export const useFilterableDropdownMenuFiltering = ({
     });
 
     const resetMenu = () => {
-        if (disableHandler.value) return;
-        if (handler.value) {
+        if (state.disableHandler) return;
+        if (state.handler) {
             accumulatedItemsByCustomHandler.value = [];
             hasNextItemsByCustomHandler.value = false;
-        } else filteredItems.value = [];
+        } else filteredItemsByDefaultHandler.value = [];
     };
     const resetPagination = () => {
         pageNumber.value = 0;
     };
 
     const defaultHandler = () => {
-        let results: FilterableDropdownMenuItem[];
+        let results: MenuItem[];
         const trimmed = searchText.value.trim();
         if (trimmed) {
             const regex = new RegExp(trimmed, 'i');
-            results = menu.value.filter((d) => {
+            results = state.menu.filter((d) => {
                 if (d.type === undefined || d.type === 'item') return regex.test(d.label as string);
                 return true;
             });
         } else {
-            results = menu.value;
+            results = state.menu;
         }
-        filteredItems.value = results;
+        filteredItemsByDefaultHandler.value = results;
     };
-    const customHandler = async (val: string, start: number, limit: number): Promise<{ results: FilterableDropdownMenuItem[], more: boolean }> => {
-        if (!handler.value) return { results: [], more: false };
-        let res = handler.value(val, start, limit);
+    const customHandler = async (val: string, start: number, limit: number): Promise<{ results: MenuItem[], more: boolean }> => {
+        if (!state.handler) return { results: [], more: false };
+        let res = state.handler(val, start, limit);
         if (res instanceof Promise) res = await res;
         return { results: res.results, more: !!res.more };
     };
 
-    const filterMenu = async () => {
-        if (disableHandler.value) return;
+    const filterMenu = async (): Promise<MenuItem[]> => {
+        if (state.disableHandler) return state.menu;
         handlerLoading.value = true;
         resetPagination();
-        if (handler.value) {
+        if (state.handler) {
             const { results, more } = await customHandler(searchText.value, pageStart.value, pageLimit.value);
             hasNextItemsByCustomHandler.value = more;
             accumulatedItemsByCustomHandler.value = results;
@@ -103,11 +121,12 @@ export const useFilterableDropdownMenuFiltering = ({
             defaultHandler();
         }
         handlerLoading.value = false;
+        return filteredMenu.value;
     };
 
     const attachMoreItems = async () => {
         pageNumber.value += 1;
-        if (!disableHandler.value && handler.value) {
+        if (!state.disableHandler && state.handler) {
             handlerLoading.value = true;
             const { results, more } = await customHandler(searchText.value, pageStart.value, pageLimit.value);
             hasNextItemsByCustomHandler.value = more;
@@ -118,7 +137,7 @@ export const useFilterableDropdownMenuFiltering = ({
 
     return {
         handlerLoading,
-        displayMenuItems,
+        filteredMenu,
         resetMenu,
         filterMenu,
         attachMoreItems,

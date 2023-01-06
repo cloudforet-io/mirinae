@@ -1,13 +1,13 @@
 <template>
-    <div v-on-click-outside="hideMenu"
+    <div v-on-click-outside="hideContextMenu"
          class="p-filterable-dropdown"
          :class="{ disabled, opened: proxyVisibleMenu, invalid }"
     >
         <div ref="targetRef"
              class="dropdown-button"
              :tabindex="disabled || readonly ? -1 : 0"
-             @keyup.down="focusMenu"
-             @keyup.esc.capture.stop="hideMenu"
+             @keyup.down="showMenuAndFocusMenu"
+             @keyup.esc.capture.stop="hideContextMenu"
              @keyup.enter.capture.stop="toggleMenu"
              @click="toggleMenu"
         >
@@ -57,7 +57,7 @@
                         class="dropdown-context-menu"
                         :search-text="proxySearchText"
                         searchable
-                        :menu="displayMenuItems"
+                        :menu="refinedMenu"
                         :loading="props.loading || handlerLoading"
                         :readonly="props.readonly"
                         :selected="proxySelected"
@@ -67,11 +67,11 @@
                         :style="fixedMenuStyle"
                         :class="{ default: !props.showSelectMarker }"
                         @select="handleSelectMenuItem"
-                        @click-done="hideMenu"
+                        @click-done="hideContextMenu"
                         @click-show-more="handleClickShowMore"
                         @keyup:up:end="focusDropdownButton"
-                        @keyup:down:end="focusMenu"
-                        @keyup:esc="hideMenu"
+                        @keyup:down:end="focusOnContextMenu"
+                        @keyup:esc="hideContextMenu"
                         @update:selected="handleUpdateSelected"
                         @update:search-text="handleUpdateSearchText"
         >
@@ -106,9 +106,6 @@ import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import {
     useFilterableDropdownButtonDisplay,
 } from '@/inputs/dropdown/filterable-dropdown/composables/filterable-dropdown-button-display';
-import {
-    useFilterableDropdownMenuFiltering,
-} from '@/inputs/dropdown/filterable-dropdown/composables/filterable-dropdown-menu-filtering';
 import type {
     FilterableDropdownMenuItem,
     AutocompleteHandler, FilterableDropdownAppearanceType,
@@ -158,32 +155,49 @@ const emit = defineEmits<{(e: 'update:visible-menu', visibleMenu: boolean): void
     (e: 'click-show-more'): void;
 }>();
 
-/* menu visibility */
-const proxyVisibleMenu = useProxyValue<boolean>('visibleMenu', props, emit);
-const hideMenu = () => {
-    if (proxyVisibleMenu.value) {
-        proxyVisibleMenu.value = false;
-        proxySearchText.value = '';
-    }
-};
-const showMenu = () => {
-    if (!proxyVisibleMenu.value && !props.disabled) proxyVisibleMenu.value = true;
-};
-const toggleMenu = () => {
-    if (proxyVisibleMenu.value) hideMenu();
-    else showMenu();
-};
 
-/* context menu style */
+
+/* context menu control */
+const proxyVisibleMenu = ref(props.visibleMenu);
 const menuRef = ref<any|null>(null);
 const targetRef = ref<HTMLElement|null>(null);
+const proxySearchText = useProxyValue('searchText', props, emit);
+const proxySelected = useProxyValue<FilterableDropdownMenuItem[]>('selected', props, emit);
 const {
     fixedMenuStyle,
+    handlerLoading,
+    refinedMenu,
+    attachMoreItems,
+    focusOnContextMenu,
+    hideContextMenu,
+    showContextMenu,
 } = useContextMenuController({
+    filterable: true,
+    useReorderBySelection: true,
     useFixedStyle: computed(() => props.useFixedMenuStyle),
     targetRef,
     contextMenuRef: menuRef,
     visibleMenu: proxyVisibleMenu,
+    searchText: proxySearchText,
+    disableHandler: toRef(props, 'disableHandler'),
+    handler: toRef(props, 'handler'),
+    originMenu: toRef(props, 'menu'),
+    pageSize: toRef(props, 'pageSize'),
+    selected: proxySelected,
+});
+
+/* menu visibility */
+const showMenu = () => {
+    if (!props.disabled) showContextMenu();
+};
+const toggleMenu = () => {
+    if (proxyVisibleMenu.value) hideContextMenu();
+    else showMenu();
+};
+watch(() => props.visibleMenu, (val) => {
+    if (val === proxyVisibleMenu.value) return;
+    if (val) showMenu();
+    else hideContextMenu();
 });
 
 /* focusing */
@@ -192,46 +206,24 @@ const focusDropdownButton = () => {
     if (focusedOnDropdownButton.value) return;
     focusedOnDropdownButton.value = true;
 };
-const focusMenu = () => {
+const showMenuAndFocusMenu = () => {
     if (!proxyVisibleMenu.value) showMenu();
-    if (menuRef.value) menuRef.value.focus();
+    focusOnContextMenu();
 };
 
 /* menu filtering */
-const proxySearchText = useProxyValue('searchText', props, emit);
-const {
-    handlerLoading,
-    displayMenuItems,
-    resetMenu,
-    filterMenu,
-    attachMoreItems,
-} = useFilterableDropdownMenuFiltering({
-    searchText: proxySearchText,
-    disableHandler: toRef(props, 'disableHandler'),
-    handler: toRef(props, 'handler'),
-    menu: toRef(props, 'menu'),
-    pageSize: toRef(props, 'pageSize'),
-});
 const handleClickShowMore = async () => {
     await attachMoreItems();
     emit('click-show-more');
 };
 const handleUpdateSearchText = (searchText: string) => {
     proxySearchText.value = searchText;
-    filterMenu();
 };
-watch([() => props.menu, proxyVisibleMenu], ([, visibleMenu]) => {
-    if (visibleMenu) {
-        resetMenu();
-        filterMenu();
-    }
-}, { immediate: true });
 
 
 /* selection */
-const proxySelected = useProxyValue<FilterableDropdownMenuItem[]>('selected', props, emit);
 const handleSelectMenuItem = (item: FilterableDropdownMenuItem) => {
-    if (!props.multiSelectable) hideMenu();
+    if (!props.multiSelectable) hideContextMenu();
     emit('select', item);
 };
 const handleUpdateSelected = (selectedItems: FilterableDropdownMenuItem[]) => {
@@ -260,7 +252,7 @@ const handleTagDelete = (item: FilterableDropdownMenuItem, idx: number) => {
 
 /* disabled */
 watch(() => props.disabled, (disabled) => {
-    if (disabled) hideMenu();
+    if (disabled) hideContextMenu();
 });
 
 /* slots */
