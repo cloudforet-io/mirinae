@@ -101,14 +101,14 @@ import PBadge from '@/data-display/badges/PBadge.vue';
 import PTag from '@/data-display/tags/PTag.vue';
 import PI from '@/foundation/icons/PI.vue';
 import { useContextMenuController, useProxyValue } from '@/hooks';
+import {
+    useContextMenuFiltering,
+} from '@/hooks/context-menu-controller/context-menu-filtering';
 import { useIgnoreWindowArrowKeydownEvents } from '@/hooks/ignore-window-arrow-keydown-events';
 import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import {
     useFilterableDropdownButtonDisplay,
 } from '@/inputs/dropdown/filterable-dropdown/composables/filterable-dropdown-button-display';
-import {
-    useFilterableDropdownMenuFiltering,
-} from '@/inputs/dropdown/filterable-dropdown/composables/filterable-dropdown-menu-filtering';
 import type {
     FilterableDropdownMenuItem,
     AutocompleteHandler, FilterableDropdownAppearanceType,
@@ -202,28 +202,33 @@ const proxySearchText = useProxyValue('searchText', props, emit);
 const {
     handlerLoading,
     displayMenuItems,
-    resetMenu,
-    filterMenu,
-    attachMoreItems,
-} = useFilterableDropdownMenuFiltering({
+    clearMenu,
+    resetPagination,
+    attachMenuItems,
+} = useContextMenuFiltering({
     searchText: proxySearchText,
-    disableHandler: toRef(props, 'disableHandler'),
-    handler: toRef(props, 'handler'),
     menu: toRef(props, 'menu'),
+    handler: toRef(props, 'handler'),
     pageSize: toRef(props, 'pageSize'),
 });
 const handleClickShowMore = async () => {
-    await attachMoreItems();
+    if (!props.disableHandler) {
+        await attachMenuItems();
+    }
     emit('click-show-more');
 };
-const handleUpdateSearchText = (searchText: string) => {
+const handleUpdateSearchText = async (searchText: string) => {
     proxySearchText.value = searchText;
-    filterMenu();
+    if (!props.disableHandler) {
+        resetPagination();
+        await attachMenuItems();
+    }
 };
-watch([() => props.menu, proxyVisibleMenu], ([, visibleMenu]) => {
-    if (visibleMenu) {
-        resetMenu();
-        filterMenu();
+watch([() => props.menu, proxyVisibleMenu], async ([, visibleMenu]) => {
+    if (visibleMenu && !props.disableHandler) {
+        clearMenu();
+        resetPagination();
+        await attachMenuItems();
     }
 }, { immediate: true });
 
