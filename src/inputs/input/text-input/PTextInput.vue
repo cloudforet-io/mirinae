@@ -132,8 +132,8 @@ import { useProxyValue } from '@/hooks/proxy-state';
 import PButton from '@/inputs/buttons/button/PButton.vue';
 import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import type { MenuItem } from '@/inputs/context-menu/type';
-import { useInputDeletion } from '@/inputs/input/text-input/composables/use-input-deletion';
-import { useSelectedValidation } from '@/inputs/input/text-input/composables/use-selected-validation';
+import { useInputDeletion } from '@/inputs/input/composables/use-input-deletion';
+import { useSelectedValidation } from '@/inputs/input/composables/use-selected-validation';
 import { INPUT_APPEARANCE_TYPES, INPUT_SIZE } from '@/inputs/input/text-input/type';
 import type {
     InputItem, TextInputHandler, InputSize, InputAppearanceType,
@@ -359,10 +359,17 @@ export default defineComponent<TextInputProps>({
 
         /* selected deletion */
         const {
-            deleteTargetIdx, deleteSelectedValue, deleteTargetTag, deleteTag, deleteAll,
+            deleteTargetIdx, deleteSingleSelectedValue, deleteTargetTag, deleteTag, deleteAll,
         } = useInputDeletion({
             selected: proxySelected,
-            updateInputValue,
+            updateValueAfterDeletion: (item) => {
+                if (item) {
+                    const value = ['string', 'number'].includes(typeof item.label) ? item.label as string : item.name;
+                    updateInputValue(value);
+                } else {
+                    updateInputValue('');
+                }
+            },
             updateSelected,
             isInputValueEmpty,
         });
@@ -442,7 +449,7 @@ export default defineComponent<TextInputProps>({
             if (event.key === 'Backspace') {
                 if (proxySelected.value.length) {
                     if (props.multiInput) deleteTargetTag();
-                    else deleteSelectedValue();
+                    else deleteSingleSelectedValue();
                 } else if (isInputValueEmpty.value) {
                     hideMenu(true);
                 }
