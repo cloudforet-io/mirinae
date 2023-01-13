@@ -140,7 +140,10 @@ export const useQuerySearch = (stateArgs: QuerySearchStateArgs, options: QuerySe
         }
     };
     const findAndSetKey = async (val: string, isRootKey = true) => {
-        let item = findKey(val, state.handlerResp.results) || null;
+        let item: KeyItem|undefined = findKey(val, state.handlerResp.results);
+        if (!item && !strict) {
+            item = { label: val, name: val };
+        }
         if (isRootKey) {
             if (item) {
                 clearAll();
