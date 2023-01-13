@@ -134,10 +134,9 @@ import PContextMenu from '@/inputs/context-menu/PContextMenu.vue';
 import type { MenuItem } from '@/inputs/context-menu/type';
 import { useInputDeletion } from '@/inputs/input/text-input/composables/use-input-deletion';
 import { useSelectedValidation } from '@/inputs/input/text-input/composables/use-selected-validation';
-import { INPUT_APPEARANCE_TYPES, INPUT_SIZE, INPUT_MODES } from '@/inputs/input/text-input/type';
+import { INPUT_APPEARANCE_TYPES, INPUT_SIZE } from '@/inputs/input/text-input/type';
 import type {
     InputItem, TextInputHandler, InputSize, InputAppearanceType,
-    InputMode,
 } from '@/inputs/input/text-input/type';
 
 
@@ -159,7 +158,6 @@ interface TextInputProps {
     useAutoComplete: boolean;
     showPassword: boolean;
     appearanceType?: InputAppearanceType;
-    inputMode?: InputMode;
     pageSize?: number;
 }
 
@@ -255,13 +253,6 @@ export default defineComponent<TextInputProps>({
             default: INPUT_APPEARANCE_TYPES[0],
             validator(appearanceType: InputAppearanceType) {
                 return INPUT_APPEARANCE_TYPES.includes(appearanceType);
-            },
-        },
-        inputMode: {
-            type: String as PropType<InputMode>,
-            default: INPUT_MODES[0],
-            validator(inputMode: InputMode) {
-                return INPUT_MODES.includes(inputMode);
             },
         },
         pageSize: {
@@ -503,7 +494,6 @@ export default defineComponent<TextInputProps>({
             /* context menu event listeners */
             handleFocusMenuItem,
             handleUpdateSelected,
-            handleSelect,
             /* input password & masking */
             proxyShowPassword,
             handleTogglePassword,
@@ -574,13 +564,14 @@ export default defineComponent<TextInputProps>({
             font-size: inherit;
             color: inherit;
             background-color: transparent;
-
-            &:disabled {
-                @apply bg-transparent border-0;
-            }
-
             &::placeholder {
                 @apply text-gray-300;
+            }
+            &:read-only {
+                pointer-events: none;
+            }
+            &:disabled {
+                @apply bg-transparent border-0;
             }
         }
 
