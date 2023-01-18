@@ -227,13 +227,13 @@ export default defineComponent({
             border-top-width: 0;
             border-left-width: 1px;
             &.sm {
-                @mixin sidebar-size $sidebar-sm, $sidebar-sm-fixed;
+                @mixin sidebar-size $sidebar-sm, $sidebar-fixed-sm;
             }
             &.md {
-                @mixin sidebar-size $sidebar-md, $sidebar-md-fixed;
+                @mixin sidebar-size $sidebar-md, $sidebar-fixed-md;
             }
             &.lg {
-                @mixin sidebar-size $sidebar-lg, $sidebar-lg-fixed;
+                @mixin sidebar-size $sidebar-lg, $sidebar-fixed-lg;
             }
         }
         .slide-fade-enter, .slide-fade-leave-to {
