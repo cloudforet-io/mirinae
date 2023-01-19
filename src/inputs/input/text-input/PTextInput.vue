@@ -429,6 +429,7 @@ export default defineComponent<TextInputProps>({
                 initiateMenu();
             }
         };
+        // Notice: Focus event below is used in console.
         const focus = () => {
             inputRef.value?.focus();
         };
