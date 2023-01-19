@@ -5,7 +5,6 @@
     >
         <div ref="targetRef"
              class="input-container"
-             :tabindex="disabled || $attrs.readonly ? -1 : 0"
              :class="{invalid: isSelectedInvalid || invalid, disabled}"
              @keyup.down="focusOnContextMenu(0)"
              @keyup.esc.capture.stop="hideMenu"
@@ -39,6 +38,7 @@
                 >
                     <input v-bind="$attrs"
                            ref="inputRef"
+                           :tabindex="disabled || $attrs.readonly ? -1 : 0"
                            :type="inputType"
                            :value="displayedInputValue"
                            :disabled="disabled"
