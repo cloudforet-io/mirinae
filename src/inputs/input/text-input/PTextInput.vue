@@ -429,6 +429,9 @@ export default defineComponent<TextInputProps>({
                 initiateMenu();
             }
         };
+        const focus = () => {
+            inputRef.value?.focus();
+        };
         const handleInputKeyup = (event) => {
             if ((event.key === 'ArrowDown' || event.key === 'Down') && props.useAutoComplete) {
                 if (refinedMenu.value.length === 0) return;
@@ -512,6 +515,7 @@ export default defineComponent<TextInputProps>({
             handleInputFocus,
             handleInputKeyup,
             handleInputKeydown,
+            focus,
         };
     },
 });
