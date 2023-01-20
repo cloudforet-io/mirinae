@@ -142,7 +142,7 @@ export const getDefaultSchema = () => ({
         friends: {
             title: 'Friends (use handler)',
             type: 'array',
-            referenceMenuItems: true,
+            reference: 'friend',
         },
     },
     required: ['user_id', 'password', 'user_name', 'age', 'homepage', 'phone', 'additional', 'emails', 'colors', 'provider'],
