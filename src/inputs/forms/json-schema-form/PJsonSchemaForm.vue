@@ -212,6 +212,10 @@ export default defineComponent<JsonSchemaFormProps>({
             type: Object,
             default: () => ({}),
         },
+        handler: {
+            type: Function,
+            default: undefined,
+        },
     },
     setup(props, { emit }) {
         const ajv = new Ajv({
