@@ -92,7 +92,7 @@
                                            show-select-marker
                                            use-fixed-menu-style
                                            :invalid="invalid"
-                                           :handler="schemaProperty.reference ? handler : undefined"
+                                           :handler="schemaProperty.reference ? referenceHandler : undefined"
                                            class="input-form"
                                            @update:selected="handleUpdateFormValue(schemaProperty, propertyIdx, ...arguments)"
                     >
