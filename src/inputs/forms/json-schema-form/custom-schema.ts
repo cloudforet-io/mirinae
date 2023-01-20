@@ -23,4 +23,12 @@ export const addCustomKeywords = (ajv: Ajv): void => {
         keyword: 'json',
         schemaType: 'boolean',
     });
+    ajv.addKeyword({
+        keyword: 'menuItems',
+        schemaType: 'array',
+    });
+    ajv.addKeyword({
+        keyword: 'referenceMenuItems',
+        schemaType: 'boolean',
+    });
 };

@@ -27,6 +27,7 @@ export type InnerJsonSchema = JsonSchema & {
     inputType?: TextInputType;
     inputPlaceholder?: string;
     menuItems?: SelectDropdownMenu[];
+    referenceMenuItems?: boolean;
     multiInputMode?: boolean;
     appearanceType?: InputAppearanceType;
 };
