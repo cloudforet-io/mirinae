@@ -150,8 +150,8 @@ export const getJsonSchemaFormArgTypes = (): ArgTypes => ({
             type: 'object',
         },
     },
-    handler: {
-        name: 'handler',
+    referenceHandler: {
+        name: 'referenceHandler',
         type: { name: 'function' },
         description: 'Handler that returns auto-completion menu according to input value.',
         defaultValue: undefined,

@@ -41,5 +41,5 @@ export interface JsonSchemaFormProps {
     isRoot?: boolean;
     resetOnSchemaChange?: boolean;
     customErrorMap?: CustomErrorMap;
-    handler?: AutocompleteHandler;
+    referenceHandler?: AutocompleteHandler;
 }

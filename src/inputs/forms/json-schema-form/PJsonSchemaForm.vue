@@ -213,7 +213,7 @@ export default defineComponent<JsonSchemaFormProps>({
             type: Object,
             default: () => ({}),
         },
-        handler: {
+        referenceHandler: {
             type: Function,
             default: undefined,
         },

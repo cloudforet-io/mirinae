@@ -140,7 +140,7 @@ export const getDefaultSchema = () => ({
             required: ['gender'],
         },
         friends: {
-            title: 'Friends (use handler)',
+            title: 'Friends (use referenceHandler)',
             type: 'array',
             reference: 'friend',
         },
