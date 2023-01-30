@@ -1,8 +1,8 @@
 <template>
     <span class="p-radio"
           :tabindex="0"
-          @click.stop.prevent="onClick"
-          @keypress.stop.prevent="onClick"
+          @click.stop.prevent="handleClick"
+          @keypress.stop.prevent="handleClick"
           v-on="$listeners"
     >
         <slot name="radio-left"
@@ -23,7 +23,7 @@
         <span v-if="$scopedSlots.default"
               class="text"
               :class="{disabled,invalid}"
-              @click.stop="onClick"
+              @click.stop="handleClick"
         >
             <slot name="default"
                   v-bind="{isSelected}"
@@ -93,7 +93,7 @@ export default defineComponent<Props>({
         });
 
         /* event */
-        const onClick = () => {
+        const handleClick = () => {
             if (props.disabled) return;
             const newSelected = getSelected();
             emit('change', newSelected, true);
@@ -102,7 +102,7 @@ export default defineComponent<Props>({
         return {
             isSelected,
             iconName,
-            onClick,
+            handleClick,
         };
     },
 });
