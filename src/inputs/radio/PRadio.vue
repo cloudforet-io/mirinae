@@ -5,13 +5,17 @@
           @keypress.stop.prevent="onClick"
           v-on="$listeners"
     >
-        <slot name="radio-left" v-bind="{isSelected}" />
-        <slot :slot-scope="$props" name="icon"
+        <slot name="radio-left"
+              v-bind="{isSelected}"
+        />
+        <slot :slot-scope="$props"
+              name="icon"
               v-bind="{isSelected, iconName}"
         >
             <p-i class="radio-icon"
                  :class="{disabled,invalid}"
-                 width="1.25rem" height="1.25rem"
+                 width="1.25rem"
+                 height="1.25rem"
                  :color="isSelected||disabled ? undefined : 'inherit transparent'"
                  :name="iconName"
             />
@@ -21,7 +25,9 @@
               :class="{disabled,invalid}"
               @click.stop="onClick"
         >
-            <slot name="default" v-bind="{isSelected}" />
+            <slot name="default"
+                  v-bind="{isSelected}"
+            />
         </span>
     </span>
 </template>
@@ -88,6 +94,7 @@ export default defineComponent<Props>({
 
         /* event */
         const onClick = () => {
+            if (props.disabled) return;
             const newSelected = getSelected();
             emit('change', newSelected, true);
         };
