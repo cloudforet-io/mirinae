@@ -1,24 +1,28 @@
 <template>
-    <notifications :group="group"
-                   :position="position"
+    <notifications :group="props.group"
+                   :position="props.position"
                    width="326px"
                    close-on-click
     >
         <template #body="{item, close}">
-            <div class="p-notice-alert" :class="item.type"
+            <div class="p-notice-alert"
+                 :class="item.type"
                  @click="close"
             >
-                <p-i v-if="item.type === 'success'" name="ic_state_active"
+                <p-i v-if="item.type === 'success'"
+                     name="ic_state_active"
                      class="item-type-icon"
                      width="1.5rem"
                      height="1.5rem"
                 />
-                <p-i v-if="item.type === 'warning'" name="ic_list_duplication"
+                <p-i v-if="item.type === 'warning'"
+                     name="ic_list_duplication"
                      class="item-type-icon"
                      width="1.5rem"
                      height="1.5rem"
                 />
-                <p-i v-if="item.type === 'alert'" name="ic_alert"
+                <p-i v-if="item.type === 'alert'"
+                     name="ic_alert"
                      class="item-type-icon"
                      width="1.5rem"
                      height="1.5rem"
@@ -31,7 +35,8 @@
         </template>
     </notifications>
 </template>
-<script lang="ts">
+
+<script setup lang="ts">
 import PI from '@/foundation/icons/PI.vue';
 
 /**
@@ -39,22 +44,14 @@ import PI from '@/foundation/icons/PI.vue';
  * https://www.npmjs.com/package/vue-notification
  */
 
-export default {
-    name: 'PNoticeAlert',
-    components: {
-        PI,
-    },
-    props: {
-        group: {
-            type: String,
-            default: '',
-        },
-        position: {
-            type: String,
-            default: 'bottom right',
-        },
-    },
-};
+interface NoticeAlertProps {
+    group: string;
+    position: string;
+}
+const props = withDefaults(defineProps<NoticeAlertProps>(), {
+    group: '',
+    position: 'bottom right',
+});
 </script>
 
 <style lang="postcss">
