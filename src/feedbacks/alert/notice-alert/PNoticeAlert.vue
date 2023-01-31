@@ -39,8 +39,8 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
 
-import type { NoticeGroup, NoticePosition } from '@/feedbacks/alert/notice/config';
-import { NOTICE_GROUP, NOTICE_GROUP_POSITION_MAP } from '@/feedbacks/alert/notice/config';
+import type { NoticeGroup, NoticePosition } from '@/feedbacks/alert/notice-alert/config';
+import { NOTICE_GROUP, NOTICE_GROUP_POSITION_MAP } from '@/feedbacks/alert/notice-alert/config';
 import PI from '@/foundation/icons/PI.vue';
 
 /**

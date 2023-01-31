@@ -1,6 +1,6 @@
 import type { ArgTypes } from '@storybook/addons';
 
-import { NOTICE_GROUP } from '@/feedbacks/alert/notice/config';
+import { NOTICE_GROUP } from '@/feedbacks/alert/notice-alert/config';
 
 export const getNoticeAlertArgTypes = (): ArgTypes => ({
     group: {
