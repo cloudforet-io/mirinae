@@ -63,14 +63,12 @@ export const Template = (args, { argTypes }) => ({
     <div>
         <p-notice-alert group="noticeBottomRight" position="bottom right" />
     </div>
-    <p-button style-type="negative-primary" @click="displayNotice('alert')">Alert Notice</p-button>
-    <br><br>
-    <p-button style-type="positive" @click="displayNotice('success')">Success Notice</p-button>
-    <br><br>
-    <p-button :style="{'background-color': '#FFCE02'}" @click="displayNotice('warning')">Warning Notice</p-button>
-    <br><br>
-    <p-button style-type="tertiary" @click="displayNotice('info')">Info Notice</p-button>
+    <p-button style-type="negative-primary" class="mr-2" @click="displayNotice('alert')">Alert Notice</p-button>
+    <p-button style-type="positive" class="mr-2" @click="displayNotice('success')">Success Notice</p-button>
+    <p-button :style="{'background-color': '#FFCE02'}" class="mr-2" @click="displayNotice('warning')">Warning Notice</p-button>
+    <p-button style-type="tertiary" class="mr-2" @click="displayNotice('info')">Info Notice</p-button>
 </div>
+<!--<div>-->
 `,
             setup() {
                 const displayNotice = (alertType) => {
