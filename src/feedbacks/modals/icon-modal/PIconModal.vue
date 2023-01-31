@@ -14,11 +14,7 @@
                      :class="props.size"
                 >
                     <div class="content-wrapper">
-                        <p-lottie v-if="props.lottieName"
-                                  :name="props.lottieName"
-                                  :size="5"
-                        />
-                        <p-i v-else-if="props.iconName"
+                        <p-i v-if="props.iconName"
                              class="block"
                              :name="props.iconName"
                              :color="primaryDark"
@@ -71,12 +67,10 @@ import { makeProxy } from '@/utils/composition-helpers';
 import { primaryDark } from '@/styles/colors.cjs';
 
 const PI = () => import('@/foundation/icons/PI.vue');
-const PLottie = () => import('@/foundation/lottie/PLottie.vue');
 
 interface IconModalProps {
     size?: string;
     visible?: boolean;
-    lottieName?: string;
     iconName?: string;
     emoji?: string;
     headerTitle?: string;
@@ -121,10 +115,6 @@ const handleClickButton = () => {
                 padding: 2.875rem 2rem 3.5rem;
                 width: 100%;
                 min-height: 10.5rem;
-
-                > .p-lottie {
-                    display: inline-flex;
-                }
 
                 > .p-i-icon {
                     margin: auto;

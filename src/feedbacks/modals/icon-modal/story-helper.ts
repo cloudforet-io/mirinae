@@ -41,24 +41,6 @@ export const getIconModalArgTypes = (): ArgTypes => ({
             type: 'boolean',
         },
     },
-    lottieName: {
-        name: 'lottieName',
-        type: { name: 'string' },
-        description: 'Lottie name.',
-        defaultValue: '',
-        table: {
-            type: {
-                summary: 'string',
-            },
-            category: 'props',
-            defaultValue: {
-                summary: '',
-            },
-        },
-        control: {
-            type: 'text',
-        },
-    },
     iconName: {
         name: 'iconName',
         type: { name: 'string' },
