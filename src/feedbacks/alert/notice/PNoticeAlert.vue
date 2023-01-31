@@ -1,6 +1,6 @@
 <template>
     <notifications :group="props.group"
-                   :position="props.position"
+                   :position="state.position"
                    width="326px"
                    close-on-click
     >
@@ -37,6 +37,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed, reactive } from 'vue';
+
+import type { NoticeGroup, NoticePosition } from '@/feedbacks/alert/notice/config';
+import { NOTICE_GROUP, NOTICE_GROUP_POSITION_MAP } from '@/feedbacks/alert/notice/config';
 import PI from '@/foundation/icons/PI.vue';
 
 /**
@@ -45,12 +49,13 @@ import PI from '@/foundation/icons/PI.vue';
  */
 
 interface NoticeAlertProps {
-    group: string;
-    position: string;
+    group: NoticeGroup;
 }
 const props = withDefaults(defineProps<NoticeAlertProps>(), {
-    group: '',
-    position: 'bottom right',
+    group: NOTICE_GROUP.noticeBottomRight,
+});
+const state = reactive({
+    position: computed<NoticePosition>(() => NOTICE_GROUP_POSITION_MAP[props.group]),
 });
 </script>
 

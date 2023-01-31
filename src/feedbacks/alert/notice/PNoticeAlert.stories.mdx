@@ -5,7 +5,6 @@ import PButton from '@/inputs/buttons/button/PButton.vue';
 
 import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
 import { getNoticeAlertArgTypes } from '@/feedbacks/alert/notice/story-helper';
-import { yellow } from '@/styles/colors.cjs';
 
 
 <Meta title='Feedbacks/Alert/Notice Alert' parameters={{
@@ -62,9 +61,6 @@ export const Template = (args, { argTypes }) => ({
             template: `
 <div>
     <div>
-        <p-notice-alert group="noticeTopLeft" position="top left" />
-        <p-notice-alert group="noticeTopRight" position="top right" />
-        <p-notice-alert group="noticeBottomLeft" position="bottom left" />
         <p-notice-alert group="noticeBottomRight" position="bottom right" />
     </div>
     <p-button style-type="negative-primary" @click="displayNotice('alert')">Alert Notice</p-button>
@@ -79,7 +75,7 @@ export const Template = (args, { argTypes }) => ({
             setup() {
                 const displayNotice = (alertType) => {
                     Vue.notify({
-                        group: 'noticeBottomLeft',
+                        group: 'noticeBottomRight',
                         type: alertType,
                         title: 'This is Title',
                         text: 'This is Contents.',
