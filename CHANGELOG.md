@@ -1,3 +1,10 @@
+# [2.0.0-console-release-1.11.0.2](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-console-release-1.11.0.1...v2.0.0-console-release-1.11.0.2) (2023-02-07)
+
+
+### Bug Fixes
+
+* **ci:** update realease.config.js and changelog ([11890f1](https://github.com/cloudforet-io/mirinae/commit/11890f1de588b94ebdfc7fe090ef2673edab33bb))
+
 # [2.0.0-console-release-1.11.0.1](https://github.com/cloudforet-io/mirinae/compare/v1.0.1...v2.0.0-console-release-1.11.0.1) (2023-02-07)
 
 
