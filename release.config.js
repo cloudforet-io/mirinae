@@ -5,18 +5,12 @@ const config = {
     ],
     plugins: [
         '@semantic-release/commit-analyzer',
+        '@semantic-release/release-notes-generator',
+        '@semantic-release/changelog',
         '@semantic-release/npm',
         '@semantic-release/git',
         '@semantic-release/github',
     ],
 };
-
-
-if (config.branches.some((it) => !it.prerelease)) {
-    config.plugins.push(
-        '@semantic-release/release-notes-generator',
-        '@semantic-release/changelog',
-    );
-}
 
 module.exports = config;
