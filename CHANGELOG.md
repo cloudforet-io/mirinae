@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.2](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.1...v2.0.0-beta.33.2) (2023-02-08)
+
+
+### Bug Fixes
+
+* **icon:** update icon ([#286](https://github.com/cloudforet-io/mirinae/issues/286)) ([87d5c93](https://github.com/cloudforet-io/mirinae/commit/87d5c933e5d0e7c50db5033d6561cb6208a4dc3b))
+
 # [2.0.0-beta.33.1](https://github.com/cloudforet-io/mirinae/compare/v1.0.1...v2.0.0-beta.33.1) (2023-02-08)
 
 
