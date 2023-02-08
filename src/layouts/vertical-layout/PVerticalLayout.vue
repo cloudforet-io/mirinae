@@ -1,5 +1,5 @@
 <template>
-    <div class="vertical-container"
+    <div class="vertical-layout"
          :style="{height: height}"
     >
         <div class="sidebar-container"
@@ -180,72 +180,73 @@ export default {
 };
 </script>
 
-<style lang="postcss" scoped>
-.vertical-container {
+<style lang="postcss">
+.vertical-layout {
     display: flex;
     width: 100%;
     flex-direction: row;
     padding: 0;
     margin: unset;
-}
-.sidebar-container {
-    @apply bg-white;
-    box-shadow: 1px 0 0.25rem rgba(0, 0, 0, 0.12);
-    &.transition {
-        transition: width 0.2s;
-    }
-}
-.main {
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
 
-    /* flex-grow: 1; */
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-.resizer-container {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    position: sticky;
-    top: 0;
-    height: 100%;
-    width: 0;
-    &.transition {
-        transition: left 0.2s;
-    }
-    &.line {
-        @apply border-l border-transparent;
-        background-color: transparent;
-        &:hover {
-            @apply border-l border-secondary;
-            cursor: ew-resize;
+    .sidebar-container {
+        @apply bg-white;
+        box-shadow: 1px 0 0.25rem rgba(0, 0, 0, 0.12);
+        &.transition {
+            transition: width 0.2s;
         }
     }
-    .resizer {
-        @apply text-gray-400;
-        display: inline-block;
-        position: absolute;
-        font-size: 1.5rem;
-        font-weight: 600;
-        text-align: center;
-        z-index: 1;
-        cursor: col-resize;
-        > span {
-            margin-right: 0.65rem;
-            cursor: pointer;
-        }
-        &.hide {
-            @apply text-primary-2;
-        }
+    .main {
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+
+        /* flex-grow: 1; */
+        overflow-x: hidden;
+        overflow-y: auto;
     }
-    .resizer-button {
-        margin-top: 1rem;
-        margin-left: 0.55rem;
+    .resizer-container {
+        display: flex;
+        align-items: flex-start;
         justify-content: center;
-        &:hover {
-            @apply text-secondary;
+        position: sticky;
+        top: 0;
+        height: 100%;
+        width: 0;
+        &.transition {
+            transition: left 0.2s;
+        }
+        &.line {
+            @apply border-l border-transparent;
+            background-color: transparent;
+            &:hover {
+                @apply border-l border-secondary;
+                cursor: ew-resize;
+            }
+        }
+        .resizer {
+            @apply text-gray-400;
+            display: inline-block;
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            z-index: 1;
+            cursor: col-resize;
+            > span {
+                margin-right: 0.65rem;
+                cursor: pointer;
+            }
+            &.hide {
+                @apply text-primary-2;
+            }
+        }
+        .resizer-button {
+            margin-top: 1rem;
+            margin-left: 0.55rem;
+            justify-content: center;
+            &:hover {
+                @apply text-secondary;
+            }
         }
     }
 }
