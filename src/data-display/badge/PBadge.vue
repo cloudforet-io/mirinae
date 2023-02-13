@@ -13,9 +13,13 @@ import {
 } from 'vue';
 import type { PropType } from 'vue';
 
+import { get } from 'lodash';
+
 import type { BadgeProps, BadgeStyleType, BadgeType } from '@/data-display/badge/type';
 import { BADGE_SHAPE, BADGE_TYPE } from '@/data-display/badge/type';
 import { getColor } from '@/utils/helpers';
+
+import colors from '@/styles/colors.cjs';
 
 export default defineComponent<BadgeProps>({
     name: 'PBadge',
@@ -58,16 +62,24 @@ export default defineComponent<BadgeProps>({
                     return inlineStyle;
                 }
                 // static case
+                const styleTypeNum = props.styleType.match(/\d{3}/)?.[0];
+                let badgeColor = getColor(props.styleType);
+                if (styleTypeNum) {
+                    // coral600 -> coral[600]
+                    const colStr = props.styleType.match(/[a-z]+/)?.[0];
+                    const color = get(colors, `${colStr}[${styleTypeNum}]`);
+                    if (color) badgeColor = color;
+                }
                 if (props.badgeType === BADGE_TYPE.SOLID) {
                     return {
-                        backgroundColor: getColor(props.styleType),
+                        backgroundColor: badgeColor,
                         color: getColor('white'),
                     };
                 } if (props.badgeType === BADGE_TYPE.SOLID_OUTLINE) {
                     return {
                         backgroundColor: getColor('white'),
-                        color: getColor(props.styleType),
-                        borderColor: getColor(props.styleType),
+                        color: badgeColor,
+                        borderColor: badgeColor,
                         borderWidth: '1px',
                     };
                 }
