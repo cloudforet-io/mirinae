@@ -41,8 +41,15 @@ export const isNotEmpty = (value): boolean => {
 export const getColor = (col?: string|null) => {
     if (!col) return col;
     if (col.startsWith('#')) return col;
-    const color = get(colors, col);
+    let color = get(colors, col);
     if (color) return color;
+    // coral600 -> coral[600]
+    const colNum = col.match(/\d{3}/)?.[0];
+    if (colNum) {
+        const colStr = col.match(/[a-z]+/)?.[0];
+        color = get(colors, `${colStr}[${colNum}]`);
+        if (color) return color;
+    }
     return col;
 };
 
