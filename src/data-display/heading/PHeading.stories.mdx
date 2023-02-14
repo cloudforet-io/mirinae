@@ -18,7 +18,7 @@ export const Template = (args,{argTypes})=>({
             <p-heading
                 :title="title"
                 :heading-type="headingType"
-                :child="child"
+                :show-back-button="showBackButton"
                 :use-total-count="useTotalCount"
                 :total-count="totalCount"
                 :use-selected-count="useSelectedCount"
@@ -57,16 +57,16 @@ export const Template = (args,{argTypes})=>({
 <br/>
 <br/>
 
-## Child Mode
+## Back Button Mode
 <Canvas>
-    <Story name="Child Mode">
+    <Story name="Back Button Mode">
         {{
             components:{ PHeading },
             template: `
 <div class="w-full">
-    <p-heading child>Page Title</p-heading>
+    <p-heading show-back-button>Page Title</p-heading>
     <p class="my-4">When the title is ''</p>
-    <p-heading child title=""></p-heading>
+    <p-heading show-back-button title=""></p-heading>
 </div>`,
         }}
     </Story>
@@ -135,7 +135,7 @@ export const Template = (args,{argTypes})=>({
             components:{ PHeading },
             template: `
 <div class="w-full">
-    <p-heading use-total-count child>
+    <p-heading use-total-count show-back-button>
         <template #title-left-extra><span class="border border-primary">title-left-extra slot</span></template>
         <span class="border border-red">default slot with long long long long long long long long long long long long long long long long title</span>
         <template #title-right-extra><span class="border border-secondary">title-right-extra slot</span></template>

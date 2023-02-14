@@ -3,7 +3,7 @@
          :class="`heading-${headingType}`"
     >
         <div class="heading-wrapper">
-            <span v-if="child"
+            <span v-if="showBackButton"
                   class="back-button"
             >
                 <p-icon-button name="ic_back"
@@ -50,7 +50,7 @@ import { commaFormatter } from '@/utils/helpers';
 interface Props {
     title?: string;
     headingType?: string;
-    child?: boolean;
+    showBackButton?: boolean;
     useTotalCount?: boolean;
     useSelectedCount?: boolean;
     totalCount?: number;
@@ -69,7 +69,7 @@ export default defineComponent<Props>({
             type: String as PropType<HeadingType>,
             default: HEADING_TYPE.MAIN,
         },
-        child: {
+        showBackButton: {
             type: Boolean,
             default: false,
         },

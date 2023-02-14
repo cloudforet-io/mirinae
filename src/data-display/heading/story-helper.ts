@@ -40,8 +40,8 @@ export const getHeadingArgTypes = (): ArgTypes => ({
             options: Object.values(HEADING_TYPE),
         },
     },
-    child: {
-        name: 'child',
+    showBackButton: {
+        name: 'showBackButton',
         type: { name: 'boolean' },
         description: 'Whether to display back button or not.',
         defaultValue: false,
