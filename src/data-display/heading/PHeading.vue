@@ -7,7 +7,7 @@
                   class="back-button"
             >
                 <p-icon-button name="ic_back"
-                               @click="$emit('goBack',$event)"
+                               @click="$emit('click-back-button',$event)"
                 />
             </span>
             <slot name="title-left-extra" />
