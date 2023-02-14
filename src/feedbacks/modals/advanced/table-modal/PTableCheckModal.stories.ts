@@ -3,13 +3,13 @@ import { ref } from 'vue';
 import { action } from '@storybook/addon-actions';
 import { select, text, boolean } from '@storybook/addon-knobs';
 
+import PTableCheckModel from '@/feedbacks/modals/advanced/table-modal/PTableCheckModal.vue';
 import { SizeMapping } from '@/feedbacks/modals/type';
 import PButton from '@/inputs/buttons/button/PButton.vue';
-import PTableCheckModel from '@/others/console/modals/table-modal/PTableCheckModal.vue';
 
 
 export default {
-    title: 'Others/Console/Table Check Modal',
+    title: 'Feedbacks/Modals/Advanced/Table Check Modal',
     component: PTableCheckModel,
 };
 
