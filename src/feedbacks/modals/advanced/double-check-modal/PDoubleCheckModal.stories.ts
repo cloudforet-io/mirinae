@@ -3,11 +3,11 @@ import { ref } from 'vue';
 import { action } from '@storybook/addon-actions';
 import { text } from '@storybook/addon-knobs';
 
+import PDoubleCheckModal from '@/feedbacks/modals/advanced/double-check-modal/PDoubleCheckModal.vue';
 import PButton from '@/inputs/buttons/button/PButton.vue';
-import PDoubleCheckModal from '@/others/console/modals/double-check-modal/PDoubleCheckModal.vue';
 
 export default {
-    title: 'Others/Console/Double Check Modal',
+    title: 'Feedbacks/Modals/Advanced/Double Check Modal',
     component: PDoubleCheckModal,
 };
 
