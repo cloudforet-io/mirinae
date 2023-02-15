@@ -82,7 +82,6 @@ export default {
         const handleConfirm = () => {
             if (state.invalid) return;
             state.inputText = undefined;
-            state.proxyVisible = false;
             emit('confirm');
         };
 
