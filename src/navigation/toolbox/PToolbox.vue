@@ -107,7 +107,6 @@ import PSearch from '@/inputs/search/search/PSearch.vue';
 import PTextPagination from '@/navigation/pagination/text-pagination/PTextPagination.vue';
 import { SEARCH_TYPES } from '@/navigation/toolbox/config';
 import type { ToolboxOptions, ToolboxProps } from '@/navigation/toolbox/type';
-import { makeOptionalProxy } from '@/utils/composition-helpers';
 
 
 export default defineComponent<ToolboxProps>({
@@ -165,7 +164,7 @@ export default defineComponent<ToolboxProps>({
             validator(value?: number) {
                 return value === undefined || value > 0;
             },
-            default: undefined,
+            default: 1,
         },
         pageSize: {
             type: Number,
@@ -213,10 +212,10 @@ export default defineComponent<ToolboxProps>({
         const initPageSize = props.pageSizeOptions ? props.pageSizeOptions[0] || 24 : 24;
 
         const proxyState = reactive({
-            thisPage: makeOptionalProxy<number>('thisPage', vm, 1),
-            pageSize: makeOptionalProxy<number>('pageSize', vm, initPageSize),
+            thisPage: useProxyValue<number>('thisPage', vm, 1),
+            pageSize: useProxyValue<number>('pageSize', vm, initPageSize),
             sortBy: useProxyValue('sortBy', props, emit),
-            searchText: makeOptionalProxy<string>('searchText', vm, ''),
+            searchText: useProxyValue<string>('searchText', vm, ''),
             queryTags: useProxyValue('queryTags', props, emit),
         });
         const sortByOptionsData = (props.sortable ? groupBy(props.sortByOptions, 'name') : undefined);
