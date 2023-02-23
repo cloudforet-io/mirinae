@@ -74,7 +74,7 @@ export default defineComponent<RawTableDynamicLayoutProps>({
             fields: computed(() => {
                 if (state.rootData[0]) {
                     const firstItem = state.rootData[0];
-                    if (props.options?.headers) {
+                    if (Array.isArray(props.options?.headers) && props.options?.headers?.length) {
                         return props.options.headers.map((header) => ({
                             key: header,
                             name: header,
