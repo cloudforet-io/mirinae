@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.4](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.3...v2.0.0-beta.33.4) (2023-02-23)
+
+
+### Features
+
+* **raw-table:** add sorting to table header items ([#310](https://github.com/cloudforet-io/mirinae/issues/310)) ([19d9052](https://github.com/cloudforet-io/mirinae/commit/19d9052d2fa6a9bd2ea8c1d4f532497944d1f742))
+
 # [2.0.0-beta.33.3](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.2...v2.0.0-beta.33.3) (2023-02-09)
 
 
