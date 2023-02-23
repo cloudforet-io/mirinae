@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.5](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.4...v2.0.0-beta.33.5) (2023-02-23)
+
+
+### Bug Fixes
+
+* **context-menu:** do not clear disabled item on clear selection ([#312](https://github.com/cloudforet-io/mirinae/issues/312)) ([672b8df](https://github.com/cloudforet-io/mirinae/commit/672b8dfbd8062f539ffb140a91023eb6985e546c))
+
 # [2.0.0-beta.33.4](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.3...v2.0.0-beta.33.4) (2023-02-23)
 
 
