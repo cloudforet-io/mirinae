@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.6](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.5...v2.0.0-beta.33.6) (2023-02-23)
+
+
+### Features
+
+* **raw-table:** add headers option to raw-table ([#314](https://github.com/cloudforet-io/mirinae/issues/314)) ([b13dc54](https://github.com/cloudforet-io/mirinae/commit/b13dc54c1fc189a127a4e634844a7181a6076005))
+
 # [2.0.0-beta.33.5](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.4...v2.0.0-beta.33.5) (2023-02-23)
 
 
