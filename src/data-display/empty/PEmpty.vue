@@ -20,6 +20,7 @@
             <p-button v-if="props.showButton"
                       class="button-wrapper"
                       :style-type="props.buttonStyleType"
+                      @click.stop="handleClickButton"
             >
                 {{ props.buttonTitle }}
             </p-button>
@@ -48,8 +49,12 @@ const props = withDefaults(defineProps<EmptyProps>(), {
     imageSize: EmptyImageSize.sm,
     title: '',
     buttonStyleType: BUTTON_STYLE.substitutive,
-    buttonTitle: '',
+    buttonTitle: 'Button',
 });
+const emit = defineEmits<{(e: 'clickButton'): void;}>();
+const handleClickButton = () => {
+    emit('clickButton');
+};
 </script>
 
 <style lang="postcss">
@@ -80,7 +85,8 @@ const props = withDefaults(defineProps<EmptyProps>(), {
             &.title {
                 font-weight: 700;
 
-                @apply text-violet-300; }
+                @apply text-violet-300;
+            }
         }
     }
     .button-wrapper {

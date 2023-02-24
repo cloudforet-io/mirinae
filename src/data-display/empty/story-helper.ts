@@ -152,4 +152,19 @@ export const getEmptyArgTypes = (): ArgTypes => ({
             category: 'slots',
         },
     },
+
+    // event
+    clickButton: {
+        name: 'clickButton',
+        description: 'Event emitted when the button is clicked',
+        table: {
+            type: {
+                summary: null,
+            },
+            defaultValue: {
+                summary: null,
+            },
+            category: 'events',
+        },
+    },
 });
