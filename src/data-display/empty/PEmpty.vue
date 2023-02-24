@@ -51,9 +51,9 @@ const props = withDefaults(defineProps<EmptyProps>(), {
     buttonStyleType: BUTTON_STYLE.substitutive,
     buttonTitle: 'Button',
 });
-const emit = defineEmits<{(e: 'clickButton'): void;}>();
+const emit = defineEmits<{(e: 'click-button'): void;}>();
 const handleClickButton = () => {
-    emit('clickButton');
+    emit('click-button');
 };
 </script>
 
@@ -81,12 +81,10 @@ const handleClickButton = () => {
     .contents-wrapper {
         text-align: center;
 
-        p {
-            &.title {
-                font-weight: 700;
+        .title {
+            font-weight: 700;
 
-                @apply text-violet-300;
-            }
+            @apply text-violet-300;
         }
     }
     .button-wrapper {

@@ -115,7 +115,7 @@ export const getEmptyArgTypes = (): ArgTypes => ({
         },
     },
     /* slot */
-    default: {
+    defaultSlot: {
         name: 'default',
         type: { name: 'string' },
         description: 'Slot for contents of empty',
@@ -155,7 +155,7 @@ export const getEmptyArgTypes = (): ArgTypes => ({
 
     // event
     clickButton: {
-        name: 'clickButton',
+        name: 'click-button',
         description: 'Event emitted when the button is clicked',
         table: {
             type: {
