@@ -63,7 +63,6 @@ const handleClickButton = () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 0.87rem;
 
     @apply text-gray-300;
 
@@ -81,10 +80,10 @@ const handleClickButton = () => {
     .contents-wrapper {
         text-align: center;
 
-        .title {
-            font-weight: 700;
+        @apply text-label-md;
 
-            @apply text-violet-300;
+        .title {
+            @apply font-bold text-violet-300;
         }
     }
     .button-wrapper {
