@@ -19,8 +19,15 @@ export const Template = (args, {argTypes}) => ({
     components: { PEmpty },
     template: `
         <div class="h-full w-full overflow p-8">
-            <p-empty>
-                <div v-if="defaultSlot" v-html="defaultSlot"/>
+            <p-empty
+                :show-image="showImage"
+                :image-size="imageSize"
+                :title="title"
+                :show-button="showButton"
+                :button-style-type="buttonStyleType"
+                :button-title="buttonTitle"
+            >
+                {{$props.default}}
             </p-empty>
         </div>
     `,
