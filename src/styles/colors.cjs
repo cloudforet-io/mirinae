@@ -29,7 +29,7 @@ const palette = {
         900: '#660A0A',
     },
     coral: {
-        100: '#FFEBE6',
+        100: '#FFF0ED',
         200: '#FFD4C8',
         300: '#FFB5A0',
         400: '#FF9476',
