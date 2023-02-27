@@ -12,8 +12,12 @@
                             :field-handler="fieldHandler"
                             v-on="$listeners"
     >
-        <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
-            <slot :name="slot" v-bind="scope" />
+        <template v-for="(_, slot) of $scopedSlots"
+                  #[slot]="scope"
+        >
+            <slot :name="slot"
+                  v-bind="scope"
+            />
         </template>
     </p-dynamic-layout-table>
 </template>
@@ -24,7 +28,7 @@ import {
     computed, defineComponent, reactive, toRefs,
 } from 'vue';
 
-import { map } from 'lodash';
+import { map, sortBy } from 'lodash';
 
 import type { DynamicFieldHandler } from '@/data-display/dynamic/dynamic-field/type';
 import type { RawTableDynamicLayoutProps } from '@/data-display/dynamic/dynamic-layout/templates/raw-table/type';
@@ -70,7 +74,13 @@ export default defineComponent<RawTableDynamicLayoutProps>({
             fields: computed(() => {
                 if (state.rootData[0]) {
                     const firstItem = state.rootData[0];
-                    return map(firstItem, (d, k) => ({ key: k, name: k }));
+                    if (Array.isArray(props.options?.headers) && props.options?.headers?.length) {
+                        return props.options.headers.map((header) => ({
+                            key: header,
+                            name: header,
+                        }));
+                    }
+                    return sortBy(map(firstItem, (value, key) => ({ key, name: key })), (item) => item.key);
                 }
                 return [];
             }),
