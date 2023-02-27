@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.7](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.6...v2.0.0-beta.33.7) (2023-02-27)
+
+
+### Bug Fixes
+
+* **color-palette:** fix color palette ([#316](https://github.com/cloudforet-io/mirinae/issues/316)) ([5503f53](https://github.com/cloudforet-io/mirinae/commit/5503f531bba09def118c68e4cfd78aab683b599f))
+
 # [2.0.0-beta.33.6](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.5...v2.0.0-beta.33.6) (2023-02-23)
 
 
