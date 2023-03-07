@@ -7,7 +7,7 @@
                class="slider"
                :class="[props.styleType]"
                :disabled="props.disabled"
-               :checked="props.value"
+               :checked="state.proxyValue"
                @change="handleChangeToggle"
         >
         <span v-if="!!props.label"
@@ -19,6 +19,9 @@
 </template>
 
 <script setup lang="ts">
+import { reactive } from 'vue';
+
+import { useProxyValue } from '@/hooks';
 import { TOGGLE_BUTTON_THEME } from '@/inputs/buttons/toggle-button/config';
 
 interface ToggleButtonProps {
@@ -33,9 +36,13 @@ const props = withDefaults(defineProps<ToggleButtonProps>(), {
     styleType: TOGGLE_BUTTON_THEME.secondary,
     disabled: false,
 });
-const emit = defineEmits<{(e: 'change-toggle', value: boolean): void;}>();
+const emit = defineEmits<{(e: 'change-toggle'): void;}>();
+const state = reactive({
+    proxyValue: useProxyValue('value', props, emit),
+});
 const handleChangeToggle = () => {
-    emit('change-toggle', !props.value);
+    state.proxyValue = !state.proxyValue;
+    emit('change-toggle');
 };
 </script>
 
