@@ -7,7 +7,7 @@ export const getToggleButtonArgTypes = (): ArgTypes => ({
     value: {
         name: 'value',
         type: { name: 'boolean' },
-        description: 'Initial state of the toggle button.',
+        description: 'Determine whether the toggle button is checked.',
         defaultValue: false,
         table: {
             type: {
