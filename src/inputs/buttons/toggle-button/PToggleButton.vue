@@ -10,7 +10,7 @@
                :checked="props.value"
                @change="handleChangeToggle"
         >
-        <span v-if="props.label !== '' && props.label !== undefined"
+        <span v-if="!!props.label"
               class="label"
         >
             {{ props.label }}
@@ -33,9 +33,9 @@ const props = withDefaults(defineProps<ToggleButtonProps>(), {
     styleType: TOGGLE_BUTTON_THEME.secondary,
     disabled: false,
 });
-const emit = defineEmits<{(e: 'change'): void;}>();
+const emit = defineEmits<{(e: 'change-toggle', value: boolean): void;}>();
 const handleChangeToggle = () => {
-    emit('change');
+    emit('change-toggle', !props.value);
 };
 </script>
 

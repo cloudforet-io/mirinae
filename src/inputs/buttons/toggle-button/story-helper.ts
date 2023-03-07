@@ -79,7 +79,7 @@ export const getToggleButtonArgTypes = (): ArgTypes => ({
     },
     // event
     change: {
-        name: 'change',
+        name: 'change-toggle',
         description: 'Event emitted when the toggle is changed',
         table: {
             type: {
