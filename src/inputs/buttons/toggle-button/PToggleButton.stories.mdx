@@ -18,7 +18,7 @@ export const Template = (args, { argTypes }) => ({
     props: Object.keys(argTypes),
     components: { PToggleButton },
     template: `
-        <div class="flex align-middle justify-center">
+        <div class="flex items-center justify-center">
             <p-toggle-button
                 :value="value"
                 :label="label"
@@ -44,7 +44,7 @@ export const Template = (args, { argTypes }) => ({
     {{
         components: { PToggleButton },
         template: `
-            <div class="flex align-middle justify-center">
+            <div class="flex items-center justify-center">
                 <p-toggle-button
                     :value="true"
                     class="mr-8"
@@ -65,7 +65,7 @@ export const Template = (args, { argTypes }) => ({
         {{
             components: { PToggleButton },
             template: `
-                <div class="flex align-middle justify-center">
+                <div class="flex items-center justify-center">
                     <p-toggle-button
                         :value="true"
                         label="label"
@@ -83,8 +83,8 @@ export const Template = (args, { argTypes }) => ({
         {{
             components: { PToggleButton },
             template: `
-                <div class="flex flex-col gap-6">
-                    <div class="flex align-middle justify-center">
+                <div class="flex flex-col items-center gap-6">
+                    <div class="flex">
                         <p-toggle-button
                             class="mr-8"
                             :value="false"
@@ -96,7 +96,7 @@ export const Template = (args, { argTypes }) => ({
                             :disabled="true"
                         />
                     </div>
-                    <div class="flex align-middle justify-center">
+                    <div class="flex">
                         <p-toggle-button
                             class="mr-8"
                             :value="true"
@@ -108,7 +108,7 @@ export const Template = (args, { argTypes }) => ({
                             :disabled="true"
                         />
                     </div>
-                    <div class="flex align-middle justify-center">
+                    <div class="flex">
                         <p-toggle-button
                             class="mr-8"
                             style-type="peacock500"

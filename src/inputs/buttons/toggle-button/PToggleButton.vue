@@ -41,7 +41,7 @@ const handleChangeToggle = () => {
 
 <style lang="postcss">
 .p-toggle-button {
-    @apply inline-block flex align-middle cursor-pointer;
+    @apply inline-block flex items-center cursor-pointer;
     .slider {
         @apply relative bg-gray-300 cursor-pointer appearance-none;
         width: 2rem;
