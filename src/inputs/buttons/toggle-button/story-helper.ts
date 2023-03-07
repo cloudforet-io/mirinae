@@ -78,9 +78,22 @@ export const getToggleButtonArgTypes = (): ArgTypes => ({
         },
     },
     // event
-    change: {
+    onChange: {
         name: 'change-toggle',
         description: 'Event emitted when the toggle is changed',
+        table: {
+            type: {
+                summary: null,
+            },
+            defaultValue: {
+                summary: null,
+            },
+            category: 'events',
+        },
+    },
+    onUpdateValue: {
+        name: 'update:value',
+        description: 'Works with `v-model` and `value` props sync.',
         table: {
             type: {
                 summary: null,

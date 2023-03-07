@@ -36,13 +36,13 @@ const props = withDefaults(defineProps<ToggleButtonProps>(), {
     styleType: TOGGLE_BUTTON_THEME.secondary,
     disabled: false,
 });
-const emit = defineEmits<{(e: 'change-toggle'): void;}>();
+const emit = defineEmits<{(e: 'change-toggle', value: boolean): void;}>();
 const state = reactive({
     proxyValue: useProxyValue('value', props, emit),
 });
 const handleChangeToggle = () => {
     state.proxyValue = !state.proxyValue;
-    emit('change-toggle');
+    emit('change-toggle', !props.value);
 };
 </script>
 
