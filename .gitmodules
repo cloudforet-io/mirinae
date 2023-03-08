@@ -1,0 +1,3 @@
+[submodule "src/translations/language-pack"]
+	path = src/translations/language-pack
+	url = https://github.com/cloudforet-io/design-system-translation.git
