@@ -2,6 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { kebabCase, forEach } = require('lodash');
 
+
 const palette = {
     black: '#000000',
     white: '#FFFFFF',
