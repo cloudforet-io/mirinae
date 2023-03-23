@@ -89,6 +89,7 @@ import PHeading from '@/data-display/heading/PHeading.vue';
 import PToolboxTable from '@/data-display/tables/toolbox-table/PToolboxTable.vue';
 import type { ToolboxTableOptions } from '@/data-display/tables/toolbox-table/type';
 
+
 export default defineComponent<TableDynamicLayoutProps>({
     name: 'PDynamicLayoutTable',
     components: {
@@ -140,10 +141,10 @@ export default defineComponent<TableDynamicLayoutProps>({
                     width: ds.options?.width,
                 }));
                 return fieldOptions.sort((a, b) => {
-                    if (a.name < b.name) return -1;
-                    if (a.name > b.name) return 1;
-                    if (a.name === b.name) return 0;
-                    return -1;
+                    if (typeof a.name === 'number' && typeof b.name === 'number') {
+                        return a.name - b.name;
+                    }
+                    return Number(a.name.match(/(\d+)/g)) - Number((b.name.match(/(\d+)/g)));
                 });
             }),
             searchable: computed(() => !props.options.disable_search),
