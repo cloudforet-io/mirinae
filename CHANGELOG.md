@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.8](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.7...v2.0.0-beta.33.8) (2023-03-24)
+
+
+### Bug Fixes
+
+* **dynamic field more type:** do not inherit css to children ([#340](https://github.com/cloudforet-io/mirinae/issues/340)) ([3fbdbbd](https://github.com/cloudforet-io/mirinae/commit/3fbdbbdd12908f4e72ce66d05fbaba390c2ab0da))
+
 # [2.0.0-beta.33.7](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.6...v2.0.0-beta.33.7) (2023-02-27)
 
 
