@@ -131,7 +131,8 @@ export default defineComponent<TableDynamicLayoutProps>({
             fields: computed(() => {
                 if (!props.options.fields) return [];
 
-                const fieldOptions = props.options.fields.map((ds) => ({
+                console.log({ fields: props.options.fields });
+                return props.options.fields.map((ds) => ({
                     name: ds.key,
                     label: ds.name,
                     sortable: typeof ds.options?.sortable === 'boolean' ? ds.options.sortable : true,
@@ -139,12 +140,6 @@ export default defineComponent<TableDynamicLayoutProps>({
                     sortKey: ds.options?.sort_key,
                     width: ds.options?.width,
                 }));
-                return fieldOptions.sort((a, b) => {
-                    if (typeof a.name === 'number' && typeof b.name === 'number') {
-                        return a.name - b.name;
-                    }
-                    return Number(a.name.match(/(\d+)/g)) - Number((b.name.match(/(\d+)/g)));
-                });
             }),
             searchable: computed(() => !props.options.disable_search),
 
