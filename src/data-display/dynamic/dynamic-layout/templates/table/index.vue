@@ -131,7 +131,7 @@ export default defineComponent<TableDynamicLayoutProps>({
             fields: computed(() => {
                 if (!props.options.fields) return [];
 
-                console.log({ fields: props.options.fields });
+                console.log(props.options.fields);
                 return props.options.fields.map((ds) => ({
                     name: ds.key,
                     label: ds.name,
