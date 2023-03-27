@@ -76,8 +76,9 @@ export default defineComponent<RawTableDynamicLayoutProps>({
                     if (Array.isArray(props.options?.headers) && props.options?.headers?.length) {
                         return getSortingData(props.options.headers).map((value) => ({ key: value, name: value }));
                     }
+                    return getSortingData(Object.keys(firstItem)).map((value) => ({ key: value, name: value }));
                 }
-                return getSortingData(Object.keys(firstItem)).map((value) => ({ key: value, name: value }));
+                return [];
             }),
             rootData: computed<any[]>(() => {
                 if (props.options.root_path) {
