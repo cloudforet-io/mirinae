@@ -1,3 +1,10 @@
+# [2.0.0-beta.33.9](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.8...v2.0.0-beta.33.9) (2023-03-28)
+
+
+### Features
+
+* **dynamic-layout:** apply sorting column at the raw-table ([#342](https://github.com/cloudforet-io/mirinae/issues/342)) ([f02d89d](https://github.com/cloudforet-io/mirinae/commit/f02d89d3226f1521bd101d92ec5aafffa1fdb63c))
+
 # [2.0.0-beta.33.8](https://github.com/cloudforet-io/mirinae/compare/v2.0.0-beta.33.7...v2.0.0-beta.33.8) (2023-03-24)
 
 
