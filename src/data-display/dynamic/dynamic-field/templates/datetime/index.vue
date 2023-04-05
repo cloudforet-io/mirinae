@@ -69,16 +69,16 @@ export default {
             }
         }
 
-        let datetimeEl = () => h('span', { ...attrs }, `${options.prefix ?? ''}${result}${options.postfix ?? ''}`);
+        let datetimeEl = h('span', { ...attrs }, `${options.prefix ?? ''}${result}${options.postfix ?? ''}`);
 
         if (options.link) {
-            datetimeEl = () => h(PAnchor, {
+            datetimeEl = h(PAnchor, {
                 ...attrs,
                 attrs: { href: props.options.link, target: '_blank' },
             }, [datetimeEl]);
         }
 
-        return datetimeEl;
+        return () => datetimeEl;
     },
 };
 </script>
