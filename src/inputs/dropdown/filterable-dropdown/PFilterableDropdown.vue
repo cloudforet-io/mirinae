@@ -22,6 +22,7 @@
                 >
                     {{ displayValueOnDropdownButton }}
                     <p-badge v-if="displayBadgeValueOnDropdownButton"
+                             badge-type="subtle"
                              :style-type="disabled ? 'gray200' : 'blue200'"
                     >
                         {{ displayBadgeValueOnDropdownButton }}
