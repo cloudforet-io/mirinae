@@ -178,7 +178,7 @@
     "semantic-release": "^19.0.3",
     "storybook-addon-designs": "^6.2.0",
     "style-loader": "^1.0.0",
-    "stylelint": "^13.2.1",
+    "stylelint": "^15.10.1",
     "stylelint-config-standard": "^20.0.0",
     "tailwindcss": "^1.9.6",
     "ts-loader": "^7.0.4",
